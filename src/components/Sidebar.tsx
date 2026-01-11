@@ -25,6 +25,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
     { name: 'Leases', path: '/leases', icon: '📄' },
     { name: 'Maintenance', path: '/maintenance', icon: '🔧' },
     { name: 'Vendors', path: '/vendors', icon: '👷' },
+    { name: 'Expenses', path: '/expenses', icon: '💸' },
     { name: 'Accounting', path: '/accounting', icon: '💰' },
     { name: 'Reports', path: '/reports', icon: '📈' },
     { name: 'Documents', path: '/documents', icon: '📁' },

@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/daily-charges",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/daily-expenses",
+      "schedule": "0 7 * * *"
     }
   ]
 }
