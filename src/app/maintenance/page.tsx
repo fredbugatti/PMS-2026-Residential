@@ -463,15 +463,15 @@ function MaintenanceContent() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Maintenance</h1>
-              <p className="text-sm text-gray-600 mt-1">Track work orders from request to payment</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Maintenance</h1>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">Track work orders from request to payment</p>
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+              className="px-4 py-2.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium w-full sm:w-auto"
             >
               + New Request
             </button>
@@ -479,9 +479,9 @@ function MaintenanceContent() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         {/* Workflow Columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Column 1: New */}
           <div className="space-y-3">
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
@@ -693,19 +693,32 @@ function MaintenanceContent() {
 
       {/* Create Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">New Maintenance Request</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
+          <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] flex flex-col">
+            <div className="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white rounded-t-xl">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">New Maintenance Request</h2>
+              <button
+                onClick={() => {
+                  setShowCreateModal(false);
+                  photoPreviewUrls.forEach(url => URL.revokeObjectURL(url));
+                  setSelectedPhotos([]);
+                  setPhotoPreviewUrls([]);
+                }}
+                className="sm:hidden p-2 -mr-2 text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
                 <input
                   type="text"
                   value={createForm.title}
                   onChange={(e) => setCreateForm({ ...createForm, title: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                   placeholder="e.g., Leaky faucet in bathroom"
                 />
               </div>
@@ -714,17 +727,17 @@ function MaintenanceContent() {
                 <textarea
                   value={createForm.description}
                   onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                   rows={3}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                   <select
                     value={createForm.category}
                     onChange={(e) => setCreateForm({ ...createForm, category: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                   >
                     <option value="GENERAL">General</option>
                     <option value="PLUMBING">Plumbing</option>
@@ -739,7 +752,7 @@ function MaintenanceContent() {
                   <select
                     value={createForm.priority}
                     onChange={(e) => setCreateForm({ ...createForm, priority: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                   >
                     <option value="LOW">Low</option>
                     <option value="MEDIUM">Medium</option>
@@ -753,7 +766,7 @@ function MaintenanceContent() {
                 <select
                   value={createForm.propertyId}
                   onChange={(e) => setCreateForm({ ...createForm, propertyId: e.target.value, unitId: '' })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                 >
                   <option value="">Select property...</option>
                   {properties.map(p => (
@@ -767,7 +780,7 @@ function MaintenanceContent() {
                   <select
                     value={createForm.unitId}
                     onChange={(e) => setCreateForm({ ...createForm, unitId: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                   >
                     <option value="">Select unit...</option>
                     {selectedProperty.units?.map(u => (
@@ -822,7 +835,7 @@ function MaintenanceContent() {
                 )}
               </div>
             </div>
-            <div className="p-6 border-t border-gray-200 flex gap-3">
+            <div className="p-4 sm:p-6 border-t border-gray-200 flex flex-col-reverse sm:flex-row gap-3 sticky bottom-0 bg-white">
               <button
                 onClick={() => {
                   setShowCreateModal(false);
@@ -830,7 +843,7 @@ function MaintenanceContent() {
                   setSelectedPhotos([]);
                   setPhotoPreviewUrls([]);
                 }}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 rounded-lg text-sm font-medium"
                 disabled={uploadingPhotos}
               >
                 Cancel
@@ -838,7 +851,7 @@ function MaintenanceContent() {
               <button
                 onClick={handleCreateWorkOrder}
                 disabled={uploadingPhotos}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50"
+                className="flex-1 px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 text-sm font-medium"
               >
                 {uploadingPhotos ? 'Creating...' : 'Create'}
               </button>
@@ -925,34 +938,34 @@ function MaintenanceContent() {
 
       {/* Detail/Edit Modal */}
       {showDetailModal && selectedWorkOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl max-w-3xl w-full max-h-[95vh] sm:max-h-[90vh] flex flex-col">
             {/* Header */}
-            <div className="sticky top-0 bg-white p-6 border-b border-gray-200 flex justify-between items-start z-10">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
+            <div className="sticky top-0 bg-white p-4 sm:p-6 border-b border-gray-200 flex justify-between items-start z-10 rounded-t-xl">
+              <div className="flex-1 min-w-0 pr-2">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityColor(selectedWorkOrder.priority)}`}>
                     {selectedWorkOrder.priority}
                   </span>
-                  <span className="text-xs text-gray-400">{selectedWorkOrder.invoiceNumber}</span>
+                  <span className="text-xs text-gray-400 truncate">{selectedWorkOrder.invoiceNumber}</span>
                 </div>
                 {isEditing ? (
                   <input
                     type="text"
                     value={editForm.title || ''}
                     onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                    className="text-xl font-bold text-gray-900 border border-gray-300 rounded px-2 py-1 w-full"
+                    className="text-lg sm:text-xl font-bold text-gray-900 border border-gray-300 rounded px-2 py-1 w-full"
                   />
                 ) : (
-                  <h2 className="text-xl font-bold text-gray-900">{selectedWorkOrder.title}</h2>
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-900">{selectedWorkOrder.title}</h2>
                 )}
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">
                   {selectedWorkOrder.property.name}{selectedWorkOrder.unit ? ` - Unit ${selectedWorkOrder.unit.unitNumber}` : ''}
                 </p>
               </div>
               <button
                 onClick={() => { setShowDetailModal(false); setSelectedWorkOrder(null); setIsEditing(false); }}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 p-1 -mr-1"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -961,9 +974,9 @@ function MaintenanceContent() {
             </div>
 
             {/* Content */}
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
               {/* Status and Details Row */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 <div>
                   <label className="text-xs text-gray-500 block">Status</label>
                   <span className={`text-sm font-medium ${
@@ -1049,7 +1062,7 @@ function MaintenanceContent() {
               )}
 
               {/* Assignment & Cost Info */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 bg-gray-50 rounded-lg p-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 bg-gray-50 rounded-lg p-3 sm:p-4">
                 <div>
                   <label className="text-xs text-gray-500 block">Reported By</label>
                   <span className="text-sm font-medium">{selectedWorkOrder.reportedBy}</span>
@@ -1168,25 +1181,25 @@ function MaintenanceContent() {
             </div>
 
             {/* Footer Actions */}
-            <div className="sticky bottom-0 bg-gray-50 p-4 border-t border-gray-200 flex justify-between">
+            <div className="sticky bottom-0 bg-gray-50 p-3 sm:p-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
               <button
                 onClick={handleDeleteWorkOrder}
-                className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm"
+                className="order-2 sm:order-1 px-4 py-2.5 sm:py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium"
               >
                 Delete
               </button>
-              <div className="flex gap-2">
+              <div className="order-1 sm:order-2 flex gap-2">
                 {isEditing ? (
                   <>
                     <button
                       onClick={() => { setIsEditing(false); setEditForm(selectedWorkOrder); }}
-                      className="px-4 py-2 border border-gray-300 rounded-lg text-sm"
+                      className="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 border border-gray-300 rounded-lg text-sm font-medium"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleSaveEdit}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+                      className="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 font-medium"
                     >
                       Save Changes
                     </button>
@@ -1194,7 +1207,7 @@ function MaintenanceContent() {
                 ) : (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm hover:bg-gray-800"
+                    className="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 bg-gray-900 text-white rounded-lg text-sm hover:bg-gray-800 font-medium"
                   >
                     Edit
                   </button>
@@ -1207,20 +1220,33 @@ function MaintenanceContent() {
 
       {/* Quick Vendor Creation Modal */}
       {showVendorModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Create New Vendor</h2>
-              <p className="text-sm text-gray-500 mt-1">Add a new vendor to your list</p>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
+          <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl max-w-md w-full max-h-[90vh] flex flex-col">
+            <div className="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white rounded-t-xl">
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">Create New Vendor</h2>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">Add a new vendor to your list</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowVendorModal(false);
+                  setVendorForm({ name: '', company: '', email: '', phone: '', specialties: [] });
+                }}
+                className="sm:hidden p-2 -mr-2 text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
                 <input
                   type="text"
                   value={vendorForm.name}
                   onChange={(e) => setVendorForm({ ...vendorForm, name: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                   placeholder="e.g., John Smith"
                 />
               </div>
@@ -1230,18 +1256,18 @@ function MaintenanceContent() {
                   type="text"
                   value={vendorForm.company}
                   onChange={(e) => setVendorForm({ ...vendorForm, company: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                   placeholder="e.g., ABC Plumbing LLC"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
                   <input
                     type="tel"
                     value={vendorForm.phone}
                     onChange={(e) => setVendorForm({ ...vendorForm, phone: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                     placeholder="(555) 123-4567"
                   />
                 </div>
@@ -1251,7 +1277,7 @@ function MaintenanceContent() {
                     type="email"
                     value={vendorForm.email}
                     onChange={(e) => setVendorForm({ ...vendorForm, email: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                     placeholder="vendor@email.com"
                   />
                 </div>
@@ -1271,7 +1297,7 @@ function MaintenanceContent() {
                             : [...prev.specialties, specialty]
                         }));
                       }}
-                      className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                      className={`px-3 py-1.5 sm:py-1 text-xs rounded-full border transition-colors ${
                         vendorForm.specialties.includes(specialty)
                           ? 'bg-blue-600 text-white border-blue-600'
                           : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400'
@@ -1283,13 +1309,13 @@ function MaintenanceContent() {
                 </div>
               </div>
             </div>
-            <div className="p-6 border-t border-gray-200 flex gap-3">
+            <div className="p-4 sm:p-6 border-t border-gray-200 flex flex-col-reverse sm:flex-row gap-3 sticky bottom-0 bg-white">
               <button
                 onClick={() => {
                   setShowVendorModal(false);
                   setVendorForm({ name: '', company: '', email: '', phone: '', specialties: [] });
                 }}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 rounded-lg text-sm font-medium"
                 disabled={creatingVendor}
               >
                 Cancel
@@ -1297,7 +1323,7 @@ function MaintenanceContent() {
               <button
                 onClick={handleCreateVendor}
                 disabled={creatingVendor || !vendorForm.name.trim()}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50"
+                className="flex-1 px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 text-sm font-medium"
               >
                 {creatingVendor ? 'Creating...' : 'Create Vendor'}
               </button>

@@ -475,19 +475,19 @@ export default function ReportsPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
-              <p className="text-sm text-gray-600 mt-1">Tenant balances and financial summary</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Reports</h1>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">Tenant balances and financial summary</p>
             </div>
-            <div className="flex gap-3 items-center">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-stretch sm:items-center">
               {/* Property Filter */}
               {properties.length > 0 && (
                 <select
                   value={selectedProperty}
                   onChange={(e) => setSelectedProperty(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-sm"
                 >
                   <option value="all">All Properties</option>
                   {properties.map(property => (
@@ -495,47 +495,51 @@ export default function ReportsPage() {
                   ))}
                 </select>
               )}
-              <button
-                onClick={handleGenerateRent}
-                disabled={bulkLoading}
-                className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {bulkLoading ? 'Loading...' : 'Generate Monthly Rent'}
-              </button>
-              <button
-                onClick={fetchReport}
-                className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-              >
-                Refresh
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleGenerateRent}
+                  disabled={bulkLoading}
+                  className="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {bulkLoading ? 'Loading...' : 'Generate Rent'}
+                </button>
+                <button
+                  onClick={fetchReport}
+                  className="px-4 py-2.5 sm:py-2 text-sm text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Refresh
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6">
         {/* Date Range Filter */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700">From:</label>
-              <input
-                type="date"
-                value={dateRange.start}
-                onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+        <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm border border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                <label className="text-xs sm:text-sm font-medium text-gray-700">From:</label>
+                <input
+                  type="date"
+                  value={dateRange.start}
+                  onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                  className="px-2 sm:px-3 py-2 sm:py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                <label className="text-xs sm:text-sm font-medium text-gray-700">To:</label>
+                <input
+                  type="date"
+                  value={dateRange.end}
+                  onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                  className="px-2 sm:px-3 py-2 sm:py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700">To:</label>
-              <input
-                type="date"
-                value={dateRange.end}
-                onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0 -mx-1 px-1">
               <button
                 onClick={() => {
                   const now = new Date();
@@ -544,7 +548,7 @@ export default function ReportsPage() {
                     end: new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
                   });
                 }}
-                className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap"
               >
                 This Month
               </button>
@@ -556,7 +560,7 @@ export default function ReportsPage() {
                     end: new Date(now.getFullYear(), now.getMonth(), 0).toISOString().split('T')[0]
                   });
                 }}
-                className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap"
               >
                 Last Month
               </button>
@@ -568,7 +572,7 @@ export default function ReportsPage() {
                     end: new Date(now.getFullYear(), 11, 31).toISOString().split('T')[0]
                   });
                 }}
-                className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap"
               >
                 This Year
               </button>
@@ -577,20 +581,20 @@ export default function ReportsPage() {
         </div>
 
         {/* Report Type Tabs */}
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
           <button
             onClick={() => setActiveTab('pnl')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
               activeTab === 'pnl'
                 ? 'bg-blue-600 text-white'
                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
             }`}
           >
-            Profit & Loss
+            P&L
           </button>
           <button
             onClick={() => setActiveTab('expenses')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
               activeTab === 'expenses'
                 ? 'bg-blue-600 text-white'
                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
@@ -600,50 +604,50 @@ export default function ReportsPage() {
           </button>
           <button
             onClick={() => setActiveTab('income')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
               activeTab === 'income'
                 ? 'bg-blue-600 text-white'
                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
             }`}
           >
-            Income Breakdown
+            Income
           </button>
           <button
             onClick={() => setActiveTab('balances')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
               activeTab === 'balances'
                 ? 'bg-blue-600 text-white'
                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
             }`}
           >
-            Tenant Balances
+            Balances
           </button>
         </div>
 
         {activeTab === 'balances' && (
         <>
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-600 mb-1">Total Tenants</p>
-            <p className="text-3xl font-bold text-gray-900">{filteredSummary.totalTenants}</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+            <p className="text-xs sm:text-sm text-gray-600 mb-1">Total Tenants</p>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900">{filteredSummary.totalTenants}</p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-600 mb-1">Tenants Owing</p>
-            <p className="text-3xl font-bold text-red-600">{filteredSummary.tenantsOwing}</p>
-            <p className="text-sm text-gray-500 mt-1">{formatCurrency(filteredSummary.totalOwed)}</p>
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+            <p className="text-xs sm:text-sm text-gray-600 mb-1">Tenants Owing</p>
+            <p className="text-2xl sm:text-3xl font-bold text-red-600">{filteredSummary.tenantsOwing}</p>
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">{formatCurrency(filteredSummary.totalOwed)}</p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-600 mb-1">Credit Balances</p>
-            <p className="text-3xl font-bold text-green-600">{filteredSummary.tenantsWithCredit}</p>
-            <p className="text-sm text-gray-500 mt-1">{formatCurrency(filteredSummary.totalCredits)}</p>
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+            <p className="text-xs sm:text-sm text-gray-600 mb-1">Credit Balances</p>
+            <p className="text-2xl sm:text-3xl font-bold text-green-600">{filteredSummary.tenantsWithCredit}</p>
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">{formatCurrency(filteredSummary.totalCredits)}</p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-600 mb-1">Net AR Balance</p>
-            <p className={`text-3xl font-bold ${filteredSummary.netBalance >= 0 ? 'text-gray-900' : 'text-green-600'}`}>
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+            <p className="text-xs sm:text-sm text-gray-600 mb-1">Net AR Balance</p>
+            <p className={`text-2xl sm:text-3xl font-bold ${filteredSummary.netBalance >= 0 ? 'text-gray-900' : 'text-green-600'}`}>
               {formatCurrency(filteredSummary.netBalance)}
             </p>
           </div>
@@ -652,10 +656,10 @@ export default function ReportsPage() {
         {/* Filter Tabs */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="border-b border-gray-200">
-            <div className="flex">
+            <div className="flex overflow-x-auto">
               <button
                 onClick={() => setFilter('all')}
-                className={`flex-1 px-6 py-3 text-sm font-medium transition-colors ${
+                className={`flex-1 min-w-0 px-3 sm:px-6 py-3 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                   filter === 'all'
                     ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-600'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -665,7 +669,7 @@ export default function ReportsPage() {
               </button>
               <button
                 onClick={() => setFilter('owing')}
-                className={`flex-1 px-6 py-3 text-sm font-medium transition-colors ${
+                className={`flex-1 min-w-0 px-3 sm:px-6 py-3 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                   filter === 'owing'
                     ? 'bg-red-50 text-red-700 border-b-2 border-red-600'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -675,7 +679,7 @@ export default function ReportsPage() {
               </button>
               <button
                 onClick={() => setFilter('credit')}
-                className={`flex-1 px-6 py-3 text-sm font-medium transition-colors ${
+                className={`flex-1 min-w-0 px-3 sm:px-6 py-3 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                   filter === 'credit'
                     ? 'bg-green-50 text-green-700 border-b-2 border-green-600'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -685,13 +689,13 @@ export default function ReportsPage() {
               </button>
               <button
                 onClick={() => setFilter('zero')}
-                className={`flex-1 px-6 py-3 text-sm font-medium transition-colors ${
+                className={`flex-1 min-w-0 px-3 sm:px-6 py-3 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                   filter === 'zero'
                     ? 'bg-gray-50 text-gray-700 border-b-2 border-gray-600'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
-                Paid Up ({filteredTenants.filter(t => t.balance === 0).length})
+                Paid ({filteredTenants.filter(t => t.balance === 0).length})
               </button>
             </div>
           </div>
@@ -702,70 +706,104 @@ export default function ReportsPage() {
               <p className="text-gray-500">No tenants in this category</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Tenant
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Unit
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Monthly Rent
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Balance
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {filteredTenants.map((tenant) => (
-                    <tr key={tenant.leaseId} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4">
+            <>
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-gray-200">
+                {filteredTenants.map((tenant) => (
+                  <div
+                    key={tenant.leaseId}
+                    className="p-4 hover:bg-gray-50 cursor-pointer"
+                    onClick={() => window.location.href = `/leases/${tenant.leaseId}`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
                         <div className="font-medium text-gray-900">{tenant.tenantName}</div>
-                        {tenant.propertyName && (
-                          <div className="text-sm text-gray-500">{tenant.propertyName}</div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{tenant.unitName}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        {tenant.monthlyRent ? formatCurrency(tenant.monthlyRent) : '-'}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <span className={`text-sm font-semibold ${
-                          tenant.balance > 0 ? 'text-red-600' : tenant.balance < 0 ? 'text-green-600' : 'text-gray-900'
-                        }`}>
-                          {formatCurrency(tenant.balance)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                          tenant.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {tenant.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <button
-                          onClick={() => window.location.href = `/leases/${tenant.leaseId}`}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                        >
-                          View →
-                        </button>
-                      </td>
+                        <div className="text-xs text-gray-500">{tenant.propertyName} - {tenant.unitName}</div>
+                      </div>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                        tenant.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {tenant.status}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">Rent: {tenant.monthlyRent ? formatCurrency(tenant.monthlyRent) : '-'}</span>
+                      <span className={`font-semibold ${
+                        tenant.balance > 0 ? 'text-red-600' : tenant.balance < 0 ? 'text-green-600' : 'text-gray-900'
+                      }`}>
+                        {formatCurrency(tenant.balance)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Tenant
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Unit
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Monthly Rent
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Balance
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Actions
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {filteredTenants.map((tenant) => (
+                      <tr key={tenant.leaseId} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="font-medium text-gray-900">{tenant.tenantName}</div>
+                          {tenant.propertyName && (
+                            <div className="text-sm text-gray-500">{tenant.propertyName}</div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{tenant.unitName}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {tenant.monthlyRent ? formatCurrency(tenant.monthlyRent) : '-'}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <span className={`text-sm font-semibold ${
+                            tenant.balance > 0 ? 'text-red-600' : tenant.balance < 0 ? 'text-green-600' : 'text-gray-900'
+                          }`}>
+                            {formatCurrency(tenant.balance)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                            tenant.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {tenant.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <button
+                            onClick={() => window.location.href = `/leases/${tenant.leaseId}`}
+                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          >
+                            View →
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
         </>
@@ -773,31 +811,31 @@ export default function ReportsPage() {
 
         {/* Income Breakdown Tab */}
         {activeTab === 'income' && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Income Summary Cards */}
             {incomeData && (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                    <p className="text-sm text-gray-600 mb-1">Total Income</p>
-                    <p className="text-3xl font-bold text-green-600">{formatCurrency(incomeData.totalIncome)}</p>
-                    <p className="text-sm text-gray-500 mt-1">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
+                  <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Total Income</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-green-600">{formatCurrency(incomeData.totalIncome)}</p>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">
                       {incomeData.period.start} to {incomeData.period.end}
                     </p>
                   </div>
 
-                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                    <p className="text-sm text-gray-600 mb-1">Previous Period</p>
-                    <p className="text-3xl font-bold text-gray-900">{formatCurrency(incomeData.previousPeriodTotal)}</p>
-                    <p className="text-sm text-gray-500 mt-1">Comparison period</p>
+                  <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Previous Period</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900">{formatCurrency(incomeData.previousPeriodTotal)}</p>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">Comparison period</p>
                   </div>
 
-                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                    <p className="text-sm text-gray-600 mb-1">Change</p>
-                    <p className={`text-3xl font-bold ${incomeData.changePercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Change</p>
+                    <p className={`text-2xl sm:text-3xl font-bold ${incomeData.changePercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {incomeData.changePercent >= 0 ? '+' : ''}{incomeData.changePercent}%
                     </p>
-                    <p className="text-sm text-gray-500 mt-1">vs previous period</p>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">vs previous period</p>
                   </div>
                 </div>
 
@@ -908,44 +946,44 @@ export default function ReportsPage() {
 
         {/* Profit & Loss Tab */}
         {activeTab === 'pnl' && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {pnlData ? (
               <>
                 {/* P&L Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                    <p className="text-sm text-gray-600">Total Income</p>
-                    <p className="text-2xl font-bold text-green-600 mt-1">{formatCurrency(pnlData.income.total)}</p>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200">
+                    <p className="text-xs sm:text-sm text-gray-600">Total Income</p>
+                    <p className="text-xl sm:text-2xl font-bold text-green-600 mt-1">{formatCurrency(pnlData.income.total)}</p>
                     <p className={`text-xs mt-1 ${pnlData.income.changePercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {pnlData.income.changePercent >= 0 ? '+' : ''}{pnlData.income.changePercent}% vs prev period
+                      {pnlData.income.changePercent >= 0 ? '+' : ''}{pnlData.income.changePercent}%
                     </p>
                   </div>
 
-                  <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                    <p className="text-sm text-gray-600">Total Expenses</p>
-                    <p className="text-2xl font-bold text-red-600 mt-1">{formatCurrency(pnlData.expenses.total)}</p>
+                  <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200">
+                    <p className="text-xs sm:text-sm text-gray-600">Total Expenses</p>
+                    <p className="text-xl sm:text-2xl font-bold text-red-600 mt-1">{formatCurrency(pnlData.expenses.total)}</p>
                     <p className={`text-xs mt-1 ${pnlData.expenses.changePercent <= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {pnlData.expenses.changePercent >= 0 ? '+' : ''}{pnlData.expenses.changePercent}% vs prev period
+                      {pnlData.expenses.changePercent >= 0 ? '+' : ''}{pnlData.expenses.changePercent}%
                     </p>
                   </div>
 
-                  <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                    <p className="text-sm text-gray-600">Net Operating Income</p>
-                    <p className={`text-2xl font-bold mt-1 ${pnlData.summary.netOperatingIncome >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200">
+                    <p className="text-xs sm:text-sm text-gray-600">Net Income</p>
+                    <p className={`text-xl sm:text-2xl font-bold mt-1 ${pnlData.summary.netOperatingIncome >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {formatCurrency(pnlData.summary.netOperatingIncome)}
                     </p>
                     <p className={`text-xs mt-1 ${pnlData.summary.noiChangePercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {pnlData.summary.noiChangePercent >= 0 ? '+' : ''}{pnlData.summary.noiChangePercent}% vs prev period
+                      {pnlData.summary.noiChangePercent >= 0 ? '+' : ''}{pnlData.summary.noiChangePercent}%
                     </p>
                   </div>
 
-                  <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                    <p className="text-sm text-gray-600">Profit Margin</p>
-                    <p className={`text-2xl font-bold mt-1 ${pnlData.summary.profitMargin >= 50 ? 'text-green-600' : pnlData.summary.profitMargin >= 25 ? 'text-yellow-600' : 'text-red-600'}`}>
+                  <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200">
+                    <p className="text-xs sm:text-sm text-gray-600">Profit Margin</p>
+                    <p className={`text-xl sm:text-2xl font-bold mt-1 ${pnlData.summary.profitMargin >= 50 ? 'text-green-600' : pnlData.summary.profitMargin >= 25 ? 'text-yellow-600' : 'text-red-600'}`}>
                       {pnlData.summary.profitMargin}%
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      Expense ratio: {pnlData.summary.expenseRatio}%
+                      Exp: {pnlData.summary.expenseRatio}%
                     </p>
                   </div>
                 </div>
@@ -1085,18 +1123,18 @@ export default function ReportsPage() {
 
         {/* Expenses Tab */}
         {activeTab === 'expenses' && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Expenses Header */}
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Expense Transactions</h2>
-                <p className="text-sm text-gray-600">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">Expense Transactions</h2>
+                <p className="text-xs sm:text-sm text-gray-600">
                   {expenses.length} expenses totaling {formatCurrency(expenses.reduce((sum, e) => sum + e.amount, 0))}
                 </p>
               </div>
               <button
                 onClick={() => setShowExpenseModal(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+                className="px-4 py-2.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm w-full sm:w-auto"
               >
                 + Add Expense
               </button>
@@ -1104,9 +1142,9 @@ export default function ReportsPage() {
 
             {/* Expense Summary by Category */}
             {expenses.length > 0 && (
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">By Category</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                <h3 className="text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3 sm:mb-4">By Category</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                   {Object.entries(
                     expenses.reduce((acc: { [key: string]: number }, exp) => {
                       acc[exp.accountName] = (acc[exp.accountName] || 0) + exp.amount;
@@ -1181,13 +1219,13 @@ export default function ReportsPage() {
 
       {/* Add Expense Modal */}
       {showExpenseModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Add Expense</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
+          <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl max-w-md w-full max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-xl">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Add Expense</h2>
               <button
                 onClick={() => setShowExpenseModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 p-1 -mr-1"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1195,13 +1233,13 @@ export default function ReportsPage() {
               </button>
             </div>
 
-            <form onSubmit={handleAddExpense} className="p-6 space-y-4">
+            <form onSubmit={handleAddExpense} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
                 <select
                   value={expenseForm.accountCode}
                   onChange={(e) => setExpenseForm({ ...expenseForm, accountCode: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-sm"
                   required
                 >
                   {expenseAccounts.map((account) => (
@@ -1220,7 +1258,7 @@ export default function ReportsPage() {
                   min="0.01"
                   value={expenseForm.amount}
                   onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-sm"
                   placeholder="0.00"
                   required
                 />
@@ -1232,7 +1270,7 @@ export default function ReportsPage() {
                   type="text"
                   value={expenseForm.description}
                   onChange={(e) => setExpenseForm({ ...expenseForm, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-sm"
                   placeholder="e.g., Plumbing repair at Unit 101"
                   required
                 />
@@ -1244,23 +1282,23 @@ export default function ReportsPage() {
                   type="date"
                   value={expenseForm.entryDate}
                   onChange={(e) => setExpenseForm({ ...expenseForm, entryDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-sm"
                   required
                 />
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4 sticky bottom-0 bg-white pb-2">
                 <button
                   type="button"
                   onClick={() => setShowExpenseModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submittingExpense}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
                   {submittingExpense ? 'Adding...' : 'Add Expense'}
                 </button>
@@ -1272,23 +1310,33 @@ export default function ReportsPage() {
 
       {/* Bulk Charge Modal */}
       {showBulkModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">
-                {bulkResults ? 'Charge Results' : 'Generate Monthly Rent Charges'}
-              </h2>
-              {!bulkResults && (
-                <p className="text-sm text-gray-600 mt-1">
-                  Review charges before posting to the ledger
-                </p>
-              )}
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
+          <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col">
+            <div className="p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-xl flex items-center justify-between">
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+                  {bulkResults ? 'Charge Results' : 'Generate Monthly Rent'}
+                </h2>
+                {!bulkResults && (
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                    Review charges before posting
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={handleCloseModal}
+                className="sm:hidden p-2 -mr-2 text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6 overflow-y-auto flex-1">
               {/* Results View */}
               {bulkResults ? (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   {bulkResults.results.length > 0 && (
                     <div>
                       <div className="flex items-center gap-2 mb-3">
@@ -1352,7 +1400,7 @@ export default function ReportsPage() {
                   <div className="flex justify-end pt-4">
                     <button
                       onClick={handleCloseModal}
-                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                      className="w-full sm:w-auto px-6 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
                     >
                       Close
                     </button>
@@ -1360,7 +1408,7 @@ export default function ReportsPage() {
                 </div>
               ) : (
                 /* Preview View */
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Charge Date
@@ -1415,18 +1463,18 @@ export default function ReportsPage() {
                     </div>
                   )}
 
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
                     <button
                       type="button"
                       onClick={handleCloseModal}
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                      className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleConfirmBulkCharges}
                       disabled={bulkLoading || bulkPreview.length === 0}
-                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                     >
                       {bulkLoading ? 'Posting...' : `Post ${bulkPreview.length} Charges`}
                     </button>
@@ -1440,16 +1488,16 @@ export default function ReportsPage() {
 
       {/* Drill-Down Modal */}
       {showDrillDown && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
+          <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-xl">
+              <div className="min-w-0 flex-1 pr-2">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
                   {drillDownData?.account.name || 'Transaction Details'}
                 </h2>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">
                   {dateRange.start} to {dateRange.end}
-                  {drillDownData && ` • ${drillDownData.count} transactions`}
+                  {drillDownData && ` • ${drillDownData.count} txns`}
                 </p>
               </div>
               <button
@@ -1457,7 +1505,7 @@ export default function ReportsPage() {
                   setShowDrillDown(false);
                   setDrillDownData(null);
                 }}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 p-1 -mr-1"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1465,7 +1513,7 @@ export default function ReportsPage() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
               {drillDownLoading ? (
                 <div className="text-center py-12">
                   <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
@@ -1474,15 +1522,15 @@ export default function ReportsPage() {
               ) : drillDownData ? (
                 <div className="space-y-4">
                   {/* Summary */}
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="flex justify-between items-center">
+                  <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                    <div className="flex flex-col sm:flex-row justify-between gap-2 sm:items-center">
                       <div>
-                        <span className="text-sm text-gray-600">Account Code:</span>
-                        <span className="ml-2 text-sm font-medium text-gray-900">{drillDownData.account.code}</span>
+                        <span className="text-xs sm:text-sm text-gray-600">Account Code:</span>
+                        <span className="ml-2 text-xs sm:text-sm font-medium text-gray-900">{drillDownData.account.code}</span>
                       </div>
-                      <div className="text-right">
-                        <span className="text-sm text-gray-600">Total:</span>
-                        <span className={`ml-2 text-lg font-bold ${drillDownData.account.type === 'INCOME' ? 'text-green-600' : 'text-red-600'}`}>
+                      <div className="sm:text-right">
+                        <span className="text-xs sm:text-sm text-gray-600">Total:</span>
+                        <span className={`ml-2 text-base sm:text-lg font-bold ${drillDownData.account.type === 'INCOME' ? 'text-green-600' : 'text-red-600'}`}>
                           {formatCurrency(drillDownData.total)}
                         </span>
                       </div>
@@ -1580,13 +1628,13 @@ export default function ReportsPage() {
               )}
             </div>
 
-            <div className="p-4 border-t border-gray-200 bg-gray-50">
+            <div className="p-3 sm:p-4 border-t border-gray-200 bg-gray-50 sticky bottom-0">
               <button
                 onClick={() => {
                   setShowDrillDown(false);
                   setDrillDownData(null);
                 }}
-                className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                className="w-full px-4 py-3 sm:py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm"
               >
                 Close
               </button>

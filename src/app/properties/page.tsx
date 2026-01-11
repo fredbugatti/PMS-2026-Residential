@@ -198,32 +198,32 @@ export default function PropertiesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Properties</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Properties</h1>
               <p className="text-sm text-gray-600 mt-1">Manage your rental properties and units</p>
             </div>
             <button
               onClick={() => setShowWizard(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base whitespace-nowrap"
             >
-              Add Property
+              + Property
             </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
         {properties.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl">🏠</span>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 sm:p-12 text-center">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl sm:text-3xl">🏠</span>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
               No properties yet
             </h3>
-            <p className="text-gray-500 mb-6">
+            <p className="text-gray-500 mb-6 text-sm sm:text-base">
               Get started by adding your first property
             </p>
             <button
@@ -234,18 +234,19 @@ export default function PropertiesPage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {properties.map((property) => (
               <div
                 key={property.id}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+                onClick={() => window.location.href = `/properties/${property.id}`}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
               >
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-1">{property.name}</h3>
+                <div className="p-4 sm:p-6">
+                  <div className="flex items-start justify-between mb-3 sm:mb-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 truncate">{property.name}</h3>
                       {property.address && (
-                        <p className="text-sm text-gray-600">
+                        <p className="text-xs sm:text-sm text-gray-600 truncate">
                           {property.address}
                           {property.city && `, ${property.city}`}
                           {property.state && `, ${property.state}`}
@@ -257,8 +258,8 @@ export default function PropertiesPage() {
                   <div className="space-y-3">
                     <div>
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-600">Occupancy</span>
-                        <span className="font-semibold text-gray-900">{property.occupancyRate}%</span>
+                        <span className="text-gray-600 text-xs sm:text-sm">Occupancy</span>
+                        <span className="font-semibold text-gray-900 text-xs sm:text-sm">{property.occupancyRate}%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
@@ -277,21 +278,18 @@ export default function PropertiesPage() {
                     </div>
 
                     <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-                      <span className="text-sm text-gray-600">Monthly Revenue</span>
-                      <span className="text-lg font-bold text-green-600">
+                      <span className="text-xs sm:text-sm text-gray-600">Monthly Revenue</span>
+                      <span className="text-base sm:text-lg font-bold text-green-600">
                         {formatCurrency(property.monthlyRevenue)}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="border-t border-gray-200 bg-gray-50 px-6 py-3">
-                  <button
-                    onClick={() => window.location.href = `/properties/${property.id}`}
-                    className="text-sm font-medium text-blue-600 hover:text-blue-800"
-                  >
-                    View Details
-                  </button>
+                <div className="border-t border-gray-200 bg-gray-50 px-4 sm:px-6 py-3">
+                  <span className="text-sm font-medium text-blue-600">
+                    View Details →
+                  </span>
                 </div>
               </div>
             ))}
@@ -301,12 +299,12 @@ export default function PropertiesPage() {
 
       {/* Property Setup Wizard */}
       {showWizard && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
             {/* Progress Header */}
-            <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+            <div className="bg-gray-50 px-4 sm:px-6 py-4 border-b border-gray-200">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-bold text-gray-900">
+                <h2 className="text-base sm:text-lg font-bold text-gray-900">
                   {wizardStep === 1 && 'Property Details'}
                   {wizardStep === 2 && 'Add Units'}
                   {wizardStep === 3 && 'Setup Complete'}
@@ -316,7 +314,7 @@ export default function PropertiesPage() {
                     setShowWizard(false);
                     resetWizard();
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 p-1"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -328,7 +326,7 @@ export default function PropertiesPage() {
               <div className="flex items-center gap-2">
                 {[1, 2, 3].map((step) => (
                   <div key={step} className="flex items-center flex-1">
-                    <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-colors ${
+                    <div className={`flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full text-xs sm:text-sm font-medium transition-colors ${
                       wizardStep > step
                         ? 'bg-green-500 text-white'
                         : wizardStep === step
@@ -336,13 +334,13 @@ export default function PropertiesPage() {
                           : 'bg-gray-200 text-gray-500'
                     }`}>
                       {wizardStep > step ? (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       ) : step}
                     </div>
                     {step < 3 && (
-                      <div className={`flex-1 h-1 mx-2 rounded ${
+                      <div className={`flex-1 h-1 mx-1 sm:mx-2 rounded ${
                         wizardStep > step ? 'bg-green-500' : 'bg-gray-200'
                       }`} />
                     )}
@@ -357,7 +355,7 @@ export default function PropertiesPage() {
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
               {error && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                   <p className="text-sm text-red-800">{error}</p>
@@ -376,7 +374,7 @@ export default function PropertiesPage() {
                       required
                       value={propertyForm.name}
                       onChange={(e) => setPropertyForm({ ...propertyForm, name: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-lg"
                       placeholder="Sunset Apartments"
                       autoFocus
                     />
@@ -390,12 +388,12 @@ export default function PropertiesPage() {
                       type="text"
                       value={propertyForm.address}
                       onChange={(e) => setPropertyForm({ ...propertyForm, address: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                       placeholder="123 Main Street"
                     />
                   </div>
 
-                  <div className="grid grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         City
@@ -404,7 +402,7 @@ export default function PropertiesPage() {
                         type="text"
                         value={propertyForm.city}
                         onChange={(e) => setPropertyForm({ ...propertyForm, city: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                         placeholder="Los Angeles"
                       />
                     </div>
@@ -417,7 +415,7 @@ export default function PropertiesPage() {
                         maxLength={2}
                         value={propertyForm.state}
                         onChange={(e) => setPropertyForm({ ...propertyForm, state: e.target.value.toUpperCase() })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                         placeholder="CA"
                       />
                     </div>
@@ -429,7 +427,7 @@ export default function PropertiesPage() {
                         type="text"
                         value={propertyForm.zipCode}
                         onChange={(e) => setPropertyForm({ ...propertyForm, zipCode: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                         placeholder="90001"
                       />
                     </div>
@@ -440,14 +438,14 @@ export default function PropertiesPage() {
               {/* Step 2: Add Units */}
               {wizardStep === 2 && (
                 <div className="space-y-4">
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-gray-600 mb-4 text-sm sm:text-base">
                     Add units to your property. You can add more later.
                   </p>
 
                   {units.map((unit, index) => (
-                    <div key={index} className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <div key={index} className="p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="font-medium text-gray-900">
+                        <span className="font-medium text-gray-900 text-sm sm:text-base">
                           Unit {index + 1}
                         </span>
                         {units.length > 1 && (
@@ -461,8 +459,8 @@ export default function PropertiesPage() {
                         )}
                       </div>
 
-                      <div className="grid grid-cols-5 gap-3">
-                        <div>
+                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
+                        <div className="col-span-3 sm:col-span-1">
                           <label className="block text-xs text-gray-500 mb-1">Unit #</label>
                           <input
                             type="text"
@@ -495,7 +493,7 @@ export default function PropertiesPage() {
                             placeholder="1"
                           />
                         </div>
-                        <div>
+                        <div className="hidden sm:block">
                           <label className="block text-xs text-gray-500 mb-1">Sq Ft</label>
                           <input
                             type="number"
@@ -524,7 +522,7 @@ export default function PropertiesPage() {
                   <button
                     type="button"
                     onClick={addUnit}
-                    className="w-full py-3 border-2 border-dashed border-gray-300 text-gray-600 hover:border-blue-400 hover:text-blue-600 rounded-xl transition-colors font-medium"
+                    className="w-full py-3 border-2 border-dashed border-gray-300 text-gray-600 hover:border-blue-400 hover:text-blue-600 rounded-xl transition-colors font-medium text-sm sm:text-base"
                   >
                     + Add Another Unit
                   </button>
@@ -533,19 +531,19 @@ export default function PropertiesPage() {
 
               {/* Step 3: Complete */}
               {wizardStep === 3 && (
-                <div className="text-center py-8">
-                  <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="text-center py-6 sm:py-8">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                    <svg className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                     Property Created!
                   </h3>
-                  <p className="text-gray-600 mb-2">
+                  <p className="text-gray-600 mb-2 text-sm sm:text-base">
                     <strong>{propertyForm.name}</strong> has been set up with <strong>{units.length} {units.length !== 1 ? 'units' : 'unit'}</strong>.
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-xs sm:text-sm text-gray-500">
                     You can now add tenants and leases from the property page.
                   </p>
                 </div>
@@ -553,7 +551,7 @@ export default function PropertiesPage() {
             </div>
 
             {/* Footer Actions */}
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between">
+            <div className="px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
               {wizardStep === 1 && (
                 <>
                   <button
@@ -562,14 +560,14 @@ export default function PropertiesPage() {
                       setShowWizard(false);
                       resetWizard();
                     }}
-                    className="px-6 py-2 text-gray-700 hover:text-gray-900 font-medium"
+                    className="px-6 py-3 sm:py-2 text-gray-700 hover:text-gray-900 font-medium border border-gray-300 rounded-lg sm:border-0"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleCreateProperty}
                     disabled={!propertyForm.name.trim() || submitting}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {submitting ? 'Creating...' : 'Next: Add Units'}
                   </button>
@@ -582,14 +580,14 @@ export default function PropertiesPage() {
                     type="button"
                     onClick={() => setWizardStep(3)}
                     disabled={submitting}
-                    className="px-6 py-2 text-gray-700 hover:text-gray-900 font-medium"
+                    className="px-6 py-3 sm:py-2 text-gray-700 hover:text-gray-900 font-medium border border-gray-300 rounded-lg sm:border-0"
                   >
                     Skip for Now
                   </button>
                   <button
                     onClick={handleCreateUnits}
                     disabled={submitting || !units.some(u => u.unitNumber.trim())}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {submitting ? 'Creating Units...' : `Create ${units.length} ${units.length !== 1 ? 'Units' : 'Unit'}`}
                   </button>
@@ -601,13 +599,13 @@ export default function PropertiesPage() {
                   <button
                     type="button"
                     onClick={handleFinish}
-                    className="px-6 py-2 text-gray-700 hover:text-gray-900 font-medium"
+                    className="px-6 py-3 sm:py-2 text-gray-700 hover:text-gray-900 font-medium border border-gray-300 rounded-lg sm:border-0"
                   >
                     Back to Properties
                   </button>
                   <button
                     onClick={handleViewProperty}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                    className="px-6 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                   >
                     View Property
                   </button>

@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import Sidebar from './Sidebar';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -11,6 +11,7 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Tenant portal pages should NOT show sidebar/breadcrumbs
   const isTenantPortal = pathname.startsWith('/tenant/');
@@ -52,17 +53,42 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <Sidebar />
+      {/* Sidebar - hidden on mobile by default */}
+      <div className="hidden lg:block">
+        <Sidebar isOpen={true} />
+      </div>
+      {/* Mobile sidebar */}
+      <div className="lg:hidden">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Breadcrumb Header */}
+      <div className="flex-1 flex flex-col overflow-hidden w-full">
+        {/* Mobile Header with Hamburger */}
+        <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 -ml-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white">
+              S
+            </div>
+            <span className="font-bold text-gray-900">Sanprinon</span>
+          </Link>
+          <div className="w-10" /> {/* Spacer for centering */}
+        </div>
+
+        {/* Breadcrumb Header - hidden on very small screens, shown on tablet+ */}
         {pathname !== '/' && (
-          <div className="bg-white border-b border-gray-200 px-6 py-3">
-            <nav className="flex items-center space-x-2 text-sm">
+          <div className="hidden sm:block bg-white border-b border-gray-200 px-4 sm:px-6 py-3">
+            <nav className="flex items-center space-x-2 text-sm overflow-x-auto">
               {breadcrumbs.map((crumb, index) => (
-                <div key={crumb.path} className="flex items-center">
+                <div key={crumb.path} className="flex items-center flex-shrink-0">
                   {index > 0 && (
                     <svg
                       className="w-4 h-4 mx-2 text-gray-400"

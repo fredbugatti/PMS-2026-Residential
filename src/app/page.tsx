@@ -494,29 +494,29 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Dashboard</h1>
               <p className="text-sm text-gray-600 mt-1">Property management overview</p>
             </div>
             {/* Quick Action Buttons */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0">
               <button
                 onClick={() => setShowPaymentModal(true)}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-2"
+                className="px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-1 sm:gap-2 whitespace-nowrap flex-shrink-0"
               >
                 <span>+</span> Payment
               </button>
               <button
                 onClick={() => setShowChargeModal(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2"
+                className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-1 sm:gap-2 whitespace-nowrap flex-shrink-0"
               >
                 <span>+</span> Charge
               </button>
               <button
                 onClick={() => setShowWorkOrderModal(true)}
-                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium flex items-center gap-2"
+                className="px-3 sm:px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium flex items-center gap-1 sm:gap-2 whitespace-nowrap flex-shrink-0"
               >
                 <span>+</span> Work Order
               </button>
@@ -525,18 +525,18 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         {/* Key Metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-600">Properties</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">{stats.totalProperties}</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200">
+            <p className="text-xs sm:text-sm text-gray-600">Properties</p>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{stats.totalProperties}</p>
             <p className="text-xs text-gray-500 mt-1">{stats.totalUnits} units total</p>
           </div>
 
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-600">Occupancy</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">{occupancyRate}%</p>
+          <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200">
+            <p className="text-xs sm:text-sm text-gray-600">Occupancy</p>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{occupancyRate}%</p>
             <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className="h-full bg-green-500 rounded-full transition-all"
@@ -546,15 +546,15 @@ export default function Dashboard() {
             <p className="text-xs text-gray-500 mt-1">{stats.occupiedUnits}/{stats.totalUnits} units</p>
           </div>
 
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-600">Monthly Revenue</p>
-            <p className="text-3xl font-bold text-green-600 mt-1">{formatCurrency(stats.monthlyRevenue)}</p>
+          <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200">
+            <p className="text-xs sm:text-sm text-gray-600">Monthly Revenue</p>
+            <p className="text-xl sm:text-3xl font-bold text-green-600 mt-1">{formatCurrency(stats.monthlyRevenue)}</p>
             <p className="text-xs text-gray-500 mt-1">all recurring charges</p>
           </div>
 
-          <Link href="/reports" className="bg-white rounded-xl p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <p className="text-sm text-gray-600">Outstanding</p>
-            <p className={`text-3xl font-bold mt-1 ${stats.totalOwed > 0 ? 'text-red-600' : 'text-gray-900'}`}>
+          <Link href="/reports" className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+            <p className="text-xs sm:text-sm text-gray-600">Outstanding</p>
+            <p className={`text-xl sm:text-3xl font-bold mt-1 ${stats.totalOwed > 0 ? 'text-red-600' : 'text-gray-900'}`}>
               {formatCurrency(stats.totalOwed)}
             </p>
             <p className="text-xs text-gray-500 mt-1">total owed - click to view</p>
@@ -563,23 +563,23 @@ export default function Dashboard() {
 
         {/* Alerts Section */}
         {(cronStatus?.status === 'warning' || pendingCharges.count > 0 || pendingRentIncreases.count > 0) && (
-          <div className="mb-8 space-y-3">
+          <div className="mb-6 sm:mb-8 space-y-3">
             {/* Cron Warning - Most Important */}
             {cronStatus?.status === 'warning' && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                <div className="flex items-center justify-between">
+              <div className="bg-red-50 border border-red-200 rounded-xl p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">⚠️</span>
+                    <span className="text-xl sm:text-2xl">⚠️</span>
                     <div>
-                      <p className="font-medium text-red-800">Auto-posting Issue Detected</p>
-                      <p className="text-sm text-red-600">{cronStatus.message}</p>
+                      <p className="font-medium text-red-800 text-sm sm:text-base">Auto-posting Issue Detected</p>
+                      <p className="text-xs sm:text-sm text-red-600">{cronStatus.message}</p>
                     </div>
                   </div>
                   {cronStatus.pendingCharges.count > 0 && (
                     <button
                       onClick={handlePostAllCharges}
                       disabled={postingCharges}
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {postingCharges ? 'Posting...' : 'Post Now'}
                     </button>
@@ -589,19 +589,19 @@ export default function Dashboard() {
             )}
 
             {pendingRentIncreases.count > 0 && (
-              <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                <div className="flex items-center justify-between">
+              <div className="bg-green-50 border border-green-200 rounded-xl p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">📈</span>
+                    <span className="text-xl sm:text-2xl">📈</span>
                     <div>
-                      <p className="font-medium text-green-800">{pendingRentIncreases.count} Rent Increase(s) Due</p>
-                      <p className="text-sm text-green-600">+{formatCurrency(pendingRentIncreases.totalIncrease)}/month increase</p>
+                      <p className="font-medium text-green-800 text-sm sm:text-base">{pendingRentIncreases.count} Rent Increase(s) Due</p>
+                      <p className="text-xs sm:text-sm text-green-600">+{formatCurrency(pendingRentIncreases.totalIncrease)}/month increase</p>
                     </div>
                   </div>
                   <button
                     onClick={handleApplyRentIncreases}
                     disabled={applyingIncreases}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {applyingIncreases ? 'Applying...' : 'Apply All'}
                   </button>
@@ -610,19 +610,19 @@ export default function Dashboard() {
             )}
 
             {pendingCharges.count > 0 && (
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                <div className="flex items-center justify-between">
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">📅</span>
+                    <span className="text-xl sm:text-2xl">📅</span>
                     <div>
-                      <p className="font-medium text-blue-800">{pendingCharges.count} Scheduled Charges Ready</p>
-                      <p className="text-sm text-blue-600">Total: {formatCurrency(pendingCharges.totalAmount)}</p>
+                      <p className="font-medium text-blue-800 text-sm sm:text-base">{pendingCharges.count} Scheduled Charges Ready</p>
+                      <p className="text-xs sm:text-sm text-blue-600">Total: {formatCurrency(pendingCharges.totalAmount)}</p>
                     </div>
                   </div>
                   <button
                     onClick={handlePostAllCharges}
                     disabled={postingCharges}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {postingCharges ? 'Posting...' : 'Post All Charges'}
                   </button>
@@ -632,88 +632,88 @@ export default function Dashboard() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left Column - Navigation Cards */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Quick Navigation */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <Link href="/properties" className="bg-white rounded-xl p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-xl mb-3 group-hover:bg-blue-200 transition-colors">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+              <Link href="/properties" className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-blue-200 transition-colors">
                   🏢
                 </div>
-                <h3 className="font-semibold text-gray-900">Properties</h3>
-                <p className="text-sm text-gray-600">{stats.totalProperties} properties</p>
+                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Properties</h3>
+                <p className="text-xs sm:text-sm text-gray-600">{stats.totalProperties} properties</p>
               </Link>
 
-              <Link href="/leases" className="bg-white rounded-xl p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-xl mb-3 group-hover:bg-green-200 transition-colors">
+              <Link href="/leases" className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-green-200 transition-colors">
                   📄
                 </div>
-                <h3 className="font-semibold text-gray-900">Leases</h3>
-                <p className="text-sm text-gray-600">{stats.activeLeases} active</p>
+                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Leases</h3>
+                <p className="text-xs sm:text-sm text-gray-600">{stats.activeLeases} active</p>
               </Link>
 
-              <Link href="/maintenance" className="bg-white rounded-xl p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl mb-3 transition-colors ${
+              <Link href="/maintenance" className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 transition-colors ${
                   stats.openWorkOrders > 0 ? 'bg-orange-100 group-hover:bg-orange-200' : 'bg-gray-100 group-hover:bg-gray-200'
                 }`}>
                   🔧
                 </div>
-                <h3 className="font-semibold text-gray-900">Maintenance</h3>
-                <p className={`text-sm ${stats.openWorkOrders > 0 ? 'text-orange-600 font-medium' : 'text-gray-600'}`}>
+                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Maintenance</h3>
+                <p className={`text-xs sm:text-sm ${stats.openWorkOrders > 0 ? 'text-orange-600 font-medium' : 'text-gray-600'}`}>
                   {stats.openWorkOrders} open
                 </p>
               </Link>
 
-              <Link href="/accounting" className="bg-white rounded-xl p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-xl mb-3 group-hover:bg-purple-200 transition-colors">
+              <Link href="/accounting" className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-purple-200 transition-colors">
                   💰
                 </div>
-                <h3 className="font-semibold text-gray-900">Accounting</h3>
-                <p className="text-sm text-gray-600">Ledger & balances</p>
+                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Accounting</h3>
+                <p className="text-xs sm:text-sm text-gray-600">Ledger & balances</p>
               </Link>
 
-              <Link href="/reports" className="bg-white rounded-xl p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
-                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center text-xl mb-3 group-hover:bg-indigo-200 transition-colors">
+              <Link href="/reports" className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-indigo-100 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-indigo-200 transition-colors">
                   📈
                 </div>
-                <h3 className="font-semibold text-gray-900">Reports</h3>
-                <p className="text-sm text-gray-600">P&L & balances</p>
+                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Reports</h3>
+                <p className="text-xs sm:text-sm text-gray-600">P&L & balances</p>
               </Link>
 
-              <Link href="/vendors" className="bg-white rounded-xl p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
-                <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center text-xl mb-3 group-hover:bg-teal-200 transition-colors">
+              <Link href="/vendors" className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-teal-100 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-teal-200 transition-colors">
                   👷
                 </div>
-                <h3 className="font-semibold text-gray-900">Vendors</h3>
-                <p className="text-sm text-gray-600">Contractors</p>
+                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Vendors</h3>
+                <p className="text-xs sm:text-sm text-gray-600">Contractors</p>
               </Link>
             </div>
 
             {/* Recent Activity */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-              <div className="p-4 border-b border-gray-200">
-                <h2 className="font-semibold text-gray-900">Recent Activity</h2>
+              <div className="p-3 sm:p-4 border-b border-gray-200">
+                <h2 className="font-semibold text-gray-900 text-sm sm:text-base">Recent Activity</h2>
               </div>
               <div className="divide-y divide-gray-100">
                 {recentActivity.length === 0 ? (
-                  <div className="p-4 text-center text-gray-500">No recent activity</div>
+                  <div className="p-4 text-center text-gray-500 text-sm">No recent activity</div>
                 ) : (
                   recentActivity.map(activity => (
-                    <div key={activity.id} className="p-4 flex items-center justify-between hover:bg-gray-50">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
+                    <div key={activity.id} className="p-3 sm:p-4 flex items-center justify-between hover:bg-gray-50">
+                      <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                        <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm flex-shrink-0 ${
                           activity.type === 'payment' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'
                         }`}>
                           {activity.type === 'payment' ? '💵' : '📝'}
                         </div>
-                        <div>
-                          <p className="text-sm text-gray-900 line-clamp-1">{activity.description}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs sm:text-sm text-gray-900 line-clamp-1">{activity.description}</p>
                           <p className="text-xs text-gray-500">{formatDate(activity.date)}</p>
                         </div>
                       </div>
                       {activity.amount && (
-                        <span className={`text-sm font-medium ${
+                        <span className={`text-xs sm:text-sm font-medium ml-2 flex-shrink-0 ${
                           activity.type === 'payment' ? 'text-green-600' : 'text-gray-900'
                         }`}>
                           {activity.type === 'payment' ? '+' : ''}{formatCurrency(activity.amount)}
@@ -730,28 +730,28 @@ export default function Dashboard() {
           </div>
 
           {/* Right Column - Alerts & Expiring Leases */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Needs Attention */}
             {(stats.totalOwed > 0 || stats.openWorkOrders > 0) && (
               <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-                <div className="p-4 border-b border-gray-200">
-                  <h2 className="font-semibold text-gray-900">Needs Attention</h2>
+                <div className="p-3 sm:p-4 border-b border-gray-200">
+                  <h2 className="font-semibold text-gray-900 text-sm sm:text-base">Needs Attention</h2>
                 </div>
-                <div className="p-4 space-y-3">
+                <div className="p-3 sm:p-4 space-y-3">
                   {stats.totalOwed > 0 && (
                     <Link href="/reports" className="flex items-center gap-3 p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
-                      <span className="text-xl">💸</span>
+                      <span className="text-lg sm:text-xl">💸</span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-red-800">{formatCurrency(stats.totalOwed)} Outstanding</p>
+                        <p className="text-xs sm:text-sm font-medium text-red-800">{formatCurrency(stats.totalOwed)} Outstanding</p>
                         <p className="text-xs text-red-600">View unpaid balances</p>
                       </div>
                     </Link>
                   )}
                   {stats.openWorkOrders > 0 && (
                     <Link href="/maintenance" className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors">
-                      <span className="text-xl">🔧</span>
+                      <span className="text-lg sm:text-xl">🔧</span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-orange-800">{stats.openWorkOrders} Open Work Orders</p>
+                        <p className="text-xs sm:text-sm font-medium text-orange-800">{stats.openWorkOrders} Open Work Orders</p>
                         <p className="text-xs text-orange-600">View maintenance requests</p>
                       </div>
                     </Link>
@@ -762,8 +762,8 @@ export default function Dashboard() {
 
             {/* Expiring Leases */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-              <div className="p-4 border-b border-gray-200">
-                <h2 className="font-semibold text-gray-900">Expiring Soon</h2>
+              <div className="p-3 sm:p-4 border-b border-gray-200">
+                <h2 className="font-semibold text-gray-900 text-sm sm:text-base">Expiring Soon</h2>
                 <p className="text-xs text-gray-500">Next 60 days</p>
               </div>
               <div className="divide-y divide-gray-100">
@@ -776,15 +776,15 @@ export default function Dashboard() {
                       <Link
                         key={lease.id}
                         href={`/leases/${lease.id}`}
-                        className="block p-4 hover:bg-gray-50 transition-colors"
+                        className="block p-3 sm:p-4 hover:bg-gray-50 transition-colors"
                       >
                         <div className="flex items-center justify-between">
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium text-gray-900 truncate">{lease.tenantName}</p>
+                            <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">{lease.tenantName}</p>
                             <p className="text-xs text-gray-500">{lease.unitName}</p>
                           </div>
-                          <div className={`text-right ${daysUntil <= 14 ? 'text-red-600' : daysUntil <= 30 ? 'text-orange-600' : 'text-gray-600'}`}>
-                            <p className="text-sm font-medium">{daysUntil} days</p>
+                          <div className={`text-right ml-2 ${daysUntil <= 14 ? 'text-red-600' : daysUntil <= 30 ? 'text-orange-600' : 'text-gray-600'}`}>
+                            <p className="text-xs sm:text-sm font-medium">{daysUntil} days</p>
                             <p className="text-xs">{formatDate(lease.endDate)}</p>
                           </div>
                         </div>
@@ -803,11 +803,11 @@ export default function Dashboard() {
 
       {/* Quick Payment Modal */}
       {showPaymentModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Record Payment</h2>
-              <button onClick={() => setShowPaymentModal(false)} className="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Record Payment</h2>
+              <button onClick={() => setShowPaymentModal(false)} className="text-gray-500 hover:text-gray-700 text-2xl p-1">&times;</button>
             </div>
             <div className="space-y-4">
               <div>
@@ -815,7 +815,7 @@ export default function Dashboard() {
                 <select
                   value={paymentForm.leaseId}
                   onChange={(e) => setPaymentForm({ ...paymentForm, leaseId: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
                 >
                   <option value="">Select tenant...</option>
                   {leases.map(lease => (
@@ -829,7 +829,7 @@ export default function Dashboard() {
                   type="number"
                   value={paymentForm.amount}
                   onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
                   placeholder="0.00"
                 />
               </div>
@@ -838,7 +838,7 @@ export default function Dashboard() {
                 <select
                   value={paymentForm.paymentMethod}
                   onChange={(e) => setPaymentForm({ ...paymentForm, paymentMethod: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
                 >
                   <option value="CHECK">Check</option>
                   <option value="CASH">Cash</option>
@@ -854,22 +854,22 @@ export default function Dashboard() {
                   type="text"
                   value={paymentForm.referenceNumber}
                   onChange={(e) => setPaymentForm({ ...paymentForm, referenceNumber: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
                   placeholder="Check number, confirmation, etc."
                 />
               </div>
             </div>
-            <div className="flex gap-3 mt-6">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 mt-6">
               <button
                 onClick={() => setShowPaymentModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
               >
                 Cancel
               </button>
               <button
                 onClick={handleRecordPayment}
                 disabled={submittingPayment}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                className="flex-1 px-4 py-3 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium"
               >
                 {submittingPayment ? 'Recording...' : 'Record Payment'}
               </button>
@@ -880,11 +880,11 @@ export default function Dashboard() {
 
       {/* Quick Charge Modal */}
       {showChargeModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Add Charge</h2>
-              <button onClick={() => setShowChargeModal(false)} className="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Add Charge</h2>
+              <button onClick={() => setShowChargeModal(false)} className="text-gray-500 hover:text-gray-700 text-2xl p-1">&times;</button>
             </div>
             <div className="space-y-4">
               <div>
@@ -892,7 +892,7 @@ export default function Dashboard() {
                 <select
                   value={chargeForm.leaseId}
                   onChange={(e) => setChargeForm({ ...chargeForm, leaseId: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
                 >
                   <option value="">Select tenant...</option>
                   {leases.map(lease => (
@@ -906,7 +906,7 @@ export default function Dashboard() {
                   type="number"
                   value={chargeForm.amount}
                   onChange={(e) => setChargeForm({ ...chargeForm, amount: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
                   placeholder="0.00"
                 />
               </div>
@@ -916,7 +916,7 @@ export default function Dashboard() {
                   type="text"
                   value={chargeForm.description}
                   onChange={(e) => setChargeForm({ ...chargeForm, description: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
                   placeholder="Late fee, utility charge, etc."
                 />
               </div>
@@ -925,7 +925,7 @@ export default function Dashboard() {
                 <select
                   value={chargeForm.accountCode}
                   onChange={(e) => setChargeForm({ ...chargeForm, accountCode: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
                 >
                   <option value="4000">Rent</option>
                   <option value="4100">Late Fee</option>
@@ -936,17 +936,17 @@ export default function Dashboard() {
                 </select>
               </div>
             </div>
-            <div className="flex gap-3 mt-6">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 mt-6">
               <button
                 onClick={() => setShowChargeModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAddCharge}
                 disabled={submittingCharge}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                className="flex-1 px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium"
               >
                 {submittingCharge ? 'Adding...' : 'Add Charge'}
               </button>
@@ -957,11 +957,11 @@ export default function Dashboard() {
 
       {/* Quick Work Order Modal */}
       {showWorkOrderModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Create Work Order</h2>
-              <button onClick={() => setShowWorkOrderModal(false)} className="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Create Work Order</h2>
+              <button onClick={() => setShowWorkOrderModal(false)} className="text-gray-500 hover:text-gray-700 text-2xl p-1">&times;</button>
             </div>
             <div className="space-y-4">
               <div>
@@ -969,7 +969,7 @@ export default function Dashboard() {
                 <select
                   value={workOrderForm.propertyId}
                   onChange={(e) => setWorkOrderForm({ ...workOrderForm, propertyId: e.target.value, unitId: '' })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
                 >
                   <option value="">Select property...</option>
                   {properties.map(p => (
@@ -983,7 +983,7 @@ export default function Dashboard() {
                   <select
                     value={workOrderForm.unitId}
                     onChange={(e) => setWorkOrderForm({ ...workOrderForm, unitId: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
                   >
                     <option value="">Select unit...</option>
                     {selectedProperty.units?.map(u => (
@@ -998,7 +998,7 @@ export default function Dashboard() {
                   type="text"
                   value={workOrderForm.title}
                   onChange={(e) => setWorkOrderForm({ ...workOrderForm, title: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
                   placeholder="Brief description of issue"
                 />
               </div>
@@ -1007,18 +1007,18 @@ export default function Dashboard() {
                 <textarea
                   value={workOrderForm.description}
                   onChange={(e) => setWorkOrderForm({ ...workOrderForm, description: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
                   rows={3}
                   placeholder="Detailed description..."
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                   <select
                     value={workOrderForm.category}
                     onChange={(e) => setWorkOrderForm({ ...workOrderForm, category: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
                   >
                     <option value="GENERAL">General</option>
                     <option value="PLUMBING">Plumbing</option>
@@ -1037,7 +1037,7 @@ export default function Dashboard() {
                   <select
                     value={workOrderForm.priority}
                     onChange={(e) => setWorkOrderForm({ ...workOrderForm, priority: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
                   >
                     <option value="LOW">Low</option>
                     <option value="MEDIUM">Medium</option>
@@ -1051,7 +1051,7 @@ export default function Dashboard() {
                 <select
                   value={workOrderForm.vendorId}
                   onChange={(e) => setWorkOrderForm({ ...workOrderForm, vendorId: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
                 >
                   <option value="">Select vendor...</option>
                   {vendors.map(v => (
@@ -1070,7 +1070,7 @@ export default function Dashboard() {
                           <img
                             src={url}
                             alt={`Preview ${index + 1}`}
-                            className="w-16 h-16 object-cover rounded-lg border border-gray-300"
+                            className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg border border-gray-300"
                           />
                           <button
                             type="button"
@@ -1100,7 +1100,7 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            <div className="flex gap-3 mt-6">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 mt-6">
               <button
                 onClick={() => {
                   setShowWorkOrderModal(false);
@@ -1108,14 +1108,14 @@ export default function Dashboard() {
                   setWorkOrderPhotos([]);
                   setWorkOrderPhotoPreviewUrls([]);
                 }}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateWorkOrder}
                 disabled={submittingWorkOrder}
-                className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50"
+                className="flex-1 px-4 py-3 sm:py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 font-medium"
               >
                 {submittingWorkOrder ? 'Creating...' : 'Create Work Order'}
               </button>
