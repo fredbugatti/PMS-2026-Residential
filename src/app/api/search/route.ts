@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/accounting';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,11 +44,14 @@ export async function GET(request: NextRequest) {
     });
 
     for (const lease of leases) {
+      const unitInfo = lease.unit
+        ? `${lease.unit.property?.name || 'Unknown'} - ${lease.unit.unitNumber}`
+        : lease.propertyName || 'No unit assigned';
       results.push({
         type: 'tenant',
         id: lease.id,
         title: lease.tenantName,
-        subtitle: `${lease.unit.property.name} - ${lease.unit.unitNumber}`,
+        subtitle: unitInfo,
         href: `/leases/${lease.id}`,
         icon: '👤',
       });
@@ -80,10 +83,7 @@ export async function GET(request: NextRequest) {
     // Search ledger entries (transactions)
     const ledgerEntries = await prisma.ledgerEntry.findMany({
       where: {
-        OR: [
-          { description: { contains: query, mode: 'insensitive' } },
-          { referenceNumber: { contains: query, mode: 'insensitive' } },
-        ],
+        description: { contains: query, mode: 'insensitive' },
       },
       include: {
         lease: {
