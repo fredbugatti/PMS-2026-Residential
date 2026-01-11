@@ -3,8 +3,6 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
 interface WorkOrderUpdate {
   id: string;
   createdAt: string;
@@ -53,7 +51,7 @@ interface Property {
   units: { id: string; unitNumber: string }[];
 }
 
-export default function MaintenancePage() {
+function MaintenanceContent() {
   const searchParams = useSearchParams();
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -1308,5 +1306,17 @@ export default function MaintenancePage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function MaintenancePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    }>
+      <MaintenanceContent />
+    </Suspense>
   );
 }

@@ -3,8 +3,6 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
 interface DocumentTemplate {
   id: string;
   name: string;
@@ -22,7 +20,7 @@ interface Lease {
   propertyName: string | null;
 }
 
-export default function GenerateDocumentPage() {
+function GenerateDocumentContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const templateId = searchParams.get('templateId');
@@ -265,13 +263,13 @@ export default function GenerateDocumentPage() {
                         onClick={handlePrint}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                       >
-                        🖨️ Print
+                        Print
                       </button>
                       <button
                         onClick={handleDownload}
                         className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
                       >
-                        💾 Download
+                        Download
                       </button>
                     </div>
                   )}
@@ -318,5 +316,24 @@ export default function GenerateDocumentPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function GenerateDocumentPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <GenerateDocumentContent />
+    </Suspense>
   );
 }
