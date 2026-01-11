@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma, postEntry } from '@/lib/accounting';
 import {
+  stripe,
   isStripeConfigured,
   getOrCreateCustomer,
   chargeCustomer
 } from '@/lib/stripe';
-import Stripe from 'stripe';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-12-15.clover',
-});
 
 // GET /api/tenant/[token]/pay - Get payment info
 export async function GET(
@@ -179,6 +175,12 @@ export async function POST(
       }
 
       // Create PaymentIntent for ACH only
+      if (!stripe) {
+        return NextResponse.json(
+          { error: 'Payment processing is not configured' },
+          { status: 503 }
+        );
+      }
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(paymentAmount * 100), // Convert to cents
         currency: 'usd',
@@ -324,6 +326,12 @@ export async function POST(
       }
 
       // Retrieve payment intent to verify status
+      if (!stripe) {
+        return NextResponse.json(
+          { error: 'Payment processing is not configured' },
+          { status: 503 }
+        );
+      }
       const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
       if (paymentIntent.status === 'succeeded' || paymentIntent.status === 'processing') {

@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { prisma, postEntry } from '@/lib/accounting';
-
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-12-15.clover',
-});
+import { stripe } from '@/lib/stripe';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -281,7 +277,7 @@ async function handleSetupSucceeded(setupIntent: Stripe.SetupIntent, webhookEven
       where: { stripeCustomerId: customerId }
     });
 
-    if (lease && paymentMethodId) {
+    if (lease && paymentMethodId && stripe) {
       // Get payment method details
       try {
         const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId);
