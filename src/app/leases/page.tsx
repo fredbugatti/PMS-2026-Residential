@@ -5,10 +5,12 @@ import { useState, useEffect } from 'react';
 interface Lease {
   id: string;
   tenantName: string;
+  companyName: string | null;
   tenantEmail: string | null;
   tenantPhone: string | null;
   unitName: string;
   propertyName: string | null;
+  propertyType: string | null;
   startDate: string;
   endDate: string;
   securityDepositAmount: number | null;
@@ -22,6 +24,7 @@ interface Lease {
 interface Property {
   id: string;
   name: string;
+  propertyType: string;
 }
 
 interface Unit {
@@ -40,6 +43,7 @@ export default function LeasesPage() {
   const [availableUnits, setAvailableUnits] = useState<Unit[]>([]);
   const [formData, setFormData] = useState({
     tenantName: '',
+    companyName: '',
     tenantEmail: '',
     tenantPhone: '',
     propertyId: '',
@@ -165,6 +169,7 @@ export default function LeasesPage() {
       // Reset form and refresh
       setFormData({
         tenantName: '',
+        companyName: '',
         tenantEmail: '',
         tenantPhone: '',
         propertyId: '',
@@ -295,8 +300,13 @@ export default function LeasesPage() {
                   >
                     <td className="px-6 py-4">
                       <div>
-                        <div className="font-medium text-gray-900">{lease.tenantName}</div>
-                        {lease.tenantEmail && (
+                        <div className="font-medium text-gray-900">
+                          {lease.companyName || lease.tenantName}
+                        </div>
+                        {lease.companyName && (
+                          <div className="text-sm text-gray-500">{lease.tenantName}</div>
+                        )}
+                        {!lease.companyName && lease.tenantEmail && (
                           <div className="text-sm text-gray-500">{lease.tenantEmail}</div>
                         )}
                       </div>
@@ -359,9 +369,25 @@ export default function LeasesPage() {
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 mb-3">Tenant Information</h3>
                 <div className="space-y-4">
+                  {/* Show company name for commercial properties */}
+                  {properties.find(p => p.id === formData.propertyId)?.propertyType === 'COMMERCIAL' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Company Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.companyName}
+                        onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="ABC Warehousing Inc."
+                      />
+                    </div>
+                  )}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Tenant Name *
+                      {properties.find(p => p.id === formData.propertyId)?.propertyType === 'COMMERCIAL' ? 'Contact Name *' : 'Tenant Name *'}
                     </label>
                     <input
                       type="text"
@@ -369,7 +395,7 @@ export default function LeasesPage() {
                       value={formData.tenantName}
                       onChange={(e) => setFormData({ ...formData, tenantName: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="John Smith"
+                      placeholder={properties.find(p => p.id === formData.propertyId)?.propertyType === 'COMMERCIAL' ? 'John Smith (Contact)' : 'John Smith'}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">

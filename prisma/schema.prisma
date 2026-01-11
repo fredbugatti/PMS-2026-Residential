@@ -49,7 +49,7 @@ model Property {
   state           String?           @db.VarChar(50)
   zipCode         String?           @map("zip_code") @db.VarChar(20)
   totalUnits      Int?              @map("total_units")
-  propertyType    String?           @map("property_type") @db.VarChar(50) // Single Family, Multi-Family, Apartment, etc.
+  propertyType    PropertyType      @default(RESIDENTIAL) @map("property_type") // RESIDENTIAL or COMMERCIAL
   notes           String?           @db.Text
   active          Boolean           @default(true)
   units           Unit[]
@@ -85,6 +85,7 @@ model Lease {
   propertyId            String?           @map("property_id")
   unitId                String?           @map("unit_id")
   tenantName            String            @map("tenant_name") @db.VarChar(200)
+  companyName           String?           @map("company_name") @db.VarChar(200) // For commercial leases
   tenantEmail           String?           @map("tenant_email") @db.VarChar(200)
   tenantPhone           String?           @map("tenant_phone") @db.VarChar(50)
   unitName              String            @map("unit_name") @db.VarChar(100)
@@ -392,6 +393,11 @@ enum PaymentTerms {
   NET_15
   NET_30
   NET_60
+}
+
+enum PropertyType {
+  RESIDENTIAL
+  COMMERCIAL
 }
 
 // Track cron job executions for reliability monitoring

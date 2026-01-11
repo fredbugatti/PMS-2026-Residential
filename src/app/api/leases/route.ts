@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
     const lease = await prisma.lease.create({
       data: {
         tenantName: body.tenantName,
+        companyName: body.companyName || null,
         tenantEmail: body.tenantEmail || null,
         tenantPhone: body.tenantPhone || null,
         unitName: body.unitName,
