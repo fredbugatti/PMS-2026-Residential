@@ -15,6 +15,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
   }
 
+  if (!stripe) {
+    console.error('[Webhook] Stripe not configured');
+    return NextResponse.json({ error: 'Payment processing not configured' }, { status: 503 });
+  }
+
   let event: Stripe.Event;
 
   try {
