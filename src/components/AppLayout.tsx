@@ -4,6 +4,7 @@ import { ReactNode, useState } from 'react';
 import Sidebar from './Sidebar';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { GlobalSearch, useGlobalSearch } from './GlobalSearch';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -12,6 +13,7 @@ interface AppLayoutProps {
 export default function AppLayout({ children }: AppLayoutProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const search = useGlobalSearch();
 
   // Tenant portal pages should NOT show sidebar/breadcrumbs
   const isTenantPortal = pathname.startsWith('/tenant/');
@@ -65,10 +67,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden w-full">
         {/* Mobile Header with Hamburger */}
-        <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <div className="lg:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 -ml-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+            className="p-2 -ml-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -78,14 +80,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white">
               S
             </div>
-            <span className="font-bold text-gray-900">Sanprinon</span>
+            <span className="font-bold text-gray-900 dark:text-white">Sanprinon</span>
           </Link>
-          <div className="w-10" /> {/* Spacer for centering */}
+          <button
+            onClick={search.open}
+            className="p-2 -mr-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
         </div>
 
         {/* Breadcrumb Header - hidden on very small screens, shown on tablet+ */}
         {pathname !== '/' && (
-          <div className="hidden sm:block bg-white border-b border-gray-200 px-4 sm:px-6 py-3">
+          <div className="hidden sm:block bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-3">
             <nav className="flex items-center space-x-2 text-sm overflow-x-auto">
               {breadcrumbs.map((crumb, index) => (
                 <div key={crumb.path} className="flex items-center flex-shrink-0">
@@ -105,11 +114,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     </svg>
                   )}
                   {index === breadcrumbs.length - 1 ? (
-                    <span className="text-gray-900 font-medium">{crumb.name}</span>
+                    <span className="text-gray-900 dark:text-white font-medium">{crumb.name}</span>
                   ) : (
                     <Link
                       href={crumb.path}
-                      className="text-gray-600 hover:text-gray-900 transition-colors"
+                      className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                     >
                       {crumb.name}
                     </Link>
@@ -125,6 +134,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
           {children}
         </main>
       </div>
+
+      {/* Global Search Modal */}
+      <GlobalSearch isOpen={search.isOpen} onClose={search.close} />
     </div>
   );
 }

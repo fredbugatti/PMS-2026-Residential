@@ -326,6 +326,27 @@ export default function Dashboard() {
       return;
     }
 
+    const amount = parseFloat(paymentForm.amount);
+    const selectedLease = leases.find(l => l.id === paymentForm.leaseId);
+
+    // Optimistic update - update UI immediately
+    setShowPaymentModal(false);
+    setStats(prev => ({
+      ...prev,
+      totalOwed: Math.max(0, prev.totalOwed - amount)
+    }));
+
+    // Add optimistic activity entry
+    const optimisticActivity: RecentActivity = {
+      id: `temp-${Date.now()}`,
+      type: 'payment',
+      description: `Payment from ${selectedLease?.tenantName || 'Tenant'}`,
+      amount,
+      date: new Date().toISOString(),
+      status: 'POSTED'
+    };
+    setRecentActivity(prev => [optimisticActivity, ...prev.slice(0, 7)]);
+
     setSubmittingPayment(true);
     try {
       const res = await fetch('/api/payments', {
@@ -333,7 +354,7 @@ export default function Dashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           leaseId: paymentForm.leaseId,
-          amount: parseFloat(paymentForm.amount),
+          amount,
           paymentMethod: paymentForm.paymentMethod,
           referenceNumber: paymentForm.referenceNumber || undefined,
           notes: paymentForm.notes || undefined,
@@ -347,11 +368,13 @@ export default function Dashboard() {
       }
 
       showSuccess('Payment recorded successfully!');
-      setShowPaymentModal(false);
       setPaymentForm({ leaseId: '', amount: '', paymentMethod: 'CHECK', referenceNumber: '', notes: '' });
+      // Refresh to get real data
       fetchAllData();
     } catch (error: any) {
       showError(error.message || 'Failed to record payment');
+      // Rollback on error
+      fetchAllData();
     } finally {
       setSubmittingPayment(false);
     }
@@ -363,6 +386,27 @@ export default function Dashboard() {
       return;
     }
 
+    const amount = parseFloat(chargeForm.amount);
+    const selectedLease = leases.find(l => l.id === chargeForm.leaseId);
+
+    // Optimistic update - update UI immediately
+    setShowChargeModal(false);
+    setStats(prev => ({
+      ...prev,
+      totalOwed: prev.totalOwed + amount
+    }));
+
+    // Add optimistic activity entry
+    const optimisticActivity: RecentActivity = {
+      id: `temp-${Date.now()}`,
+      type: 'charge',
+      description: `${chargeForm.description} - ${selectedLease?.tenantName || 'Tenant'}`,
+      amount,
+      date: new Date().toISOString(),
+      status: 'POSTED'
+    };
+    setRecentActivity(prev => [optimisticActivity, ...prev.slice(0, 7)]);
+
     setSubmittingCharge(true);
     try {
       const res = await fetch('/api/charges', {
@@ -370,7 +414,7 @@ export default function Dashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           leaseId: chargeForm.leaseId,
-          amount: parseFloat(chargeForm.amount),
+          amount,
           description: chargeForm.description,
           accountCode: chargeForm.accountCode,
           entryDate: new Date().toISOString().split('T')[0]
@@ -383,11 +427,13 @@ export default function Dashboard() {
       }
 
       showSuccess('Charge added successfully!');
-      setShowChargeModal(false);
       setChargeForm({ leaseId: '', amount: '', description: '', accountCode: '4000' });
+      // Refresh to get real data
       fetchAllData();
     } catch (error: any) {
       showError(error.message || 'Failed to add charge');
+      // Rollback on error
+      fetchAllData();
     } finally {
       setSubmittingCharge(false);
     }
@@ -424,6 +470,21 @@ export default function Dashboard() {
       return;
     }
 
+    // Optimistic update - update UI immediately
+    setShowWorkOrderModal(false);
+    setStats(prev => ({
+      ...prev,
+      openWorkOrders: prev.openWorkOrders + 1
+    }));
+
+    // Clear preview URLs and form
+    workOrderPhotoPreviewUrls.forEach(url => URL.revokeObjectURL(url));
+    const photosToUpload = [...workOrderPhotos];
+    setWorkOrderPhotos([]);
+    setWorkOrderPhotoPreviewUrls([]);
+    const formToSubmit = { ...workOrderForm };
+    setWorkOrderForm({ propertyId: '', unitId: '', title: '', description: '', category: 'GENERAL', priority: 'MEDIUM', vendorId: '' });
+
     setSubmittingWorkOrder(true);
     try {
       // First create the work order
@@ -431,9 +492,9 @@ export default function Dashboard() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...workOrderForm,
+          ...formToSubmit,
           reportedBy: 'Property Manager',
-          vendorId: workOrderForm.vendorId || null
+          vendorId: formToSubmit.vendorId || null
         })
       });
 
@@ -445,10 +506,10 @@ export default function Dashboard() {
       const workOrder = await res.json();
 
       // If there are photos, upload them
-      if (workOrderPhotos.length > 0) {
+      if (photosToUpload.length > 0) {
         const formData = new FormData();
         formData.append('workOrderId', workOrder.id);
-        workOrderPhotos.forEach(photo => {
+        photosToUpload.forEach(photo => {
           formData.append('photos', photo);
         });
 
@@ -462,17 +523,13 @@ export default function Dashboard() {
         }
       }
 
-      // Clear preview URLs
-      workOrderPhotoPreviewUrls.forEach(url => URL.revokeObjectURL(url));
-
       showSuccess('Work order created successfully!');
-      setShowWorkOrderModal(false);
-      setWorkOrderForm({ propertyId: '', unitId: '', title: '', description: '', category: 'GENERAL', priority: 'MEDIUM', vendorId: '' });
-      setWorkOrderPhotos([]);
-      setWorkOrderPhotoPreviewUrls([]);
+      // Refresh to get real data
       fetchAllData();
     } catch (error: any) {
       showError(error.message || 'Failed to create work order');
+      // Rollback on error
+      fetchAllData();
     } finally {
       setSubmittingWorkOrder(false);
     }
