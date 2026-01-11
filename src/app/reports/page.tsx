@@ -346,7 +346,7 @@ export default function ReportsPage() {
 
     let filtered = data.tenants;
 
-    // Apply property filter
+    // Apply specific property filter
     if (selectedProperty !== 'all') {
       const propertyMatch = properties.find(p => p.id === selectedProperty);
       if (propertyMatch) {
@@ -482,6 +482,7 @@ export default function ReportsPage() {
               <p className="text-sm text-gray-600 mt-1">Tenant balances and financial summary</p>
             </div>
             <div className="flex gap-3 items-center">
+              {/* Property Filter */}
               {properties.length > 0 && (
                 <select
                   value={selectedProperty}

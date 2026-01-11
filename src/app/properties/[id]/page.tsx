@@ -94,6 +94,7 @@ export default function PropertyDetailPage() {
   const [tenantForm, setTenantForm] = useState({
     firstName: '',
     lastName: '',
+    companyName: '',
     email: '',
     phone: ''
   });
@@ -234,7 +235,7 @@ export default function PropertyDetailPage() {
   const openLeaseWizard = (unit: Unit) => {
     setSelectedUnit(unit);
     setLeaseWizardStep(1);
-    setTenantForm({ firstName: '', lastName: '', email: '', phone: '' });
+    setTenantForm({ firstName: '', lastName: '', companyName: '', email: '', phone: '' });
     // Default to today and 1 year from now
     const today = new Date();
     const nextYear = new Date(today);
@@ -254,7 +255,7 @@ export default function PropertyDetailPage() {
     setShowLeaseWizard(false);
     setSelectedUnit(null);
     setLeaseWizardStep(1);
-    setTenantForm({ firstName: '', lastName: '', email: '', phone: '' });
+    setTenantForm({ firstName: '', lastName: '', companyName: '', email: '', phone: '' });
     setLeaseForm({ startDate: '', endDate: '', monthlyRent: '', securityDeposit: '' });
     setLeaseError('');
     setCreatedLeaseId(null);
@@ -268,11 +269,19 @@ export default function PropertyDetailPage() {
 
     try {
       // Create lease with tenant info embedded
+      // For commercial: companyName is primary, contact name is tenantName
+      // For residential: just tenantName (first + last)
+      const isCommercial = property.propertyType === 'COMMERCIAL';
+      const tenantName = isCommercial
+        ? `${tenantForm.firstName} ${tenantForm.lastName}`.trim() || tenantForm.companyName
+        : `${tenantForm.firstName} ${tenantForm.lastName}`.trim();
+
       const leaseRes = await fetch('/api/leases', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tenantName: `${tenantForm.firstName} ${tenantForm.lastName}`.trim(),
+          tenantName: tenantName,
+          companyName: isCommercial ? tenantForm.companyName : null,
           tenantEmail: tenantForm.email || null,
           tenantPhone: tenantForm.phone || null,
           unitId: selectedUnit.id,
@@ -489,16 +498,16 @@ export default function PropertyDetailPage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Unit Number
+                      {property.propertyType === 'COMMERCIAL' ? 'Space' : 'Unit Number'}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Details
+                      {property.propertyType === 'COMMERCIAL' ? 'Size' : 'Details'}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Current Tenant
+                      {property.propertyType === 'COMMERCIAL' ? 'Company' : 'Tenant'}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Rent
+                      {property.propertyType === 'COMMERCIAL' ? 'Monthly' : 'Rent'}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Status
@@ -515,13 +524,25 @@ export default function PropertyDetailPage() {
                         <div className="font-medium text-gray-900">{unit.unitNumber}</div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        <div>
-                          {unit.bedrooms && `${unit.bedrooms} bed`}
-                          {unit.bedrooms && unit.bathrooms && ' • '}
-                          {unit.bathrooms && `${unit.bathrooms} bath`}
-                        </div>
-                        {unit.squareFeet && (
-                          <div className="text-gray-500">{unit.squareFeet.toLocaleString()} sq ft</div>
+                        {property.propertyType === 'COMMERCIAL' ? (
+                          /* Commercial: Just show square feet */
+                          unit.squareFeet ? (
+                            <div>{unit.squareFeet.toLocaleString()} sq ft</div>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )
+                        ) : (
+                          /* Residential: Show beds/baths and sq ft */
+                          <>
+                            <div>
+                              {unit.bedrooms && `${unit.bedrooms} bed`}
+                              {unit.bedrooms && unit.bathrooms && ' • '}
+                              {unit.bathrooms && `${unit.bathrooms} bath`}
+                            </div>
+                            {unit.squareFeet && (
+                              <div className="text-gray-500">{unit.squareFeet.toLocaleString()} sq ft</div>
+                            )}
+                          </>
                         )}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
@@ -550,7 +571,7 @@ export default function PropertyDetailPage() {
                               onClick={() => openLeaseWizard(unit)}
                               className="text-green-600 hover:text-green-800 text-sm font-medium"
                             >
-                              Add Tenant
+                              {property.propertyType === 'COMMERCIAL' ? 'Add Company' : 'Add Tenant'}
                             </button>
                           )}
                           <button
@@ -741,9 +762,9 @@ export default function PropertyDetailPage() {
             <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-lg font-bold text-gray-900">
-                  {leaseWizardStep === 1 && 'Tenant Information'}
+                  {leaseWizardStep === 1 && (property.propertyType === 'COMMERCIAL' ? 'Company Information' : 'Tenant Information')}
                   {leaseWizardStep === 2 && 'Lease Details'}
-                  {leaseWizardStep === 3 && 'Tenant Added!'}
+                  {leaseWizardStep === 3 && (property.propertyType === 'COMMERCIAL' ? 'Company Added!' : 'Tenant Added!')}
                 </h2>
                 <button
                   onClick={resetLeaseWizard}
@@ -757,7 +778,7 @@ export default function PropertyDetailPage() {
 
               {/* Unit info */}
               <div className="text-sm text-gray-600 mb-3">
-                Adding tenant to <span className="font-medium text-gray-900">Unit {selectedUnit.unitNumber}</span>
+                Adding {property.propertyType === 'COMMERCIAL' ? 'company' : 'tenant'} to <span className="font-medium text-gray-900">{selectedUnit.unitNumber}</span>
               </div>
 
               {/* Step Indicator */}
@@ -786,7 +807,7 @@ export default function PropertyDetailPage() {
                 ))}
               </div>
               <div className="flex justify-between mt-2 text-xs text-gray-500">
-                <span>Tenant</span>
+                <span>{property.propertyType === 'COMMERCIAL' ? 'Company' : 'Tenant'}</span>
                 <span>Lease</span>
                 <span>Done</span>
               </div>
@@ -803,35 +824,82 @@ export default function PropertyDetailPage() {
               {/* Step 1: Tenant Info */}
               {leaseWizardStep === 1 && (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        First Name *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={tenantForm.firstName}
-                        onChange={(e) => setTenantForm({ ...tenantForm, firstName: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="John"
-                        autoFocus
-                      />
+                  {property.propertyType === 'COMMERCIAL' ? (
+                    /* Commercial: Company Name + Contact Name */
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Company Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={tenantForm.companyName}
+                          onChange={(e) => setTenantForm({ ...tenantForm, companyName: e.target.value })}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="ACME Logistics Inc"
+                          autoFocus
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Contact First Name
+                          </label>
+                          <input
+                            type="text"
+                            value={tenantForm.firstName}
+                            onChange={(e) => setTenantForm({ ...tenantForm, firstName: e.target.value })}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="John"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Contact Last Name
+                          </label>
+                          <input
+                            type="text"
+                            value={tenantForm.lastName}
+                            onChange={(e) => setTenantForm({ ...tenantForm, lastName: e.target.value })}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Smith"
+                          />
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    /* Residential: First Name + Last Name */
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          First Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={tenantForm.firstName}
+                          onChange={(e) => setTenantForm({ ...tenantForm, firstName: e.target.value })}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="John"
+                          autoFocus
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Last Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={tenantForm.lastName}
+                          onChange={(e) => setTenantForm({ ...tenantForm, lastName: e.target.value })}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Smith"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Last Name *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={tenantForm.lastName}
-                        onChange={(e) => setTenantForm({ ...tenantForm, lastName: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Smith"
-                      />
-                    </div>
-                  </div>
+                  )}
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -842,7 +910,7 @@ export default function PropertyDetailPage() {
                       value={tenantForm.email}
                       onChange={(e) => setTenantForm({ ...tenantForm, email: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="john.smith@email.com"
+                      placeholder={property.propertyType === 'COMMERCIAL' ? 'contact@company.com' : 'john.smith@email.com'}
                     />
                   </div>
 
@@ -938,9 +1006,15 @@ export default function PropertyDetailPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Tenant Added!</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    {property.propertyType === 'COMMERCIAL' ? 'Company Added!' : 'Tenant Added!'}
+                  </h3>
                   <p className="text-gray-600 mb-2">
-                    <strong>{tenantForm.firstName} {tenantForm.lastName}</strong> has been added to <strong>Unit {selectedUnit.unitNumber}</strong>.
+                    <strong>
+                      {property.propertyType === 'COMMERCIAL'
+                        ? tenantForm.companyName
+                        : `${tenantForm.firstName} ${tenantForm.lastName}`}
+                    </strong> has been added to <strong>{selectedUnit.unitNumber}</strong>.
                   </p>
                   <p className="text-sm text-gray-500">
                     Lease: {formatCurrency(parseFloat(leaseForm.monthlyRent))}/month
@@ -962,7 +1036,9 @@ export default function PropertyDetailPage() {
                   </button>
                   <button
                     onClick={() => setLeaseWizardStep(2)}
-                    disabled={!tenantForm.firstName.trim() || !tenantForm.lastName.trim()}
+                    disabled={property.propertyType === 'COMMERCIAL'
+                      ? !tenantForm.companyName.trim()
+                      : !tenantForm.firstName.trim() || !tenantForm.lastName.trim()}
                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Next: Lease Details
@@ -1091,14 +1167,16 @@ export default function PropertyDetailPage() {
           <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900">
-                {editingUnit ? 'Edit Unit' : 'Add New Unit'}
+                {editingUnit
+                  ? (property.propertyType === 'COMMERCIAL' ? 'Edit Space' : 'Edit Unit')
+                  : (property.propertyType === 'COMMERCIAL' ? 'Add New Space' : 'Add New Unit')}
               </h2>
             </div>
 
             <form onSubmit={handleUnitSubmit} className="p-6 space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Unit Number *
+                  {property.propertyType === 'COMMERCIAL' ? 'Space Name/Description *' : 'Unit Number *'}
                 </label>
                 <input
                   type="text"
@@ -1106,38 +1184,12 @@ export default function PropertyDetailPage() {
                   value={unitForm.unitNumber}
                   onChange={(e) => setUnitForm({ ...unitForm, unitNumber: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="101"
+                  placeholder={property.propertyType === 'COMMERCIAL' ? '1st Floor - 5,000 SF' : '101'}
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Bedrooms
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={unitForm.bedrooms}
-                    onChange={(e) => setUnitForm({ ...unitForm, bedrooms: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Bathrooms
-                  </label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    value={unitForm.bathrooms}
-                    onChange={(e) => setUnitForm({ ...unitForm, bathrooms: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="1.5"
-                  />
-                </div>
+              {/* Residential: Beds, Baths, Sq Ft | Commercial: Just Sq Ft */}
+              {property.propertyType === 'COMMERCIAL' ? (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Square Feet
@@ -1148,10 +1200,53 @@ export default function PropertyDetailPage() {
                     value={unitForm.squareFeet}
                     onChange={(e) => setUnitForm({ ...unitForm, squareFeet: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="850"
+                    placeholder="5000"
                   />
                 </div>
-              </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Bedrooms
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={unitForm.bedrooms}
+                      onChange={(e) => setUnitForm({ ...unitForm, bedrooms: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Bathrooms
+                    </label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      value={unitForm.bathrooms}
+                      onChange={(e) => setUnitForm({ ...unitForm, bathrooms: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="1.5"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Square Feet
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={unitForm.squareFeet}
+                      onChange={(e) => setUnitForm({ ...unitForm, squareFeet: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="850"
+                    />
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">

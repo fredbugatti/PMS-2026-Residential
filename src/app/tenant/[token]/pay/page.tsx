@@ -468,7 +468,6 @@ export default function TenantPay() {
                     borderRadius: '8px',
                   },
                 },
-                paymentMethodOrder: ['us_bank_account'],
               }}
             >
               <NewPaymentForm

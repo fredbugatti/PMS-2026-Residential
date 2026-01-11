@@ -8,7 +8,6 @@ interface Property {
   address: string | null;
   city: string | null;
   state: string | null;
-  propertyType: string | null;
   totalUnits: number;
   occupiedUnits: number;
   vacantUnits: number;
@@ -31,7 +30,6 @@ export default function PropertiesPage() {
   const [wizardStep, setWizardStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'RESIDENTIAL' | 'COMMERCIAL'>('RESIDENTIAL');
 
   // Step 1: Property details
   const [propertyForm, setPropertyForm] = useState({
@@ -39,8 +37,7 @@ export default function PropertiesPage() {
     address: '',
     city: '',
     state: '',
-    zipCode: '',
-    propertyType: 'RESIDENTIAL'
+    zipCode: ''
   });
 
   // Created property ID (after step 1)
@@ -76,8 +73,7 @@ export default function PropertiesPage() {
       address: '',
       city: '',
       state: '',
-      zipCode: '',
-      propertyType: 'RESIDENTIAL'
+      zipCode: ''
     });
     setUnits([{ unitNumber: '1', bedrooms: '', bathrooms: '', squareFeet: '', rent: '' }]);
     setCreatedPropertyId(null);
@@ -199,87 +195,47 @@ export default function PropertiesPage() {
     );
   }
 
-  // Filter properties by active tab
-  const filteredProperties = properties.filter(p =>
-    p.propertyType === activeTab || (!p.propertyType && activeTab === 'RESIDENTIAL')
-  );
-
-  const residentialCount = properties.filter(p => p.propertyType === 'RESIDENTIAL' || !p.propertyType).length;
-  const commercialCount = properties.filter(p => p.propertyType === 'COMMERCIAL').length;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Properties</h1>
               <p className="text-sm text-gray-600 mt-1">Manage your rental properties and units</p>
             </div>
             <button
-              onClick={() => {
-                setPropertyForm({ ...propertyForm, propertyType: activeTab });
-                setShowWizard(true);
-              }}
+              onClick={() => setShowWizard(true)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
-              Add {activeTab === 'COMMERCIAL' ? 'Warehouse' : 'Property'}
-            </button>
-          </div>
-
-          {/* Tabs */}
-          <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
-            <button
-              onClick={() => setActiveTab('RESIDENTIAL')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                activeTab === 'RESIDENTIAL'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              🏠 Residential {residentialCount > 0 && <span className="ml-1 text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">{residentialCount}</span>}
-            </button>
-            <button
-              onClick={() => setActiveTab('COMMERCIAL')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                activeTab === 'COMMERCIAL'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              🏭 Commercial {commercialCount > 0 && <span className="ml-1 text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">{commercialCount}</span>}
+              Add Property
             </button>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {filteredProperties.length === 0 ? (
+        {properties.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl">{activeTab === 'COMMERCIAL' ? '🏭' : '🏠'}</span>
+              <span className="text-3xl">🏠</span>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No {activeTab === 'COMMERCIAL' ? 'warehouses' : 'residential properties'} yet
+              No properties yet
             </h3>
             <p className="text-gray-500 mb-6">
-              {activeTab === 'COMMERCIAL'
-                ? 'Add your first warehouse or commercial property'
-                : 'Get started by adding your first property'}
+              Get started by adding your first property
             </p>
             <button
-              onClick={() => {
-                setPropertyForm({ ...propertyForm, propertyType: activeTab });
-                setShowWizard(true);
-              }}
+              onClick={() => setShowWizard(true)}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
-              Add {activeTab === 'COMMERCIAL' ? 'Warehouse' : 'Property'}
+              Add Property
             </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProperties.map((property) => (
+            {properties.map((property) => (
               <div
                 key={property.id}
                 className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
@@ -316,7 +272,7 @@ export default function PropertiesPage() {
                         ></div>
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
-                        {property.occupiedUnits} / {property.totalUnits} {activeTab === 'COMMERCIAL' ? 'tenants' : 'units occupied'}
+                        {property.occupiedUnits} / {property.totalUnits} units occupied
                       </p>
                     </div>
 
@@ -428,40 +384,6 @@ export default function PropertiesPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Property Type *
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setPropertyForm({ ...propertyForm, propertyType: 'RESIDENTIAL' })}
-                        className={`p-4 border-2 rounded-xl text-left transition-all ${
-                          propertyForm.propertyType === 'RESIDENTIAL'
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="text-2xl mb-1">🏠</div>
-                        <div className="font-semibold text-gray-900">Residential</div>
-                        <div className="text-xs text-gray-500">Apartments, houses, condos</div>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPropertyForm({ ...propertyForm, propertyType: 'COMMERCIAL' })}
-                        className={`p-4 border-2 rounded-xl text-left transition-all ${
-                          propertyForm.propertyType === 'COMMERCIAL'
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="text-2xl mb-1">🏭</div>
-                        <div className="font-semibold text-gray-900">Commercial</div>
-                        <div className="text-xs text-gray-500">Warehouse, office, retail</div>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Address
                     </label>
                     <input
@@ -518,12 +440,16 @@ export default function PropertiesPage() {
               {/* Step 2: Add Units */}
               {wizardStep === 2 && (
                 <div className="space-y-4">
-                  <p className="text-gray-600 mb-4">Add units to your property. You can add more later.</p>
+                  <p className="text-gray-600 mb-4">
+                    Add units to your property. You can add more later.
+                  </p>
 
                   {units.map((unit, index) => (
                     <div key={index} className="p-4 bg-gray-50 rounded-xl border border-gray-200">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="font-medium text-gray-900">Unit {index + 1}</span>
+                        <span className="font-medium text-gray-900">
+                          Unit {index + 1}
+                        </span>
                         {units.length > 1 && (
                           <button
                             type="button"
@@ -598,7 +524,7 @@ export default function PropertiesPage() {
                   <button
                     type="button"
                     onClick={addUnit}
-                    className="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-colors font-medium"
+                    className="w-full py-3 border-2 border-dashed border-gray-300 text-gray-600 hover:border-blue-400 hover:text-blue-600 rounded-xl transition-colors font-medium"
                   >
                     + Add Another Unit
                   </button>
@@ -613,9 +539,11 @@ export default function PropertiesPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Property Created!</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    Property Created!
+                  </h3>
                   <p className="text-gray-600 mb-2">
-                    <strong>{propertyForm.name}</strong> has been set up with <strong>{units.length} unit{units.length !== 1 ? 's' : ''}</strong>.
+                    <strong>{propertyForm.name}</strong> has been set up with <strong>{units.length} {units.length !== 1 ? 'units' : 'unit'}</strong>.
                   </p>
                   <p className="text-sm text-gray-500">
                     You can now add tenants and leases from the property page.
@@ -663,7 +591,7 @@ export default function PropertiesPage() {
                     disabled={submitting || !units.some(u => u.unitNumber.trim())}
                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {submitting ? 'Creating Units...' : `Create ${units.length} Unit${units.length !== 1 ? 's' : ''}`}
+                    {submitting ? 'Creating Units...' : `Create ${units.length} ${units.length !== 1 ? 'Units' : 'Unit'}`}
                   </button>
                 </>
               )}

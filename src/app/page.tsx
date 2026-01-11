@@ -145,10 +145,10 @@ export default function Dashboard() {
       const monthlyChargesData = monthlyChargesRes.ok ? await monthlyChargesRes.json() : { totalMonthly: 0 };
 
       setProperties(propertiesData);
-      setLeases(leasesData.filter((l: any) => l.status === 'ACTIVE'));
+      const activeLeases = leasesData.filter((l: any) => l.status === 'ACTIVE');
+      setLeases(activeLeases);
       setVendors(vendorsData);
 
-      const activeLeases = leasesData.filter((l: any) => l.status === 'ACTIVE');
       const totalUnits = propertiesData.reduce((sum: number, p: any) => sum + (p.units?.length || 0), 0);
       const occupiedUnits = activeLeases.length;
       const totalOwed = balancesData.tenants?.filter((t: any) => t.balance > 0).reduce((sum: number, t: any) => sum + t.balance, 0) || 0;

@@ -121,7 +121,7 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   }
 
   const amount = paymentIntent.amount / 100; // Convert from cents
-  const entryDate = new Date().toISOString().split('T')[0];
+  const entryDate = new Date();
   const description = paymentIntent.description || `Payment from ${lease.tenantName}`;
 
   // Post payment to ledger
@@ -132,8 +132,7 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
     debitCredit: 'CR',
     description: `Stripe Payment: ${description}`,
     leaseId,
-    postedBy: 'stripe-webhook',
-    idempotencyKey: `stripe-${paymentIntent.id}-ar`
+    postedBy: 'stripe-webhook'
   });
 
   await postEntry({
@@ -143,8 +142,7 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
     debitCredit: 'DR',
     description: `Stripe Payment: ${description}`,
     leaseId,
-    postedBy: 'stripe-webhook',
-    idempotencyKey: `stripe-${paymentIntent.id}-cash`
+    postedBy: 'stripe-webhook'
   });
 
   // Update lease payment status

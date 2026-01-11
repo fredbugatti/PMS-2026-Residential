@@ -14,7 +14,7 @@ export default function Sidebar() {
 
   const navItems = [
     { name: 'Dashboard', path: '/', icon: '📊' },
-    { name: 'Properties', path: '/properties', icon: '🏢' },
+    { name: 'Properties', path: '/properties', icon: '🏠' },
     { name: 'Leases', path: '/leases', icon: '📄' },
     { name: 'Maintenance', path: '/maintenance', icon: '🔧' },
     { name: 'Vendors', path: '/vendors', icon: '👷' },

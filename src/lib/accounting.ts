@@ -4,7 +4,12 @@
 import { PrismaClient, DebitCredit } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
-const prisma = new PrismaClient();
+// Prevent multiple PrismaClient instances in development (hot-reload issue)
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+
+const prisma = globalForPrisma.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export interface PostEntryParams {
   accountCode: string;

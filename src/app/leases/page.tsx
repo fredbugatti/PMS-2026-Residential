@@ -10,7 +10,6 @@ interface Lease {
   tenantPhone: string | null;
   unitName: string;
   propertyName: string | null;
-  propertyType: string | null;
   startDate: string;
   endDate: string;
   securityDepositAmount: number | null;
@@ -24,7 +23,6 @@ interface Lease {
 interface Property {
   id: string;
   name: string;
-  propertyType: string;
 }
 
 interface Unit {
@@ -93,7 +91,6 @@ export default function LeasesPage() {
   const getFilteredLeases = () => {
     if (selectedProperty === 'all') return leases;
     return leases.filter(lease => {
-      // Match by propertyName string or propertyId
       const propertyMatch = properties.find(p => p.id === selectedProperty);
       return lease.propertyName === propertyMatch?.name;
     });
@@ -369,25 +366,9 @@ export default function LeasesPage() {
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 mb-3">Tenant Information</h3>
                 <div className="space-y-4">
-                  {/* Show company name for commercial properties */}
-                  {properties.find(p => p.id === formData.propertyId)?.propertyType === 'COMMERCIAL' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Company Name *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.companyName}
-                        onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="ABC Warehousing Inc."
-                      />
-                    </div>
-                  )}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {properties.find(p => p.id === formData.propertyId)?.propertyType === 'COMMERCIAL' ? 'Contact Name *' : 'Tenant Name *'}
+                      Tenant Name *
                     </label>
                     <input
                       type="text"
@@ -395,7 +376,7 @@ export default function LeasesPage() {
                       value={formData.tenantName}
                       onChange={(e) => setFormData({ ...formData, tenantName: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder={properties.find(p => p.id === formData.propertyId)?.propertyType === 'COMMERCIAL' ? 'John Smith (Contact)' : 'John Smith'}
+                      placeholder="John Smith"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
