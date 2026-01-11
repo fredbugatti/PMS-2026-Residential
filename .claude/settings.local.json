@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(psql:*)",
+      "Bash(brew install:*)",
+      "Bash(brew services start:*)",
+      "Bash(npx prisma generate)",
+      "Bash(/opt/homebrew/opt/postgresql@15/bin/psql:*)"
+    ]
+  }
+}

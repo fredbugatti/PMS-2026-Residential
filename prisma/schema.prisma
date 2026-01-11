@@ -1,0 +1,434 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ChartOfAccounts {
+  code          String        @id @db.VarChar(10)
+  name          String        @db.VarChar(100)
+  type          AccountType
+  normalBalance DebitCredit   @map("normal_balance")
+  active        Boolean       @default(true)
+  ledgerEntries LedgerEntry[]
+
+  @@map("chart_of_accounts")
+}
+
+model LedgerEntry {
+  id             String          @id @default(uuid())
+  createdAt      DateTime        @default(now()) @map("created_at")
+  entryDate      DateTime        @map("entry_date") @db.Date
+  accountCode    String          @map("account_code") @db.VarChar(10)
+  amount         Decimal         @db.Decimal(12, 2)
+  debitCredit    DebitCredit     @map("debit_credit")
+  description    String          @db.VarChar(500)
+  idempotencyKey String          @unique @map("idempotency_key") @db.VarChar(100)
+  postedBy       String          @map("posted_by") @db.VarChar(100)
+  status         EntryStatus     @default(POSTED)
+  voidOfEntryId  String?         @map("void_of_entry_id") @db.Uuid
+  leaseId        String?         @map("lease_id")
+  account        ChartOfAccounts @relation(fields: [accountCode], references: [code])
+  lease          Lease?          @relation(fields: [leaseId], references: [id], onUpdate: NoAction)
+
+  @@index([accountCode, entryDate])
+  @@index([idempotencyKey])
+  @@index([leaseId])
+  @@map("ledger_entries")
+}
+
+model Property {
+  id              String            @id @default(uuid())
+  createdAt       DateTime          @default(now()) @map("created_at")
+  name            String            @db.VarChar(200)
+  address         String?           @db.VarChar(300)
+  city            String?           @db.VarChar(100)
+  state           String?           @db.VarChar(50)
+  zipCode         String?           @map("zip_code") @db.VarChar(20)
+  totalUnits      Int?              @map("total_units")
+  propertyType    String?           @map("property_type") @db.VarChar(50) // Single Family, Multi-Family, Apartment, etc.
+  notes           String?           @db.Text
+  active          Boolean           @default(true)
+  units           Unit[]
+  leases          Lease[]
+  workOrders      WorkOrder[]
+  libraryDocuments DocumentLibrary[]
+
+  @@map("properties")
+}
+
+model Unit {
+  id          String      @id @default(uuid())
+  createdAt   DateTime    @default(now()) @map("created_at")
+  propertyId  String      @map("property_id")
+  unitNumber  String      @map("unit_number") @db.VarChar(50)
+  bedrooms    Int?
+  bathrooms   Decimal?    @db.Decimal(3, 1)
+  squareFeet  Int?        @map("square_feet")
+  status      String      @default("VACANT") // VACANT, OCCUPIED, MAINTENANCE
+  notes       String?     @db.Text
+  property    Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  leases      Lease[]
+  workOrders  WorkOrder[]
+
+  @@unique([propertyId, unitNumber])
+  @@index([propertyId])
+  @@map("units")
+}
+
+model Lease {
+  id                    String            @id @default(uuid())
+  createdAt             DateTime          @default(now()) @map("created_at")
+  propertyId            String?           @map("property_id")
+  unitId                String?           @map("unit_id")
+  tenantName            String            @map("tenant_name") @db.VarChar(200)
+  tenantEmail           String?           @map("tenant_email") @db.VarChar(200)
+  tenantPhone           String?           @map("tenant_phone") @db.VarChar(50)
+  unitName              String            @map("unit_name") @db.VarChar(100)
+  propertyName          String?           @map("property_name") @db.VarChar(200)
+  startDate             DateTime?         @map("start_date") @db.Date
+  endDate               DateTime?         @map("end_date") @db.Date
+  securityDepositAmount Decimal?          @map("security_deposit_amount") @db.Decimal(12, 2)
+  status                String            @default("ACTIVE")
+  notes                 String?           @db.Text
+  // Automation settings (legacy - kept for backwards compatibility, use scheduledCharges instead)
+  autoChargeEnabled     Boolean           @default(false) @map("auto_charge_enabled")
+  chargeDay             Int?              @map("charge_day") // 1-31, day of month to charge rent
+  gracePeriodDays       Int?              @default(5) @map("grace_period_days")
+  lateFeeAmount         Decimal?          @map("late_fee_amount") @db.Decimal(12, 2)
+  lateFeeType           String?           @map("late_fee_type") @db.VarChar(20) // FLAT or PERCENTAGE
+  reminderEmails        Boolean           @default(false) @map("reminder_emails")
+  lastChargedDate       DateTime?         @map("last_charged_date") @db.Date
+  // Tenant Portal
+  portalToken           String?           @unique @map("portal_token") @db.VarChar(64)
+  portalLastAccess      DateTime?         @map("portal_last_access")
+  // Autopay settings
+  autopayEnabled        Boolean           @default(false) @map("autopay_enabled")
+  autopayDay            Int?              @map("autopay_day") // Day of month (1-28) to process autopay
+  autopayMethod         String?           @map("autopay_method") @db.VarChar(20) // ACH, CARD
+  autopayLast4          String?           @map("autopay_last4") @db.VarChar(4) // Last 4 digits of payment method
+  autopaySetupDate      DateTime?         @map("autopay_setup_date")
+  autopayBankName       String?           @map("autopay_bank_name") @db.VarChar(100)
+  // Stripe integration
+  stripeCustomerId      String?           @unique @map("stripe_customer_id") @db.VarChar(100)
+  stripePaymentMethodId String?           @map("stripe_payment_method_id") @db.VarChar(100)
+  stripeLastPaymentDate DateTime?         @map("stripe_last_payment_date")
+  stripeLastPaymentStatus String?         @map("stripe_last_payment_status") @db.VarChar(50)
+  property              Property?         @relation(fields: [propertyId], references: [id], onUpdate: NoAction)
+  unit                  Unit?             @relation(fields: [unitId], references: [id], onUpdate: NoAction)
+  ledgerEntries         LedgerEntry[]
+  rentIncreases         RentIncrease[]
+  documents             Document[]
+  workOrders            WorkOrder[]
+  libraryDocuments      DocumentLibrary[]
+  scheduledCharges      ScheduledCharge[]
+
+  @@index([propertyId])
+  @@index([unitId])
+  @@map("leases")
+}
+
+model ScheduledCharge {
+  id              String    @id @default(uuid())
+  createdAt       DateTime  @default(now()) @map("created_at")
+  leaseId         String    @map("lease_id")
+  description     String    @db.VarChar(200) // e.g., "Rent", "Water", "Parking", "Pet Fee"
+  amount          Decimal   @db.Decimal(12, 2)
+  chargeDay       Int       @map("charge_day") // 1-28, day of month to post charge
+  accountCode     String    @default("4000") @map("account_code") @db.VarChar(10) // Default to rental income
+  active          Boolean   @default(true)
+  lastChargedDate DateTime? @map("last_charged_date") @db.Date
+  lease           Lease     @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+
+  @@index([leaseId])
+  @@index([chargeDay, active])
+  @@map("scheduled_charges")
+}
+
+model RentIncrease {
+  id              String   @id @default(uuid())
+  createdAt       DateTime @default(now()) @map("created_at")
+  leaseId         String   @map("lease_id")
+  previousAmount  Decimal  @map("previous_amount") @db.Decimal(12, 2)
+  newAmount       Decimal  @map("new_amount") @db.Decimal(12, 2)
+  effectiveDate   DateTime @map("effective_date") @db.Date
+  noticeDate      DateTime @map("notice_date") @db.Date
+  status          String   @default("SCHEDULED") // SCHEDULED, APPLIED, CANCELLED
+  noticeGenerated Boolean  @default(false) @map("notice_generated")
+  notes           String?  @db.Text
+  appliedAt       DateTime? @map("applied_at")
+  appliedBy       String?  @map("applied_by") @db.VarChar(100)
+  lease           Lease    @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+
+  @@index([leaseId])
+  @@index([effectiveDate, status])
+  @@map("rent_increases")
+}
+
+model Document {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now()) @map("created_at")
+  leaseId     String   @map("lease_id")
+  fileName    String   @map("file_name") @db.VarChar(255)
+  fileSize    Int      @map("file_size") // in bytes
+  mimeType    String   @map("mime_type") @db.VarChar(100)
+  fileUrl     String   @map("file_url") @db.VarChar(500)
+  category    String   @db.VarChar(50) // lease_agreement, inspection, receipt, tenant_id, proof_income, reference, other
+  description String?  @db.Text
+  uploadedBy  String   @map("uploaded_by") @db.VarChar(100)
+  lease       Lease    @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+
+  @@index([leaseId])
+  @@index([category])
+  @@map("documents")
+}
+
+model DocumentTemplate {
+  id              String               @id @default(uuid())
+  createdAt       DateTime             @default(now()) @map("created_at")
+  updatedAt       DateTime             @updatedAt @map("updated_at")
+  name            String               @db.VarChar(200)
+  description     String?              @db.Text
+  category        DocumentCategory
+  templateContent String               @map("template_content") @db.Text // HTML content with merge fields
+  mergeFields     String[]             @default([]) @map("merge_fields") // Available merge fields like {{tenantName}}, {{propertyAddress}}
+  fileType        String               @default("pdf") @map("file_type") @db.VarChar(20) // pdf, docx
+  active          Boolean              @default(true)
+  isSystem        Boolean              @default(false) @map("is_system") // System templates cannot be deleted
+  createdBy       String               @map("created_by") @db.VarChar(100)
+
+  @@index([category, active])
+  @@map("document_templates")
+}
+
+model DocumentLibrary {
+  id          String               @id @default(uuid())
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+  fileName    String               @map("file_name") @db.VarChar(255)
+  fileSize    Int                  @map("file_size") // in bytes
+  mimeType    String               @map("mime_type") @db.VarChar(100)
+  fileUrl     String               @map("file_url") @db.VarChar(500)
+  category    DocumentCategory?
+  tags        String[]             @default([]) // Flexible tagging system
+  description String?              @db.Text
+  uploadedBy  String               @map("uploaded_by") @db.VarChar(100)
+  propertyId  String?              @map("property_id") // Optional property association
+  leaseId     String?              @map("lease_id") // Optional lease association
+  isFavorite  Boolean              @default(false) @map("is_favorite")
+  property    Property?            @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  lease       Lease?               @relation(fields: [leaseId], references: [id], onDelete: SetNull)
+
+  @@index([category])
+  @@index([propertyId])
+  @@index([leaseId])
+  @@index([uploadedBy])
+  @@map("document_library")
+}
+
+enum DocumentCategory {
+  LEASE_AGREEMENT
+  LEASE_AMENDMENT
+  NOTICE_TO_VACATE
+  RENT_INCREASE_NOTICE
+  LEASE_RENEWAL
+  MOVE_IN_CHECKLIST
+  MOVE_OUT_CHECKLIST
+  RECEIPT
+  INVOICE
+  VIOLATION_NOTICE
+  LATE_RENT_NOTICE
+  THREE_DAY_NOTICE
+  EVICTION_NOTICE
+  MAINTENANCE_AUTHORIZATION
+  PET_ADDENDUM
+  PARKING_AGREEMENT
+  OTHER
+}
+
+enum LeaseStatus {
+  DRAFT
+  ACTIVE
+  ENDED
+  TERMINATED
+}
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  INCOME
+  EXPENSE
+  EQUITY
+}
+
+enum DebitCredit {
+  DR
+  CR
+}
+
+enum EntryStatus {
+  POSTED
+  VOID
+}
+
+model WorkOrder {
+  id              String              @id @default(uuid())
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+  propertyId      String              @map("property_id")
+  unitId          String              @map("unit_id")
+  leaseId         String?             @map("lease_id")
+  title           String              @db.VarChar(200)
+  description     String              @db.Text
+  category        WorkOrderCategory
+  priority        WorkOrderPriority
+  status          WorkOrderStatus     @default(OPEN)
+  reportedBy      String              @map("reported_by") @db.VarChar(200)
+  reportedEmail   String?             @map("reported_email") @db.VarChar(200)
+  assignedTo      String?             @map("assigned_to") @db.VarChar(200)
+  vendorId        String?             @map("vendor_id")
+  vendor          Vendor?             @relation(fields: [vendorId], references: [id], onUpdate: NoAction)
+  estimatedCost   Decimal?            @map("estimated_cost") @db.Decimal(12, 2)
+  actualCost      Decimal?            @map("actual_cost") @db.Decimal(12, 2)
+  paidBy          PaidBy?             @map("paid_by")
+  invoiceNumber   String?             @map("invoice_number") @db.VarChar(100)
+  paymentStatus   PaymentStatus       @default(UNPAID) @map("payment_status")
+  scheduledDate   DateTime?           @map("scheduled_date") @db.Date
+  completedDate   DateTime?           @map("completed_date") @db.Date
+  paidDate        DateTime?           @map("paid_date") @db.Date
+  photos          String[]            @default([]) // Array of image URLs
+  internalNotes   String?             @map("internal_notes") @db.Text
+  property        Property            @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  unit            Unit                @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  lease           Lease?              @relation(fields: [leaseId], references: [id], onUpdate: NoAction)
+  updates         WorkOrderUpdate[]
+
+  @@index([propertyId])
+  @@index([unitId])
+  @@index([leaseId])
+  @@index([vendorId])
+  @@index([status, priority])
+  @@index([paymentStatus])
+  @@index([createdAt])
+  @@map("work_orders")
+}
+
+model WorkOrderUpdate {
+  id          String    @id @default(uuid())
+  createdAt   DateTime  @default(now()) @map("created_at")
+  workOrderId String    @map("work_order_id")
+  status      WorkOrderStatus
+  note        String    @db.Text
+  updatedBy   String    @map("updated_by") @db.VarChar(200)
+  workOrder   WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+
+  @@index([workOrderId])
+  @@map("work_order_updates")
+}
+
+enum WorkOrderCategory {
+  PLUMBING
+  ELECTRICAL
+  HVAC
+  APPLIANCE
+  GENERAL
+  OTHER
+}
+
+enum WorkOrderPriority {
+  LOW
+  MEDIUM
+  HIGH
+  EMERGENCY
+}
+
+enum WorkOrderStatus {
+  OPEN
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PaidBy {
+  OWNER
+  TENANT
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  PENDING
+}
+
+model Vendor {
+  id              String      @id @default(uuid())
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  name            String      @db.VarChar(200)
+  company         String?     @db.VarChar(200)
+  email           String?     @db.VarChar(200)
+  phone           String?     @db.VarChar(50)
+  address         String?     @db.VarChar(300)
+  city            String?     @db.VarChar(100)
+  state           String?     @db.VarChar(50)
+  zipCode         String?     @map("zip_code") @db.VarChar(20)
+  specialties     String[]    @default([]) // ["PLUMBING", "HVAC", etc.]
+  paymentTerms    PaymentTerms? @map("payment_terms")
+  taxId           String?     @map("tax_id") @db.VarChar(50)
+  notes           String?     @db.Text
+  active          Boolean     @default(true)
+  workOrders      WorkOrder[]
+
+  @@index([name])
+  @@map("vendors")
+}
+
+enum PaymentTerms {
+  DUE_ON_RECEIPT
+  NET_15
+  NET_30
+  NET_60
+}
+
+// Track cron job executions for reliability monitoring
+model CronLog {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now()) @map("created_at")
+  jobName     String   @map("job_name") @db.VarChar(100)
+  status      String   @db.VarChar(20) // SUCCESS, FAILED, PARTIAL
+  chargesPosted Int    @default(0) @map("charges_posted")
+  chargesSkipped Int   @default(0) @map("charges_skipped")
+  chargesErrored Int   @default(0) @map("charges_errored")
+  totalAmount Decimal? @map("total_amount") @db.Decimal(12, 2)
+  duration    Int?     // milliseconds
+  errorMessage String? @map("error_message") @db.Text
+  details     Json?    // Full results for debugging
+
+  @@index([jobName, createdAt])
+  @@map("cron_logs")
+}
+
+// Track Stripe webhook events for idempotency and debugging
+model WebhookEvent {
+  id            String   @id @default(uuid())
+  createdAt     DateTime @default(now()) @map("created_at")
+  stripeEventId String   @unique @map("stripe_event_id") @db.VarChar(100)
+  eventType     String   @map("event_type") @db.VarChar(100)
+  processed     Boolean  @default(false)
+  processedAt   DateTime? @map("processed_at")
+  leaseId       String?  @map("lease_id")
+  paymentIntentId String? @map("payment_intent_id") @db.VarChar(100)
+  amount        Decimal? @db.Decimal(12, 2)
+  status        String   @db.VarChar(50) // received, processed, failed, ignored
+  errorMessage  String?  @map("error_message") @db.Text
+  rawEvent      Json?    @map("raw_event") // Store full event for debugging
+
+  @@index([stripeEventId])
+  @@index([eventType, createdAt])
+  @@index([leaseId])
+  @@map("webhook_events")
+}
