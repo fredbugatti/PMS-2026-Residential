@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { MaintenancePageSkeleton } from '@/components/Skeleton';
 
 interface WorkOrderUpdate {
   id: string;
@@ -452,11 +453,7 @@ function MaintenanceContent() {
   const selectedProperty = properties.find(p => p.id === createForm.propertyId);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Loading...</div>
-      </div>
-    );
+    return <MaintenancePageSkeleton />;
   }
 
   return (

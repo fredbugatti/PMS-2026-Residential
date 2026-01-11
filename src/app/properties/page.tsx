@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { PropertiesListSkeleton } from '@/components/Skeleton';
 
 interface Property {
   id: string;
@@ -188,11 +189,7 @@ export default function PropertiesPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
-      </div>
-    );
+    return <PropertiesListSkeleton />;
   }
 
   return (

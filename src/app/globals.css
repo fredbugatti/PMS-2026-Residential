@@ -2,18 +2,102 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+@layer base {
+  :root {
+    --background: 249 250 251;
+    --foreground: 17 24 39;
+    --card: 255 255 255;
+    --card-foreground: 17 24 39;
+    --border: 229 231 235;
+    --input: 229 231 235;
+    --muted: 243 244 246;
+    --muted-foreground: 107 114 128;
+  }
+
+  .dark {
+    --background: 17 24 39;
+    --foreground: 243 244 246;
+    --card: 31 41 55;
+    --card-foreground: 243 244 246;
+    --border: 55 65 81;
+    --input: 55 65 81;
+    --muted: 31 41 55;
+    --muted-foreground: 156 163 175;
+  }
+
+  body {
+    @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+  }
+
+  /* Global dark mode form styles */
+  .dark input,
+  .dark select,
+  .dark textarea {
+    @apply bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400;
+  }
+
+  .dark input:focus,
+  .dark select:focus,
+  .dark textarea:focus {
+    @apply ring-blue-500 border-blue-500;
+  }
+
+  .dark option {
+    @apply bg-gray-700 text-gray-100;
+  }
+
+  .dark label {
+    @apply text-gray-300;
+  }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+@layer components {
+  /* Card styles with dark mode */
+  .card {
+    @apply bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700;
+  }
+
+  /* Input styles with dark mode */
+  .input {
+    @apply bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500;
+  }
+
+  /* Modal overlay */
+  .modal-overlay {
+    @apply bg-black/50 dark:bg-black/70;
+  }
+
+  /* Modal content */
+  .modal-content {
+    @apply bg-white dark:bg-gray-800;
+  }
+}
+
+/* Smooth transitions for theme changes */
+html {
+  transition: background-color 0.2s ease;
+}
+
+/* Prevent white flash on theme change */
+html.dark {
+  color-scheme: dark;
+}
+
+/* Custom scrollbar for dark mode */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
 }

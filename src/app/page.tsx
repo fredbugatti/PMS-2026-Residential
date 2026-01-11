@@ -1,7 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { DashboardSkeleton } from '@/components/Skeleton';
+import { PullToRefresh } from '@/components/PullToRefresh';
+import { useToast } from '@/components/Toast';
 
 interface Stats {
   totalProperties: number;
@@ -55,6 +58,7 @@ interface Vendor {
 }
 
 export default function Dashboard() {
+  const { showSuccess, showError, showWarning } = useToast();
   const [stats, setStats] = useState<Stats>({
     totalProperties: 0,
     totalUnits: 0,
@@ -124,7 +128,7 @@ export default function Dashboard() {
     fetchAllData();
   }, []);
 
-  const fetchAllData = async () => {
+  const fetchAllData = useCallback(async () => {
     try {
       const [propertiesRes, leasesRes, balancesRes, workOrdersRes, vendorsRes, ledgerRes, monthlyChargesRes] = await Promise.all([
         fetch('/api/properties?includeUnits=true'),
@@ -191,7 +195,17 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Pull-to-refresh handler
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([
+      fetchAllData(),
+      fetchPendingCharges(),
+      fetchPendingRentIncreases(),
+      fetchCronStatus()
+    ]);
+  }, [fetchAllData]);
 
   const fetchPendingCharges = async () => {
     try {
@@ -254,14 +268,18 @@ export default function Dashboard() {
       }
 
       const result = await res.json();
-      alert(`Posted ${result.summary.posted} charges, skipped ${result.summary.skipped}, errors: ${result.summary.errors}`);
+      if (result.summary.errors > 0) {
+        showWarning(`Posted ${result.summary.posted} charges, skipped ${result.summary.skipped}, errors: ${result.summary.errors}`);
+      } else {
+        showSuccess(`Posted ${result.summary.posted} charges successfully`);
+      }
 
       fetchAllData();
       fetchPendingCharges();
       fetchCronStatus();
     } catch (error: any) {
       console.error('Failed to post charges:', error);
-      alert(error.message || 'Failed to post charges');
+      showError(error.message || 'Failed to post charges');
     } finally {
       setPostingCharges(false);
     }
@@ -286,13 +304,17 @@ export default function Dashboard() {
       }
 
       const result = await res.json();
-      alert(`Applied ${result.applied.length} rent increase(s). ${result.errors.length > 0 ? `Errors: ${result.errors.length}` : ''}`);
+      if (result.errors.length > 0) {
+        showWarning(`Applied ${result.applied.length} rent increase(s) with ${result.errors.length} error(s)`);
+      } else {
+        showSuccess(`Applied ${result.applied.length} rent increase(s) successfully`);
+      }
 
       fetchAllData();
       fetchPendingRentIncreases();
     } catch (error: any) {
       console.error('Failed to apply rent increases:', error);
-      alert(error.message || 'Failed to apply rent increases');
+      showError(error.message || 'Failed to apply rent increases');
     } finally {
       setApplyingIncreases(false);
     }
@@ -300,7 +322,7 @@ export default function Dashboard() {
 
   const handleRecordPayment = async () => {
     if (!paymentForm.leaseId || !paymentForm.amount) {
-      alert('Please select a tenant and enter amount');
+      showWarning('Please select a tenant and enter amount');
       return;
     }
 
@@ -324,12 +346,12 @@ export default function Dashboard() {
         throw new Error(data.error || 'Failed to record payment');
       }
 
-      alert('Payment recorded successfully!');
+      showSuccess('Payment recorded successfully!');
       setShowPaymentModal(false);
       setPaymentForm({ leaseId: '', amount: '', paymentMethod: 'CHECK', referenceNumber: '', notes: '' });
       fetchAllData();
     } catch (error: any) {
-      alert(error.message || 'Failed to record payment');
+      showError(error.message || 'Failed to record payment');
     } finally {
       setSubmittingPayment(false);
     }
@@ -337,7 +359,7 @@ export default function Dashboard() {
 
   const handleAddCharge = async () => {
     if (!chargeForm.leaseId || !chargeForm.amount || !chargeForm.description) {
-      alert('Please fill in all required fields');
+      showWarning('Please fill in all required fields');
       return;
     }
 
@@ -360,12 +382,12 @@ export default function Dashboard() {
         throw new Error(data.error || 'Failed to add charge');
       }
 
-      alert('Charge added successfully!');
+      showSuccess('Charge added successfully!');
       setShowChargeModal(false);
       setChargeForm({ leaseId: '', amount: '', description: '', accountCode: '4000' });
       fetchAllData();
     } catch (error: any) {
-      alert(error.message || 'Failed to add charge');
+      showError(error.message || 'Failed to add charge');
     } finally {
       setSubmittingCharge(false);
     }
@@ -379,7 +401,7 @@ export default function Dashboard() {
     const totalFiles = workOrderPhotos.length + newFiles.length;
 
     if (totalFiles > 5) {
-      alert('Maximum 5 photos allowed');
+      showWarning('Maximum 5 photos allowed');
       return;
     }
 
@@ -398,7 +420,7 @@ export default function Dashboard() {
 
   const handleCreateWorkOrder = async () => {
     if (!workOrderForm.propertyId || !workOrderForm.unitId || !workOrderForm.title || !workOrderForm.description) {
-      alert('Please fill in all required fields');
+      showWarning('Please fill in all required fields');
       return;
     }
 
@@ -443,14 +465,14 @@ export default function Dashboard() {
       // Clear preview URLs
       workOrderPhotoPreviewUrls.forEach(url => URL.revokeObjectURL(url));
 
-      alert('Work order created successfully!');
+      showSuccess('Work order created successfully!');
       setShowWorkOrderModal(false);
       setWorkOrderForm({ propertyId: '', unitId: '', title: '', description: '', category: 'GENERAL', priority: 'MEDIUM', vendorId: '' });
       setWorkOrderPhotos([]);
       setWorkOrderPhotoPreviewUrls([]);
       fetchAllData();
     } catch (error: any) {
-      alert(error.message || 'Failed to create work order');
+      showError(error.message || 'Failed to create work order');
     } finally {
       setSubmittingWorkOrder(false);
     }
@@ -483,22 +505,19 @@ export default function Dashboard() {
   const selectedProperty = properties.find(p => p.id === workOrderForm.propertyId);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <PullToRefresh onRefresh={handleRefresh}>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-sm text-gray-600 mt-1">Property management overview</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Property management overview</p>
             </div>
             {/* Quick Action Buttons */}
             <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0">
@@ -528,36 +547,36 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         {/* Key Metrics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200">
-            <p className="text-xs sm:text-sm text-gray-600">Properties</p>
-            <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{stats.totalProperties}</p>
-            <p className="text-xs text-gray-500 mt-1">{stats.totalUnits} units total</p>
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Properties</p>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.totalProperties}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{stats.totalUnits} units total</p>
           </div>
 
-          <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200">
-            <p className="text-xs sm:text-sm text-gray-600">Occupancy</p>
-            <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{occupancyRate}%</p>
-            <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Occupancy</p>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1">{occupancyRate}%</p>
+            <div className="mt-2 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
               <div
                 className="h-full bg-green-500 rounded-full transition-all"
                 style={{ width: `${occupancyRate}%` }}
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">{stats.occupiedUnits}/{stats.totalUnits} units</p>
+            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{stats.occupiedUnits}/{stats.totalUnits} units</p>
           </div>
 
-          <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200">
-            <p className="text-xs sm:text-sm text-gray-600">Monthly Revenue</p>
-            <p className="text-xl sm:text-3xl font-bold text-green-600 mt-1">{formatCurrency(stats.monthlyRevenue)}</p>
-            <p className="text-xs text-gray-500 mt-1">all recurring charges</p>
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Monthly Revenue</p>
+            <p className="text-xl sm:text-3xl font-bold text-green-600 dark:text-green-400 mt-1">{formatCurrency(stats.monthlyRevenue)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">all recurring charges</p>
           </div>
 
-          <Link href="/reports" className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <p className="text-xs sm:text-sm text-gray-600">Outstanding</p>
-            <p className={`text-xl sm:text-3xl font-bold mt-1 ${stats.totalOwed > 0 ? 'text-red-600' : 'text-gray-900'}`}>
+          <Link href="/reports" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Outstanding</p>
+            <p className={`text-xl sm:text-3xl font-bold mt-1 ${stats.totalOwed > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
               {formatCurrency(stats.totalOwed)}
             </p>
-            <p className="text-xs text-gray-500 mt-1">total owed - click to view</p>
+            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">total owed - click to view</p>
           </Link>
         </div>
 
@@ -637,84 +656,84 @@ export default function Dashboard() {
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Quick Navigation */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-              <Link href="/properties" className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-blue-200 transition-colors">
+              <Link href="/properties" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow group">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-blue-200 dark:group-hover:bg-blue-900 transition-colors">
                   🏢
                 </div>
-                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Properties</h3>
-                <p className="text-xs sm:text-sm text-gray-600">{stats.totalProperties} properties</p>
+                <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Properties</h3>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{stats.totalProperties} properties</p>
               </Link>
 
-              <Link href="/leases" className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-green-200 transition-colors">
+              <Link href="/leases" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow group">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-green-200 dark:group-hover:bg-green-900 transition-colors">
                   📄
                 </div>
-                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Leases</h3>
-                <p className="text-xs sm:text-sm text-gray-600">{stats.activeLeases} active</p>
+                <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Leases</h3>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{stats.activeLeases} active</p>
               </Link>
 
-              <Link href="/maintenance" className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
+              <Link href="/maintenance" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow group">
                 <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 transition-colors ${
-                  stats.openWorkOrders > 0 ? 'bg-orange-100 group-hover:bg-orange-200' : 'bg-gray-100 group-hover:bg-gray-200'
+                  stats.openWorkOrders > 0 ? 'bg-orange-100 dark:bg-orange-900/50 group-hover:bg-orange-200 dark:group-hover:bg-orange-900' : 'bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600'
                 }`}>
                   🔧
                 </div>
-                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Maintenance</h3>
-                <p className={`text-xs sm:text-sm ${stats.openWorkOrders > 0 ? 'text-orange-600 font-medium' : 'text-gray-600'}`}>
+                <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Maintenance</h3>
+                <p className={`text-xs sm:text-sm ${stats.openWorkOrders > 0 ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
                   {stats.openWorkOrders} open
                 </p>
               </Link>
 
-              <Link href="/accounting" className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-purple-200 transition-colors">
+              <Link href="/accounting" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow group">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-purple-200 dark:group-hover:bg-purple-900 transition-colors">
                   💰
                 </div>
-                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Accounting</h3>
-                <p className="text-xs sm:text-sm text-gray-600">Ledger & balances</p>
+                <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Accounting</h3>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Ledger & balances</p>
               </Link>
 
-              <Link href="/reports" className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-indigo-100 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-indigo-200 transition-colors">
+              <Link href="/reports" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow group">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-indigo-200 dark:group-hover:bg-indigo-900 transition-colors">
                   📈
                 </div>
-                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Reports</h3>
-                <p className="text-xs sm:text-sm text-gray-600">P&L & balances</p>
+                <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Reports</h3>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">P&L & balances</p>
               </Link>
 
-              <Link href="/vendors" className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-teal-100 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-teal-200 transition-colors">
+              <Link href="/vendors" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow group">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-teal-100 dark:bg-teal-900/50 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-teal-200 dark:group-hover:bg-teal-900 transition-colors">
                   👷
                 </div>
-                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Vendors</h3>
-                <p className="text-xs sm:text-sm text-gray-600">Contractors</p>
+                <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Vendors</h3>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Contractors</p>
               </Link>
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-              <div className="p-3 sm:p-4 border-b border-gray-200">
-                <h2 className="font-semibold text-gray-900 text-sm sm:text-base">Recent Activity</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Recent Activity</h2>
               </div>
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-100 dark:divide-gray-700">
                 {recentActivity.length === 0 ? (
-                  <div className="p-4 text-center text-gray-500 text-sm">No recent activity</div>
+                  <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">No recent activity</div>
                 ) : (
                   recentActivity.map(activity => (
-                    <div key={activity.id} className="p-3 sm:p-4 flex items-center justify-between hover:bg-gray-50">
+                    <div key={activity.id} className="p-3 sm:p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50">
                       <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                         <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm flex-shrink-0 ${
-                          activity.type === 'payment' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'
+                          activity.type === 'payment' ? 'bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400' : 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400'
                         }`}>
                           {activity.type === 'payment' ? '💵' : '📝'}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs sm:text-sm text-gray-900 line-clamp-1">{activity.description}</p>
-                          <p className="text-xs text-gray-500">{formatDate(activity.date)}</p>
+                          <p className="text-xs sm:text-sm text-gray-900 dark:text-gray-100 line-clamp-1">{activity.description}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(activity.date)}</p>
                         </div>
                       </div>
                       {activity.amount && (
                         <span className={`text-xs sm:text-sm font-medium ml-2 flex-shrink-0 ${
-                          activity.type === 'payment' ? 'text-green-600' : 'text-gray-900'
+                          activity.type === 'payment' ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-gray-100'
                         }`}>
                           {activity.type === 'payment' ? '+' : ''}{formatCurrency(activity.amount)}
                         </span>
@@ -723,7 +742,7 @@ export default function Dashboard() {
                   ))
                 )}
               </div>
-              <Link href="/accounting" className="block p-3 text-center text-sm text-blue-600 hover:bg-gray-50 border-t border-gray-100">
+              <Link href="/accounting" className="block p-3 text-center text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 border-t border-gray-100 dark:border-gray-700">
                 View All Transactions
               </Link>
             </div>
@@ -733,26 +752,26 @@ export default function Dashboard() {
           <div className="space-y-4 sm:space-y-6">
             {/* Needs Attention */}
             {(stats.totalOwed > 0 || stats.openWorkOrders > 0) && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-                <div className="p-3 sm:p-4 border-b border-gray-200">
-                  <h2 className="font-semibold text-gray-900 text-sm sm:text-base">Needs Attention</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700">
+                  <h2 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Needs Attention</h2>
                 </div>
                 <div className="p-3 sm:p-4 space-y-3">
                   {stats.totalOwed > 0 && (
-                    <Link href="/reports" className="flex items-center gap-3 p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                    <Link href="/reports" className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/30 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors">
                       <span className="text-lg sm:text-xl">💸</span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-medium text-red-800">{formatCurrency(stats.totalOwed)} Outstanding</p>
-                        <p className="text-xs text-red-600">View unpaid balances</p>
+                        <p className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-300">{formatCurrency(stats.totalOwed)} Outstanding</p>
+                        <p className="text-xs text-red-600 dark:text-red-400">View unpaid balances</p>
                       </div>
                     </Link>
                   )}
                   {stats.openWorkOrders > 0 && (
-                    <Link href="/maintenance" className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors">
+                    <Link href="/maintenance" className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-900/30 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors">
                       <span className="text-lg sm:text-xl">🔧</span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-medium text-orange-800">{stats.openWorkOrders} Open Work Orders</p>
-                        <p className="text-xs text-orange-600">View maintenance requests</p>
+                        <p className="text-xs sm:text-sm font-medium text-orange-800 dark:text-orange-300">{stats.openWorkOrders} Open Work Orders</p>
+                        <p className="text-xs text-orange-600 dark:text-orange-400">View maintenance requests</p>
                       </div>
                     </Link>
                   )}
@@ -761,14 +780,14 @@ export default function Dashboard() {
             )}
 
             {/* Expiring Leases */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-              <div className="p-3 sm:p-4 border-b border-gray-200">
-                <h2 className="font-semibold text-gray-900 text-sm sm:text-base">Expiring Soon</h2>
-                <p className="text-xs text-gray-500">Next 60 days</p>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Expiring Soon</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Next 60 days</p>
               </div>
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-100 dark:divide-gray-700">
                 {expiringLeases.length === 0 ? (
-                  <div className="p-4 text-center text-gray-500 text-sm">No leases expiring soon</div>
+                  <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">No leases expiring soon</div>
                 ) : (
                   expiringLeases.map(lease => {
                     const daysUntil = getDaysUntil(lease.endDate);
@@ -776,14 +795,14 @@ export default function Dashboard() {
                       <Link
                         key={lease.id}
                         href={`/leases/${lease.id}`}
-                        className="block p-3 sm:p-4 hover:bg-gray-50 transition-colors"
+                        className="block p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                       >
                         <div className="flex items-center justify-between">
                           <div className="min-w-0 flex-1">
-                            <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">{lease.tenantName}</p>
-                            <p className="text-xs text-gray-500">{lease.unitName}</p>
+                            <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white truncate">{lease.tenantName}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{lease.unitName}</p>
                           </div>
-                          <div className={`text-right ml-2 ${daysUntil <= 14 ? 'text-red-600' : daysUntil <= 30 ? 'text-orange-600' : 'text-gray-600'}`}>
+                          <div className={`text-right ml-2 ${daysUntil <= 14 ? 'text-red-600 dark:text-red-400' : daysUntil <= 30 ? 'text-orange-600 dark:text-orange-400' : 'text-gray-600 dark:text-gray-400'}`}>
                             <p className="text-xs sm:text-sm font-medium">{daysUntil} days</p>
                             <p className="text-xs">{formatDate(lease.endDate)}</p>
                           </div>
@@ -793,7 +812,7 @@ export default function Dashboard() {
                   })
                 )}
               </div>
-              <Link href="/leases" className="block p-3 text-center text-sm text-blue-600 hover:bg-gray-50 border-t border-gray-100">
+              <Link href="/leases" className="block p-3 text-center text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 border-t border-gray-100 dark:border-gray-700">
                 View All Leases
               </Link>
             </div>
@@ -803,11 +822,11 @@ export default function Dashboard() {
 
       {/* Quick Payment Modal */}
       {showPaymentModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <div className="bg-white rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Record Payment</h2>
-              <button onClick={() => setShowPaymentModal(false)} className="text-gray-500 hover:text-gray-700 text-2xl p-1">&times;</button>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Record Payment</h2>
+              <button onClick={() => setShowPaymentModal(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl p-1">&times;</button>
             </div>
             <div className="space-y-4">
               <div>
@@ -862,7 +881,7 @@ export default function Dashboard() {
             <div className="flex flex-col-reverse sm:flex-row gap-3 mt-6">
               <button
                 onClick={() => setShowPaymentModal(false)}
-                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
               >
                 Cancel
               </button>
@@ -880,11 +899,11 @@ export default function Dashboard() {
 
       {/* Quick Charge Modal */}
       {showChargeModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <div className="bg-white rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Add Charge</h2>
-              <button onClick={() => setShowChargeModal(false)} className="text-gray-500 hover:text-gray-700 text-2xl p-1">&times;</button>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Add Charge</h2>
+              <button onClick={() => setShowChargeModal(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl p-1">&times;</button>
             </div>
             <div className="space-y-4">
               <div>
@@ -939,7 +958,7 @@ export default function Dashboard() {
             <div className="flex flex-col-reverse sm:flex-row gap-3 mt-6">
               <button
                 onClick={() => setShowChargeModal(false)}
-                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
               >
                 Cancel
               </button>
@@ -957,11 +976,11 @@ export default function Dashboard() {
 
       {/* Quick Work Order Modal */}
       {showWorkOrderModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <div className="bg-white rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Create Work Order</h2>
-              <button onClick={() => setShowWorkOrderModal(false)} className="text-gray-500 hover:text-gray-700 text-2xl p-1">&times;</button>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Create Work Order</h2>
+              <button onClick={() => setShowWorkOrderModal(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl p-1">&times;</button>
             </div>
             <div className="space-y-4">
               <div>
@@ -1092,7 +1111,7 @@ export default function Dashboard() {
                         onChange={handleWorkOrderPhotoSelect}
                         className="hidden"
                       />
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
                         + Add Photos ({workOrderPhotos.length}/5)
                       </span>
                     </label>
@@ -1108,7 +1127,7 @@ export default function Dashboard() {
                   setWorkOrderPhotos([]);
                   setWorkOrderPhotoPreviewUrls([]);
                 }}
-                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
               >
                 Cancel
               </button>
@@ -1124,5 +1143,6 @@ export default function Dashboard() {
         </div>
       )}
     </div>
+    </PullToRefresh>
   );
 }
