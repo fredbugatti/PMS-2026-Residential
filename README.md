@@ -126,3 +126,4 @@ MIT License - see LICENSE file for details
 ---
 
 **Built with ❤️ for property managers who value accuracy over automation**
+
