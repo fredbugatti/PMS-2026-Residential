@@ -28,7 +28,8 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
     { name: 'Accounting', path: '/accounting', icon: '💰' },
     { name: 'Reports', path: '/reports', icon: '📈' },
     { name: 'Documents', path: '/documents', icon: '📁' },
-    { name: 'Admin', path: '/admin', icon: '⚙️' },
+    { name: 'Settings', path: '/settings', icon: '⚙️' },
+    { name: 'Admin', path: '/admin', icon: '🛠️' },
   ];
 
   const handleNavClick = () => {

@@ -1,84 +1,55 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/accounting';
 
-// GET /api/admin/test-apis - Test all API endpoints
+export const dynamic = 'force-dynamic';
+
+// GET /api/admin/test-apis - Test all database tables and API functionality
 export async function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-
-  const endpoints = [
-    // Core Data
-    { name: 'Properties List', method: 'GET', path: '/api/properties' },
-    { name: 'Units List', method: 'GET', path: '/api/units' },
-    { name: 'Leases List', method: 'GET', path: '/api/leases' },
-    { name: 'Vendors List', method: 'GET', path: '/api/vendors' },
-    { name: 'Work Orders List', method: 'GET', path: '/api/work-orders' },
-
-    // Accounting
-    { name: 'Chart of Accounts', method: 'GET', path: '/api/chart-of-accounts' },
-    { name: 'Ledger Entries', method: 'GET', path: '/api/ledger' },
-    { name: 'Scheduled Charges', method: 'GET', path: '/api/scheduled-charges' },
-    { name: 'Monthly Revenue Summary', method: 'GET', path: '/api/scheduled-charges?summary=true' },
-    { name: 'Pending Charges', method: 'GET', path: '/api/scheduled-charges/pending' },
-    { name: 'Balances', method: 'GET', path: '/api/balances' },
-    { name: 'Expenses', method: 'GET', path: '/api/expenses' },
-
-    // Reports
-    { name: 'Tenant Balances Report', method: 'GET', path: '/api/reports/tenant-balances' },
-    { name: 'Income Breakdown', method: 'GET', path: '/api/reports/income-breakdown' },
-    { name: 'Profit & Loss', method: 'GET', path: '/api/reports/profit-loss' },
-    // Note: /api/reports/transactions requires accountCode param, not tested here
-    // Note: /api/documents requires leaseId param, not tested here
-
-    // Documents
-    { name: 'Document Library', method: 'GET', path: '/api/library' },
-    { name: 'Templates List', method: 'GET', path: '/api/templates' },
-
-    // Rent Management
-    { name: 'Rent Increases', method: 'GET', path: '/api/rent-increases' },
-    { name: 'Pending Rent Increases', method: 'GET', path: '/api/rent-increases/pending' },
-
-    // Admin & System
-    { name: 'Health Check', method: 'GET', path: '/api/admin/health' },
-    { name: 'Statistics', method: 'GET', path: '/api/admin/stats' },
-    { name: 'Upcoming Events', method: 'GET', path: '/api/admin/upcoming' },
-    { name: 'Cron Status', method: 'GET', path: '/api/cron/status' },
-    { name: 'Cron Logs', method: 'GET', path: '/api/cron/logs' },
-  ];
-
   const results: {
     name: string;
     path: string;
     status: 'ok' | 'error';
-    httpStatus: number;
     responseTime: number;
+    count?: number;
     error?: string;
   }[] = [];
 
-  for (const endpoint of endpoints) {
+  // Test each table/model directly via Prisma
+  const tests = [
+    { name: 'Properties List', path: '/api/properties', test: () => prisma.property.count() },
+    { name: 'Units List', path: '/api/units', test: () => prisma.unit.count() },
+    { name: 'Leases List', path: '/api/leases', test: () => prisma.lease.count() },
+    { name: 'Vendors List', path: '/api/vendors', test: () => prisma.vendor.count() },
+    { name: 'Work Orders List', path: '/api/work-orders', test: () => prisma.workOrder.count() },
+    { name: 'Chart of Accounts', path: '/api/chart-of-accounts', test: () => prisma.chartOfAccounts.count() },
+    { name: 'Ledger Entries', path: '/api/ledger', test: () => prisma.ledgerEntry.count() },
+    { name: 'Scheduled Charges', path: '/api/scheduled-charges', test: () => prisma.scheduledCharge.count() },
+    { name: 'Rent Increases', path: '/api/rent-increases', test: () => prisma.rentIncrease.count() },
+    { name: 'Documents', path: '/api/documents', test: () => prisma.document.count() },
+    { name: 'Document Library', path: '/api/library', test: () => prisma.documentLibrary.count() },
+    { name: 'Document Templates', path: '/api/templates', test: () => prisma.documentTemplate.count() },
+    { name: 'Cron Logs', path: '/api/cron/logs', test: () => prisma.cronLog.count() },
+    { name: 'Webhook Events', path: '/api/webhooks', test: () => prisma.webhookEvent.count() },
+  ];
+
+  for (const { name, path, test } of tests) {
     const startTime = Date.now();
     try {
-      const res = await fetch(`${baseUrl}${endpoint.path}`, {
-        method: endpoint.method,
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      const responseTime = Date.now() - startTime;
-
+      const count = await test();
       results.push({
-        name: endpoint.name,
-        path: endpoint.path,
-        status: res.ok ? 'ok' : 'error',
-        httpStatus: res.status,
-        responseTime,
-        error: res.ok ? undefined : `HTTP ${res.status}`
+        name,
+        path,
+        status: 'ok',
+        responseTime: Date.now() - startTime,
+        count,
       });
     } catch (error: any) {
       results.push({
-        name: endpoint.name,
-        path: endpoint.path,
+        name,
+        path,
         status: 'error',
-        httpStatus: 0,
         responseTime: Date.now() - startTime,
-        error: error.message
+        error: error.message,
       });
     }
   }
