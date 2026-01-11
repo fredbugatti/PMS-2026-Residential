@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/accounting';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/admin/upcoming - Get upcoming events and scheduled actions
 export async function GET() {
   const today = new Date();

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/accounting';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/reports/profit-loss - Get Profit & Loss statement
 export async function GET(request: NextRequest) {
   try {

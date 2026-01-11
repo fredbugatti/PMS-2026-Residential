@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/accounting';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/ledger - Get all ledger entries with filters
 export async function GET(request: NextRequest) {
   try {

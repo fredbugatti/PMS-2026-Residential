@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/accounting';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/reports/tenant-balances - Get all tenant balances
 export async function GET() {
   try {

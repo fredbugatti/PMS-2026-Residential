@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/accounting';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/rent-increases/pending - Get count of pending rent increases that are due
 export async function GET(request: NextRequest) {
   try {

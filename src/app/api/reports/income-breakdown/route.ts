@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/accounting';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/reports/income-breakdown - Get income breakdown by account
 export async function GET(request: NextRequest) {
   try {

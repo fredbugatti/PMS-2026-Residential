@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getAccountBalance, prisma } from '@/lib/accounting';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const accounts = await prisma.chartOfAccounts.findMany({

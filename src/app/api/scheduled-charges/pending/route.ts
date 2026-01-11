@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/accounting';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/scheduled-charges/pending - Get count and total of pending charges
 export async function GET(request: NextRequest) {
   try {
