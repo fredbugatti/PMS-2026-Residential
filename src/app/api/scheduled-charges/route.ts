@@ -92,9 +92,21 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // Get existing account codes for this lease
+      const existingCharges = await prisma.scheduledCharge.findMany({
+        where: { leaseId, active: true },
+        select: { accountCode: true, description: true }
+      });
+      const existingAccountCodes = new Set(existingCharges.map(c => c.accountCode));
+
+      // Track account codes in this batch to detect duplicates within the batch
+      const batchAccountCodes = new Set<string>();
+
       // Validate all charges
       for (let i = 0; i < charges.length; i++) {
         const charge = charges[i];
+        const accountCode = charge.accountCode || '4000';
+
         if (!charge.description || !charge.description.trim()) {
           return NextResponse.json(
             { error: `Charge ${i + 1}: Description is required` },
@@ -113,6 +125,24 @@ export async function POST(request: NextRequest) {
             { status: 400 }
           );
         }
+
+        // Check for duplicate account code in existing charges
+        if (existingAccountCodes.has(accountCode)) {
+          const existing = existingCharges.find(c => c.accountCode === accountCode);
+          return NextResponse.json(
+            { error: `Account ${accountCode} is already scheduled for this lease (${existing?.description}). Each account can only be charged once per month.` },
+            { status: 400 }
+          );
+        }
+
+        // Check for duplicate account code within this batch
+        if (batchAccountCodes.has(accountCode)) {
+          return NextResponse.json(
+            { error: `Charge ${i + 1}: Account ${accountCode} is duplicated in this batch. Each account can only be charged once per month.` },
+            { status: 400 }
+          );
+        }
+        batchAccountCodes.add(accountCode);
       }
 
       // Create all charges in a transaction
@@ -168,13 +198,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check for duplicate account code on this lease
+    const accountCode = body.accountCode || '4000';
+    const existingCharge = await prisma.scheduledCharge.findFirst({
+      where: {
+        leaseId: body.leaseId,
+        accountCode: accountCode,
+        active: true
+      },
+      select: { description: true }
+    });
+
+    if (existingCharge) {
+      return NextResponse.json(
+        { error: `Account ${accountCode} is already scheduled for this lease (${existingCharge.description}). Each account can only be charged once per month.` },
+        { status: 400 }
+      );
+    }
+
     const scheduledCharge = await prisma.scheduledCharge.create({
       data: {
         leaseId: body.leaseId,
         description: body.description.trim(),
         amount: parseFloat(body.amount),
         chargeDay: parseInt(body.chargeDay),
-        accountCode: body.accountCode || '4000',
+        accountCode: accountCode,
         active: body.active !== false
       }
     });

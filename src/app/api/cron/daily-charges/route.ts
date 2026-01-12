@@ -22,12 +22,14 @@ async function handleDailyCharges(request: NextRequest): Promise<NextResponse> {
     const monthName = today.toLocaleString('en-US', { month: 'long', year: 'numeric' });
 
     // Get active scheduled charges that are due today or earlier this month
+    // Also filter by lease start date - only include leases that have started
     const scheduledCharges = await prisma.scheduledCharge.findMany({
       where: {
         active: true,
         chargeDay: { lte: currentDay },
         lease: {
-          status: 'ACTIVE'
+          status: 'ACTIVE',
+          startDate: { lte: today } // Only leases that have already started
         }
       },
       include: {
@@ -36,7 +38,8 @@ async function handleDailyCharges(request: NextRequest): Promise<NextResponse> {
             id: true,
             tenantName: true,
             unitName: true,
-            propertyName: true
+            propertyName: true,
+            startDate: true
           }
         }
       }
