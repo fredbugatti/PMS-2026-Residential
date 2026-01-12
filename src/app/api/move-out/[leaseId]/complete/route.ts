@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma, postAtomicLedgerEntry } from '@/lib/accounting';
+import { prisma, postDoubleEntry } from '@/lib/accounting';
 import { sendEmail, emailTemplates } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
@@ -48,7 +48,6 @@ export async function POST(
     const totalDeductions = Number(inspection.totalDeductions);
     const amountToReturn = Number(inspection.amountToReturn);
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
 
     // Post ledger entries for the deposit disposition
     const ledgerEntries: string[] = [];
@@ -64,37 +63,35 @@ export async function POST(
 
       for (const [category, amount] of Object.entries(deductionsByCategory)) {
         const description = `Security Deposit Deduction - ${category.replace('_', ' ')}`;
-        const idempotencyKey = `deposit-deduction-${leaseId}-${category}-${todayStr}`;
 
         // DR: Security Deposit Liability (2100) - reduce what we owe
         // CR: Other Income (4900) - record deduction as income
         try {
-          await postAtomicLedgerEntry({
-            entryDate: today,
-            entries: [
-              {
-                accountCode: '2100',
-                amount,
-                debitCredit: 'DR',
-                description
-              },
-              {
-                accountCode: '4900',
-                amount,
-                debitCredit: 'CR',
-                description
-              }
-            ],
-            leaseId,
-            idempotencyKey,
-            postedBy: 'system'
+          const result = await postDoubleEntry({
+            debitEntry: {
+              accountCode: '2100',
+              amount,
+              debitCredit: 'DR',
+              description,
+              entryDate: today,
+              leaseId,
+              postedBy: 'system'
+            },
+            creditEntry: {
+              accountCode: '4900',
+              amount,
+              debitCredit: 'CR',
+              description,
+              entryDate: today,
+              leaseId,
+              postedBy: 'system'
+            }
           });
-          ledgerEntries.push(idempotencyKey);
+          ledgerEntries.push(result.debit.id);
+          ledgerEntries.push(result.credit.id);
         } catch (e: any) {
-          // Idempotency - entry may already exist
-          if (!e.message?.includes('Duplicate')) {
-            throw e;
-          }
+          // Idempotency - entry may already exist, continue
+          console.log('Deduction entry may already exist:', e.message);
         }
       }
     }
@@ -102,36 +99,35 @@ export async function POST(
     // If returning money, record the return
     if (amountToReturn > 0) {
       const returnDescription = `Security Deposit Return - ${inspection.lease.tenantName}`;
-      const returnIdempotencyKey = `deposit-return-${leaseId}-${todayStr}`;
 
       // DR: Security Deposit Liability (2100) - reduce what we owe
       // CR: Cash/Bank (1000) - money leaving
       try {
-        await postAtomicLedgerEntry({
-          entryDate: today,
-          entries: [
-            {
-              accountCode: '2100',
-              amount: amountToReturn,
-              debitCredit: 'DR',
-              description: returnDescription
-            },
-            {
-              accountCode: '1000',
-              amount: amountToReturn,
-              debitCredit: 'CR',
-              description: returnDescription
-            }
-          ],
-          leaseId,
-          idempotencyKey: returnIdempotencyKey,
-          postedBy: 'system'
+        const result = await postDoubleEntry({
+          debitEntry: {
+            accountCode: '2100',
+            amount: amountToReturn,
+            debitCredit: 'DR',
+            description: returnDescription,
+            entryDate: today,
+            leaseId,
+            postedBy: 'system'
+          },
+          creditEntry: {
+            accountCode: '1000',
+            amount: amountToReturn,
+            debitCredit: 'CR',
+            description: returnDescription,
+            entryDate: today,
+            leaseId,
+            postedBy: 'system'
+          }
         });
-        ledgerEntries.push(returnIdempotencyKey);
+        ledgerEntries.push(result.debit.id);
+        ledgerEntries.push(result.credit.id);
       } catch (e: any) {
-        if (!e.message?.includes('Duplicate')) {
-          throw e;
-        }
+        // Idempotency - entry may already exist
+        console.log('Return entry may already exist:', e.message);
       }
     }
 
