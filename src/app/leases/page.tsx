@@ -9,6 +9,9 @@ interface Lease {
   companyName: string | null;
   tenantEmail: string | null;
   tenantPhone: string | null;
+  contactTitle: string | null;
+  businessType: string | null;
+  leasedSquareFeet: number | null;
   unitName: string;
   propertyName: string | null;
   startDate: string;
@@ -32,6 +35,9 @@ interface Unit {
   unitNumber: string;
   propertyId: string;
   status: string;
+  squareFeet: number | null;
+  loadingDocks: number | null;
+  driveInDoors: number | null;
 }
 
 export default function LeasesPage() {
@@ -46,6 +52,9 @@ export default function LeasesPage() {
     companyName: '',
     tenantEmail: '',
     tenantPhone: '',
+    contactTitle: '',
+    businessType: '',
+    leasedSquareFeet: '',
     propertyId: '',
     unitId: '',
     unitName: '',
@@ -157,6 +166,9 @@ export default function LeasesPage() {
         ...formData,
         tenantEmail: formData.tenantEmail || null,
         tenantPhone: formData.tenantPhone || null,
+        contactTitle: formData.contactTitle || null,
+        businessType: formData.businessType || null,
+        leasedSquareFeet: formData.leasedSquareFeet ? parseInt(formData.leasedSquareFeet) : null,
         propertyId: formData.propertyId || null,
         unitId: formData.unitId || null,
         propertyName: formData.propertyName || null,
@@ -183,6 +195,9 @@ export default function LeasesPage() {
         companyName: '',
         tenantEmail: '',
         tenantPhone: '',
+        contactTitle: '',
+        businessType: '',
+        leasedSquareFeet: '',
         propertyId: '',
         unitId: '',
         unitName: '',
@@ -535,45 +550,112 @@ export default function LeasesPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-6">
-              {/* Tenant Information */}
+              {/* Business Tenant Information */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">Tenant Information</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-3">Business Information</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Tenant Name *
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      Business Name *
                     </label>
                     <input
                       type="text"
                       required
-                      value={formData.tenantName}
-                      onChange={(e) => setFormData({ ...formData, tenantName: e.target.value })}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                      placeholder="John Smith"
+                      value={formData.companyName}
+                      onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                      className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base"
+                      placeholder="ABC Distribution LLC"
                     />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Business Type
+                      </label>
+                      <select
+                        value={formData.businessType}
+                        onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
+                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base"
+                      >
+                        <option value="">Select type</option>
+                        <option value="Distribution">Distribution</option>
+                        <option value="Manufacturing">Manufacturing</option>
+                        <option value="Storage">Storage</option>
+                        <option value="Logistics">Logistics</option>
+                        <option value="Retail">Retail</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Leased Square Feet
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={formData.leasedSquareFeet}
+                        onChange={(e) => setFormData({ ...formData, leasedSquareFeet: e.target.value })}
+                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base"
+                        placeholder="25000"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Person */}
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900 mb-3">Contact Person</h3>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Contact Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.tenantName}
+                        onChange={(e) => setFormData({ ...formData, tenantName: e.target.value })}
+                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base"
+                        placeholder="John Smith"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Title
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.contactTitle}
+                        onChange={(e) => setFormData({ ...formData, contactTitle: e.target.value })}
+                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base"
+                        placeholder="Operations Manager"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         Email
                       </label>
                       <input
                         type="email"
                         value={formData.tenantEmail}
                         onChange={(e) => setFormData({ ...formData, tenantEmail: e.target.value })}
-                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                        placeholder="john@example.com"
+                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base"
+                        placeholder="john@abcdist.com"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         Phone
                       </label>
                       <input
                         type="tel"
                         value={formData.tenantPhone}
                         onChange={(e) => setFormData({ ...formData, tenantPhone: e.target.value })}
-                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base"
                         placeholder="(555) 123-4567"
                       />
                     </div>
@@ -581,65 +663,65 @@ export default function LeasesPage() {
                 </div>
               </div>
 
-              {/* Unit Information */}
+              {/* Space Information */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">Unit Information</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-3">Space Information</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Property
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      Warehouse
                     </label>
                     <select
                       value={formData.propertyId}
                       onChange={(e) => handlePropertyChange(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                      className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base"
                     >
-                      <option value="">Select a property (optional)</option>
+                      <option value="">Select a warehouse (optional)</option>
                       {properties.map(property => (
                         <option key={property.id} value={property.id}>{property.name}</option>
                       ))}
                     </select>
-                    <p className="text-xs text-gray-500 mt-1">Select a property to choose from available units</p>
+                    <p className="text-xs text-slate-500 mt-1">Select a warehouse to choose from available spaces</p>
                   </div>
 
                   {formData.propertyId && availableUnits.length > 0 ? (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Unit *
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Space *
                       </label>
                       <select
                         required
                         value={formData.unitId}
                         onChange={(e) => handleUnitChange(e.target.value)}
-                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base"
                       >
-                        <option value="">Select a unit</option>
+                        <option value="">Select a space</option>
                         {availableUnits.map(unit => (
                           <option key={unit.id} value={unit.id}>
-                            {unit.unitNumber} {unit.status !== 'VACANT' ? `(${unit.status})` : ''}
+                            {unit.unitNumber} {unit.squareFeet ? `(${unit.squareFeet.toLocaleString()} sq ft)` : ''} {unit.status !== 'VACANT' ? `- ${unit.status}` : ''}
                           </option>
                         ))}
                       </select>
                     </div>
                   ) : (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Unit Name *
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Space Name *
                       </label>
                       <input
                         type="text"
                         required
                         value={formData.unitName}
                         onChange={(e) => setFormData({ ...formData, unitName: e.target.value })}
-                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                        placeholder="Unit 101"
+                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base"
+                        placeholder="Suite 100"
                         disabled={formData.propertyId !== '' && availableUnits.length === 0}
                       />
                       {formData.propertyId && availableUnits.length === 0 && (
-                        <p className="text-xs text-red-500 mt-1">No units available for this property</p>
+                        <p className="text-xs text-red-500 mt-1">No spaces available for this warehouse</p>
                       )}
                       {!formData.propertyId && (
-                        <p className="text-xs text-gray-500 mt-1">Or enter unit name manually if not using property system</p>
+                        <p className="text-xs text-slate-500 mt-1">Or enter space name manually if not using warehouse system</p>
                       )}
                     </div>
                   )}
@@ -648,11 +730,11 @@ export default function LeasesPage() {
 
               {/* Lease Details */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">Lease Details</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-3">Lease Details</h3>
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         Start Date *
                       </label>
                       <input
@@ -660,11 +742,11 @@ export default function LeasesPage() {
                         required
                         value={formData.startDate}
                         onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         End Date *
                       </label>
                       <input
@@ -672,13 +754,13 @@ export default function LeasesPage() {
                         required
                         value={formData.endDate}
                         onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base"
                       />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         Security Deposit
                       </label>
                       <input
@@ -687,19 +769,19 @@ export default function LeasesPage() {
                         min="0"
                         value={formData.securityDepositAmount}
                         onChange={(e) => setFormData({ ...formData, securityDepositAmount: e.target.value })}
-                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                        placeholder="1500.00"
+                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base"
+                        placeholder="50000.00"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         Status *
                       </label>
                       <select
                         required
                         value={formData.status}
                         onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base"
                       >
                         <option value="DRAFT">Draft</option>
                         <option value="ACTIVE">Active</option>
@@ -709,15 +791,15 @@ export default function LeasesPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Notes
                     </label>
                     <textarea
                       value={formData.notes}
                       onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                       rows={3}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                      placeholder="Additional notes about this lease..."
+                      className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base"
+                      placeholder="Lease terms, special conditions..."
                     />
                   </div>
                 </div>
@@ -728,13 +810,13 @@ export default function LeasesPage() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  className="flex-1 px-4 py-3 sm:py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-medium"
                 >
                   Create Lease
                 </button>

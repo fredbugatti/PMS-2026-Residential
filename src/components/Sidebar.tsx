@@ -46,11 +46,11 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
     },
     {
       name: 'Tenants',
-      icon: '👥',
+      icon: '👔',
       id: 'tenants',
       paths: ['/properties', '/leases'],
       items: [
-        { name: 'Properties', path: '/properties', icon: '🏠' },
+        { name: 'Warehouses', path: '/properties', icon: '🏭' },
         { name: 'Leases', path: '/leases', icon: '📄' },
       ]
     },
@@ -111,12 +111,12 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         <div className="p-6 border-b border-gray-800">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3" onClick={handleNavClick}>
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-xl">
-                S
+              <div className="w-10 h-10 bg-amber-600 rounded-lg flex items-center justify-center font-bold text-xl">
+                🏭
               </div>
               <div>
-                <div className="font-bold text-lg">Sanprinon</div>
-                <div className="text-xs text-gray-400">Property Management</div>
+                <div className="font-bold text-lg">Warehouse</div>
+                <div className="text-xs text-gray-400">Management System</div>
               </div>
             </Link>
             {/* Close button for mobile */}
@@ -142,7 +142,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                 onClick={handleNavClick}
                 className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
                   isActive(item.path)
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-amber-600 text-white'
                     : 'text-gray-300 hover:bg-gray-800 hover:text-white'
                 }`}
               >
@@ -190,7 +190,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                           onClick={handleNavClick}
                           className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm ${
                             isActive(item.path)
-                              ? 'bg-blue-600 text-white'
+                              ? 'bg-amber-600 text-white'
                               : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                           }`}
                         >

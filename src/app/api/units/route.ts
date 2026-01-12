@@ -50,16 +50,20 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/units - Create a new unit
+// POST /api/units - Create a new unit/space
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { propertyId, unitNumber, bedrooms, bathrooms, squareFeet, status, notes } = body;
+    const {
+      propertyId, unitNumber, bedrooms, bathrooms, squareFeet, status, notes,
+      // Warehouse space-specific fields
+      loadingDocks, driveInDoors, officeSquareFeet, clearHeight
+    } = body;
 
     // Validate required fields
     if (!propertyId || !unitNumber) {
       return NextResponse.json(
-        { error: 'Property ID and unit number are required' },
+        { error: 'Property ID and space name are required' },
         { status: 400 }
       );
     }
@@ -72,7 +76,12 @@ export async function POST(request: NextRequest) {
         bathrooms: bathrooms ? parseFloat(bathrooms) : null,
         squareFeet: squareFeet ? parseInt(squareFeet) : null,
         status: status || 'VACANT',
-        notes: notes || null
+        notes: notes || null,
+        // Warehouse space-specific fields
+        loadingDocks: loadingDocks ? parseInt(loadingDocks) : null,
+        driveInDoors: driveInDoors ? parseInt(driveInDoors) : null,
+        officeSquareFeet: officeSquareFeet ? parseInt(officeSquareFeet) : null,
+        clearHeight: clearHeight ? parseFloat(clearHeight) : null
       },
       include: {
         property: {
@@ -85,7 +94,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Unit ${unitNumber} created successfully`,
+      message: `Space ${unitNumber} created successfully`,
       unit
     }, { status: 201 });
 
@@ -94,13 +103,13 @@ export async function POST(request: NextRequest) {
 
     if (error.code === 'P2002') {
       return NextResponse.json(
-        { error: 'Unit number already exists for this property' },
+        { error: 'Space name already exists for this property' },
         { status: 409 }
       );
     }
 
     return NextResponse.json(
-      { error: error.message || 'Failed to create unit' },
+      { error: error.message || 'Failed to create space' },
       { status: 500 }
     );
   }

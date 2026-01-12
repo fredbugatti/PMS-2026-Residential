@@ -142,6 +142,10 @@ export async function POST(request: NextRequest) {
         companyName: body.companyName?.trim() || null,
         tenantEmail: body.tenantEmail?.trim() || null,
         tenantPhone: body.tenantPhone?.trim() || null,
+        // Business tenant fields (warehouse)
+        contactTitle: body.contactTitle?.trim() || null,
+        businessType: body.businessType?.trim() || null,
+        leasedSquareFeet: body.leasedSquareFeet ? parseInt(body.leasedSquareFeet) : null,
         unitName: body.unitName.trim(),
         propertyName: body.propertyName?.trim() || null,
         propertyId: body.propertyId || null,

@@ -79,7 +79,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, address, city, state, zipCode, totalUnits, propertyType, notes } = body;
+    const {
+      name, address, city, state, zipCode, totalUnits, propertyType, notes,
+      // Warehouse-specific fields
+      totalSquareFeet, leasableSquareFeet, totalLoadingDocks, totalDriveInDoors,
+      clearHeight, parkingSpaces, yearBuilt
+    } = body;
 
     // Validate required fields
     if (!name) {
@@ -97,9 +102,17 @@ export async function POST(request: NextRequest) {
         state: state || null,
         zipCode: zipCode || null,
         totalUnits: totalUnits ? parseInt(totalUnits) : null,
-        propertyType: propertyType || 'RESIDENTIAL',
+        propertyType: propertyType || 'WAREHOUSE',
         notes: notes || null,
-        active: true
+        active: true,
+        // Warehouse-specific fields
+        totalSquareFeet: totalSquareFeet ? parseInt(totalSquareFeet) : null,
+        leasableSquareFeet: leasableSquareFeet ? parseInt(leasableSquareFeet) : null,
+        totalLoadingDocks: totalLoadingDocks ? parseInt(totalLoadingDocks) : null,
+        totalDriveInDoors: totalDriveInDoors ? parseInt(totalDriveInDoors) : null,
+        clearHeight: clearHeight ? parseFloat(clearHeight) : null,
+        parkingSpaces: parkingSpaces ? parseInt(parkingSpaces) : null,
+        yearBuilt: yearBuilt ? parseInt(yearBuilt) : null
       }
     });
 

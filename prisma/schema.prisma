@@ -50,9 +50,17 @@ model Property {
   state           String?           @db.VarChar(50)
   zipCode         String?           @map("zip_code") @db.VarChar(20)
   totalUnits      Int?              @map("total_units")
-  propertyType    String            @default("RESIDENTIAL") @map("property_type") @db.VarChar(20) // RESIDENTIAL or COMMERCIAL
+  propertyType    String            @default("WAREHOUSE") @map("property_type") @db.VarChar(20) // WAREHOUSE, RESIDENTIAL, COMMERCIAL
   notes           String?           @db.Text
   active          Boolean           @default(true)
+  // Warehouse-specific fields
+  totalSquareFeet   Int?            @map("total_square_feet")
+  leasableSquareFeet Int?           @map("leasable_square_feet")
+  totalLoadingDocks Int?            @map("total_loading_docks")
+  totalDriveInDoors Int?            @map("total_drive_in_doors")
+  clearHeight       Decimal?        @map("clear_height") @db.Decimal(5, 1) // in feet
+  parkingSpaces     Int?            @map("parking_spaces")
+  yearBuilt         Int?            @map("year_built")
   units             Unit[]
   leases            Lease[]
   workOrders        WorkOrder[]
@@ -73,6 +81,11 @@ model Unit {
   squareFeet  Int?        @map("square_feet")
   status      String      @default("VACANT") // VACANT, OCCUPIED, MAINTENANCE
   notes       String?     @db.Text
+  // Warehouse space-specific fields
+  loadingDocks      Int?    @map("loading_docks")
+  driveInDoors      Int?    @map("drive_in_doors")
+  officeSquareFeet  Int?    @map("office_square_feet")
+  clearHeight       Decimal? @map("clear_height") @db.Decimal(5, 1) // in feet
   property    Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   leases      Lease[]
   workOrders  WorkOrder[]
@@ -87,8 +100,8 @@ model Lease {
   createdAt             DateTime          @default(now()) @map("created_at")
   propertyId            String?           @map("property_id")
   unitId                String?           @map("unit_id")
-  tenantName            String            @map("tenant_name") @db.VarChar(200)
-  companyName           String?           @map("company_name") @db.VarChar(200) // For commercial leases
+  tenantName            String            @map("tenant_name") @db.VarChar(200) // Contact person name for warehouse
+  companyName           String?           @map("company_name") @db.VarChar(200) // Business name for warehouse
   tenantEmail           String?           @map("tenant_email") @db.VarChar(200)
   tenantPhone           String?           @map("tenant_phone") @db.VarChar(50)
   unitName              String            @map("unit_name") @db.VarChar(100)
@@ -97,6 +110,18 @@ model Lease {
   endDate               DateTime?         @map("end_date") @db.Date
   securityDepositAmount Decimal?          @map("security_deposit_amount") @db.Decimal(12, 2)
   status                String            @default("ACTIVE")
+  // Business tenant fields (warehouse)
+  contactTitle          String?           @map("contact_title") @db.VarChar(100) // e.g., "Operations Manager"
+  businessType          String?           @map("business_type") @db.VarChar(50) // Distribution, Manufacturing, Storage, Retail, Other
+  billingAddress        String?           @map("billing_address") @db.VarChar(500) // If different from space address
+  // Annual escalation settings
+  escalationEnabled     Boolean           @default(false) @map("escalation_enabled")
+  escalationPercent     Decimal?          @map("escalation_percent") @db.Decimal(5, 2) // e.g., 3.00 for 3%
+  escalationMonth       Int?              @map("escalation_month") // 1-12, month when escalation applies
+  escalationDay         Int?              @map("escalation_day") // 1-28, day when escalation applies
+  lastEscalationDate    DateTime?         @map("last_escalation_date") @db.Date
+  // Leased square footage (for warehouse rent calculations/tracking)
+  leasedSquareFeet      Int?              @map("leased_square_feet")
   notes                 String?           @db.Text
   // Automation settings (legacy - kept for backwards compatibility, use scheduledCharges instead)
   autoChargeEnabled     Boolean           @default(false) @map("auto_charge_enabled")
