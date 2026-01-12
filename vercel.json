@@ -1,12 +1,1 @@
-{
-  "crons": [
-    {
-      "path": "/api/cron/daily-charges",
-      "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/cron/process-autopay",
-      "schedule": "0 8 * * *"
-    }
-  ]
-}
+{}
