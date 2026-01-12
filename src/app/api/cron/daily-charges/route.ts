@@ -1,30 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma, withLedgerTransaction } from '@/lib/accounting';
+import { withQStashVerification } from '@/lib/qstash';
 
 // Force dynamic rendering since we use request.headers
 export const dynamic = 'force-dynamic';
 
-// Vercel Cron secret for authentication
+// CRON_SECRET for internal calls (e.g., from daily-charges to daily-expenses)
 const CRON_SECRET = process.env.CRON_SECRET;
 
-// GET /api/cron/daily-charges - Called by Vercel Cron daily at 6 AM
-export async function GET(request: NextRequest) {
+// Core handler logic (wrapped with QStash verification)
+async function handleDailyCharges(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now();
 
   try {
-    // CRITICAL: Verify cron secret in production (fail-closed)
-    if (process.env.NODE_ENV === 'production') {
-      if (!CRON_SECRET) {
-        console.error('[CRON] FATAL: CRON_SECRET must be set in production');
-        return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
-      }
-
-      const authHeader = request.headers.get('authorization');
-      if (authHeader !== `Bearer ${CRON_SECRET}`) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-    }
-
     const today = new Date();
     const currentDay = today.getDate();
     const currentMonth = today.getMonth();
@@ -192,7 +180,7 @@ export async function GET(request: NextRequest) {
 
     console.log(`[CRON] daily-charges completed: ${posted} posted, ${skipped} skipped, ${errors} errors in ${duration}ms`);
 
-    // Also trigger daily-expenses (combined into single cron to stay within Vercel limits)
+    // Also trigger daily-expenses
     let expensesResult = null;
     try {
       const baseUrl = process.env.VERCEL_URL
@@ -248,3 +236,6 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+// GET /api/cron/daily-charges - Called by QStash daily at 6 AM
+export const GET = withQStashVerification(handleDailyCharges);
