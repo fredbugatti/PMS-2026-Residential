@@ -265,8 +265,8 @@ async function runDailyExpenses(startTime: number): Promise<NextResponse> {
 
     for (const expense of scheduledExpenses) {
       // Check if already posted this month
-      if (expense.lastChargedDate) {
-        const lastCharged = new Date(expense.lastChargedDate);
+      if (expense.lastPostedDate) {
+        const lastCharged = new Date(expense.lastPostedDate);
         if (
           lastCharged.getMonth() === currentMonth &&
           lastCharged.getFullYear() === currentYear
@@ -309,10 +309,10 @@ async function runDailyExpenses(startTime: number): Promise<NextResponse> {
             postedBy: 'admin-manual'
           });
 
-          // Update last charged date
+          // Update last posted date
           await tx.scheduledExpense.update({
             where: { id: expense.id },
-            data: { lastChargedDate: today }
+            data: { lastPostedDate: today }
           });
         });
 
