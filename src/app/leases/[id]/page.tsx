@@ -2026,12 +2026,7 @@ export default function LeaseDetailPage() {
                 </button>
                 <button
                   onClick={() => {
-                    setScheduledChargeForm({
-                      description: '',
-                      amount: '',
-                      chargeDay: '1',
-                      accountCode: '4000'
-                    });
+                    setScheduledChargeRows([{ description: '', amount: '', chargeDay: '1', accountCode: '4000' }]);
                     setEditingScheduledChargeId(null);
                     setShowScheduledChargeModal(true);
                   }}
