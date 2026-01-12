@@ -68,11 +68,12 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       name: 'More',
       icon: '⚙️',
       id: 'more',
-      paths: ['/documents', '/settings', '/admin'],
+      paths: ['/documents', '/settings', '/admin', '/help'],
       items: [
         { name: 'Documents', path: '/documents', icon: '📁' },
         { name: 'Settings', path: '/settings', icon: '⚙️' },
         { name: 'Admin', path: '/admin', icon: '🛠️' },
+        { name: 'Help & Guide', path: '/help', icon: '❓' },
       ]
     },
   ];
