@@ -118,7 +118,6 @@ export async function GET(request: NextRequest) {
           leaseId: true,
           accountCode: true,
           amount: true,
-          frequency: true,
           description: true
         }
       }),
