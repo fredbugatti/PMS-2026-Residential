@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 interface LedgerEntry {
@@ -101,9 +101,20 @@ interface ScheduledCharge {
 
 export default function LeaseDetailPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const [lease, setLease] = useState<Lease | null>(null);
   const [loading, setLoading] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+
+  // Auto-open payment modal if ?action=pay is in URL
+  useEffect(() => {
+    if (searchParams.get('action') === 'pay' && lease) {
+      setShowPaymentModal(true);
+      if (lease.balance > 0) {
+        setPaymentForm(prev => ({ ...prev, amount: lease.balance.toFixed(2) }));
+      }
+    }
+  }, [searchParams, lease]);
   const [paymentForm, setPaymentForm] = useState({
     amount: '',
     description: '',
@@ -1236,11 +1247,43 @@ export default function LeaseDetailPage() {
   };
 
   // Calculate next post date for a scheduled charge
-  const getNextPostInfo = (chargeDay: number, lastChargedDate: string | null) => {
+  const getNextPostInfo = (chargeDay: number, lastChargedDate: string | null, leaseStartDate?: string) => {
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize to start of day
     const currentDay = today.getDate();
     const currentMonth = today.getMonth();
     const currentYear = today.getFullYear();
+
+    // Check if lease hasn't started yet
+    if (leaseStartDate) {
+      const startDate = new Date(leaseStartDate);
+      startDate.setHours(0, 0, 0, 0);
+      if (startDate > today) {
+        // Lease hasn't started - calculate when first charge will post
+        const startMonth = startDate.getMonth();
+        const startYear = startDate.getFullYear();
+        const startDay = startDate.getDate();
+
+        // First post will be on chargeDay of the start month (if chargeDay >= startDay)
+        // or chargeDay of the following month (if chargeDay < startDay)
+        let firstPostDate: Date;
+        if (chargeDay >= startDay) {
+          firstPostDate = new Date(startYear, startMonth, chargeDay);
+        } else {
+          const nextMonth = startMonth === 11 ? 0 : startMonth + 1;
+          const nextYear = startMonth === 11 ? startYear + 1 : startYear;
+          firstPostDate = new Date(nextYear, nextMonth, chargeDay);
+        }
+
+        const daysUntil = Math.ceil((firstPostDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        return {
+          status: 'not_started' as const,
+          nextPostDate: firstPostDate,
+          daysUntil,
+          message: `Starts ${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} → First post ${firstPostDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+        };
+      }
+    }
 
     // Check if already posted this month
     if (lastChargedDate) {
@@ -1256,7 +1299,7 @@ export default function LeaseDetailPage() {
           postedDate: lastCharged,
           nextPostDate,
           daysUntil,
-          message: `Posted ${lastCharged.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+          message: `Posted ${lastCharged.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} → Next: ${nextPostDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
         };
       }
     }
@@ -1266,14 +1309,14 @@ export default function LeaseDetailPage() {
     let daysUntil: number;
 
     if (chargeDay <= currentDay) {
-      // Charge day has passed but not posted - will post on next cron run
-      nextPostDate = today;
+      // Charge day has passed but not posted - will post on next cron run (6 AM)
+      nextPostDate = new Date(currentYear, currentMonth, chargeDay);
       daysUntil = 0;
       return {
         status: 'due' as const,
         nextPostDate,
         daysUntil,
-        message: 'Due now (next cron run)'
+        message: `Due now → Posts at 6 AM cron`
       };
     } else {
       // Charge day is later this month
@@ -1513,6 +1556,12 @@ export default function LeaseDetailPage() {
                     Portal
                   </button>
                 )}
+                <button
+                  onClick={() => window.open(`/leases/${lease.id}/statement`, '_blank')}
+                  className="px-3 sm:px-3 py-2.5 sm:py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                >
+                  Statement
+                </button>
                 <button
                   onClick={() => {
                     setCharges([{

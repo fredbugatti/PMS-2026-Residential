@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ReportsPageSkeleton } from '@/components/Skeleton';
 
 interface TenantBalance {
@@ -135,8 +135,96 @@ interface DrillDownData {
   count: number;
 }
 
+interface AgingTenant {
+  leaseId: string;
+  tenantName: string;
+  unitName: string;
+  propertyName: string | null;
+  amount: number;
+  oldestChargeDate: string;
+  daysPastDue: number;
+}
+
+interface AgingBucket {
+  label: string;
+  minDays: number;
+  maxDays: number | null;
+  amount: number;
+  count: number;
+  tenants: AgingTenant[];
+}
+
+interface AgingData {
+  asOfDate: string;
+  buckets: AgingBucket[];
+  summary: {
+    totalOutstanding: number;
+    totalTenants: number;
+    over30Days: number;
+    over60Days: number;
+    over90Days: number;
+  };
+}
+
+interface LedgerTransaction {
+  id: string;
+  date: string;
+  accountCode: string;
+  accountName: string;
+  description: string;
+  debit: number;
+  credit: number;
+  tenantName: string | null;
+  propertyName: string | null;
+  unitName: string | null;
+  leaseId: string | null;
+}
+
+interface RentRollUnit {
+  unitId: string;
+  unitName: string;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  sqft: number | null;
+  isOccupied: boolean;
+  tenantName: string | null;
+  monthlyRent: number | null;
+  annualRent: number | null;
+  leaseStart: string | null;
+  leaseEnd: string | null;
+  leaseId: string | null;
+}
+
+interface RentRollProperty {
+  propertyId: string;
+  propertyName: string;
+  propertyAddress: string | null;
+  totalUnits: number;
+  occupiedUnits: number;
+  vacantUnits: number;
+  occupancyRate: number;
+  totalMonthlyRent: number;
+  totalAnnualRent: number;
+  units: RentRollUnit[];
+}
+
+interface RentRollData {
+  asOfDate: string;
+  properties: RentRollProperty[];
+  summary: {
+    totalProperties: number;
+    totalUnits: number;
+    occupiedUnits: number;
+    vacantUnits: number;
+    overallOccupancy: number;
+    totalMonthlyRent: number;
+    totalAnnualRent: number;
+  };
+}
+
 export default function ReportsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [data, setData] = useState<ReportData | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<string>('all');
@@ -148,7 +236,8 @@ export default function ReportsPage() {
   const [chargeDate, setChargeDate] = useState(new Date().toISOString().split('T')[0]);
   const [bulkResults, setBulkResults] = useState<{ results: BulkChargeResult[], errors: any[] } | null>(null);
   const [incomeData, setIncomeData] = useState<IncomeBreakdown | null>(null);
-  const [activeTab, setActiveTab] = useState<'balances' | 'income' | 'pnl' | 'expenses'>('balances');
+  const [activeTab, setActiveTab] = useState<'balances' | 'pnl' | 'expenses' | 'aging' | 'transactions' | 'rentroll'>('balances');
+  const [agingData, setAgingData] = useState<AgingData | null>(null);
   const [pnlData, setPnlData] = useState<ProfitLossData | null>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [expenseAccounts, setExpenseAccounts] = useState<ExpenseAccount[]>([]);
@@ -167,15 +256,24 @@ export default function ReportsPage() {
   const [showDrillDown, setShowDrillDown] = useState(false);
   const [drillDownData, setDrillDownData] = useState<DrillDownData | null>(null);
   const [drillDownLoading, setDrillDownLoading] = useState(false);
+  const [allTransactions, setAllTransactions] = useState<LedgerTransaction[]>([]);
+  const [transactionsLoading, setTransactionsLoading] = useState(false);
+  const [rentRollData, setRentRollData] = useState<RentRollData | null>(null);
 
   useEffect(() => {
     document.title = 'Reports | Sanprinon';
+    // Check URL for tab parameter
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['balances', 'pnl', 'expenses', 'aging', 'transactions', 'rentroll'].includes(tabParam)) {
+      setActiveTab(tabParam as typeof activeTab);
+    }
     fetchReport();
     fetchProperties();
     fetchIncomeBreakdown();
     fetchProfitLoss();
     fetchExpenses();
-  }, []);
+    fetchAging();
+  }, [searchParams]);
 
   const fetchReport = async () => {
     try {
@@ -252,6 +350,51 @@ export default function ReportsPage() {
       }
     } catch (error) {
       console.error('Failed to fetch expenses:', error);
+    }
+  };
+
+  const fetchAging = async () => {
+    try {
+      const res = await fetch('/api/reports/aging');
+      if (res.ok) {
+        const data = await res.json();
+        setAgingData(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch aging report:', error);
+    }
+  };
+
+  const fetchAllTransactions = async () => {
+    setTransactionsLoading(true);
+    try {
+      const params = new URLSearchParams();
+      params.set('startDate', dateRange.start);
+      params.set('endDate', dateRange.end);
+      if (selectedProperty !== 'all') {
+        params.set('propertyId', selectedProperty);
+      }
+      const res = await fetch(`/api/reports/all-transactions?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setAllTransactions(data.transactions || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch all transactions:', error);
+    } finally {
+      setTransactionsLoading(false);
+    }
+  };
+
+  const fetchRentRoll = async () => {
+    try {
+      const res = await fetch('/api/reports/rent-roll');
+      if (res.ok) {
+        const data = await res.json();
+        setRentRollData(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch rent roll:', error);
     }
   };
 
@@ -341,6 +484,207 @@ export default function ReportsPage() {
       style: 'currency',
       currency: 'USD'
     }).format(amount);
+  };
+
+  // CSV Export Helper Functions
+  const downloadCSV = (data: string[][], filename: string) => {
+    const csvContent = data.map(row =>
+      row.map(cell => {
+        // Escape quotes and wrap in quotes if contains comma
+        const escaped = String(cell).replace(/"/g, '""');
+        return escaped.includes(',') || escaped.includes('"') || escaped.includes('\n')
+          ? `"${escaped}"`
+          : escaped;
+      }).join(',')
+    ).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  };
+
+  const exportBalancesCSV = () => {
+    if (!data) return;
+    const rows: string[][] = [
+      ['Tenant', 'Property', 'Unit', 'Monthly Rent', 'Balance', 'Status']
+    ];
+    filteredTenants.forEach(t => {
+      rows.push([
+        t.tenantName,
+        t.propertyName || '',
+        t.unitName,
+        t.monthlyRent ? t.monthlyRent.toFixed(2) : '',
+        t.balance.toFixed(2),
+        t.status
+      ]);
+    });
+    downloadCSV(rows, `tenant-balances-${new Date().toISOString().split('T')[0]}.csv`);
+  };
+
+  const exportPnLCSV = () => {
+    if (!pnlData) return;
+    const rows: string[][] = [
+      ['Profit & Loss Statement'],
+      [`Period: ${pnlData.period.start} to ${pnlData.period.end}`],
+      [],
+      ['Category', 'Account', 'Amount'],
+      ['INCOME', '', ''],
+      ...pnlData.income.breakdown.map(item => ['', item.name, item.amount.toFixed(2)]),
+      ['', 'Total Income', pnlData.income.total.toFixed(2)],
+      [],
+      ['EXPENSES', '', ''],
+      ...pnlData.expenses.breakdown.map(item => ['', item.name, item.amount.toFixed(2)]),
+      ['', 'Total Expenses', pnlData.expenses.total.toFixed(2)],
+      [],
+      ['NET OPERATING INCOME', '', pnlData.summary.netOperatingIncome.toFixed(2)]
+    ];
+    downloadCSV(rows, `profit-loss-${dateRange.start}-to-${dateRange.end}.csv`);
+  };
+
+  const exportExpensesCSV = () => {
+    const rows: string[][] = [
+      ['Date', 'Category', 'Description', 'Amount', 'Property', 'Unit']
+    ];
+    expenses.forEach(exp => {
+      rows.push([
+        new Date(exp.date).toLocaleDateString(),
+        exp.accountName,
+        exp.description,
+        exp.amount.toFixed(2),
+        exp.propertyName || '',
+        exp.unitName || ''
+      ]);
+    });
+    rows.push(['', '', 'Total', expenses.reduce((sum, e) => sum + e.amount, 0).toFixed(2), '', '']);
+    downloadCSV(rows, `expenses-${dateRange.start}-to-${dateRange.end}.csv`);
+  };
+
+  const exportAgingCSV = () => {
+    if (!agingData) return;
+    const rows: string[][] = [
+      ['Aging Report'],
+      [`As of: ${agingData.asOfDate}`],
+      [],
+      ['Tenant', 'Property', 'Unit', 'Amount', 'Oldest Charge Date', 'Days Past Due', 'Aging Bucket']
+    ];
+    agingData.buckets.forEach(bucket => {
+      bucket.tenants.forEach(t => {
+        rows.push([
+          t.tenantName,
+          t.propertyName || '',
+          t.unitName,
+          t.amount.toFixed(2),
+          t.oldestChargeDate,
+          t.daysPastDue.toString(),
+          bucket.label
+        ]);
+      });
+    });
+    rows.push([]);
+    rows.push(['Summary', '', '', '', '', '', '']);
+    rows.push(['Total Outstanding', '', '', agingData.summary.totalOutstanding.toFixed(2), '', '', '']);
+    rows.push(['Over 30 Days', '', '', agingData.summary.over30Days.toFixed(2), '', '', '']);
+    rows.push(['Over 60 Days', '', '', agingData.summary.over60Days.toFixed(2), '', '', '']);
+    rows.push(['Over 90 Days', '', '', agingData.summary.over90Days.toFixed(2), '', '', '']);
+    downloadCSV(rows, `aging-report-${agingData.asOfDate}.csv`);
+  };
+
+  const exportIncomeCSV = () => {
+    if (!incomeData) return;
+    const rows: string[][] = [
+      ['Income Report'],
+      [`Period: ${incomeData.period.start} to ${incomeData.period.end}`],
+      [],
+      ['Account Code', 'Category', 'Amount', '% of Total']
+    ];
+    incomeData.breakdown.forEach(item => {
+      rows.push([
+        item.code,
+        item.name,
+        item.amount.toFixed(2),
+        incomeData.totalIncome > 0 ? ((item.amount / incomeData.totalIncome) * 100).toFixed(1) + '%' : '0%'
+      ]);
+    });
+    rows.push([]);
+    rows.push(['', 'Total Income', incomeData.totalIncome.toFixed(2), '100%']);
+    downloadCSV(rows, `income-report-${incomeData.period.start}-to-${incomeData.period.end}.csv`);
+  };
+
+  const exportAllTransactionsCSV = () => {
+    if (allTransactions.length === 0) return;
+    const rows: string[][] = [
+      ['All Transactions'],
+      [`Period: ${dateRange.start} to ${dateRange.end}`],
+      [],
+      ['Date', 'Account Code', 'Account Name', 'Description', 'Debit', 'Credit', 'Tenant', 'Property', 'Unit']
+    ];
+    allTransactions.forEach(t => {
+      rows.push([
+        t.date,
+        t.accountCode,
+        t.accountName,
+        t.description,
+        t.debit > 0 ? t.debit.toFixed(2) : '',
+        t.credit > 0 ? t.credit.toFixed(2) : '',
+        t.tenantName || '',
+        t.propertyName || '',
+        t.unitName || ''
+      ]);
+    });
+    const totalDebits = allTransactions.reduce((sum, t) => sum + t.debit, 0);
+    const totalCredits = allTransactions.reduce((sum, t) => sum + t.credit, 0);
+    rows.push([]);
+    rows.push(['', '', '', 'Totals', totalDebits.toFixed(2), totalCredits.toFixed(2), '', '', '']);
+    downloadCSV(rows, `all-transactions-${dateRange.start}-to-${dateRange.end}.csv`);
+  };
+
+  const exportRentRollCSV = () => {
+    if (!rentRollData) return;
+    const rows: string[][] = [
+      ['Rent Roll Report - Schedule E Helper'],
+      [`As of: ${rentRollData.asOfDate}`],
+      [],
+      ['Property', 'Address', 'Unit', 'Tenant', 'Monthly Rent', 'Annual Rent', 'Lease Start', 'Lease End', 'Status']
+    ];
+    rentRollData.properties.forEach(property => {
+      property.units.forEach(unit => {
+        rows.push([
+          property.propertyName,
+          property.propertyAddress || '',
+          unit.unitName,
+          unit.tenantName || 'VACANT',
+          unit.monthlyRent ? unit.monthlyRent.toFixed(2) : '',
+          unit.annualRent ? unit.annualRent.toFixed(2) : '',
+          unit.leaseStart || '',
+          unit.leaseEnd || '',
+          unit.isOccupied ? 'Occupied' : 'Vacant'
+        ]);
+      });
+      // Add property subtotal
+      rows.push([
+        property.propertyName + ' - SUBTOTAL',
+        '',
+        `${property.occupiedUnits}/${property.totalUnits} occupied`,
+        '',
+        property.totalMonthlyRent.toFixed(2),
+        property.totalAnnualRent.toFixed(2),
+        '',
+        '',
+        `${property.occupancyRate}% occupancy`
+      ]);
+      rows.push([]); // Empty row between properties
+    });
+    // Add grand total
+    rows.push(['GRAND TOTAL', '', '', '',
+      rentRollData.summary.totalMonthlyRent.toFixed(2),
+      rentRollData.summary.totalAnnualRent.toFixed(2),
+      '', '',
+      `${rentRollData.summary.overallOccupancy}% overall occupancy`
+    ]);
+    downloadCSV(rows, `rent-roll-${rentRollData.asOfDate}.csv`);
   };
 
   const getFilteredTenants = () => {
@@ -591,6 +935,27 @@ export default function ReportsPage() {
 
         {/* Report Type Tabs */}
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+          {/* Primary Tabs */}
+          <button
+            onClick={() => setActiveTab('balances')}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
+              activeTab === 'balances'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            Who Owes
+          </button>
+          <button
+            onClick={() => setActiveTab('aging')}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
+              activeTab === 'aging'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            Overdue
+          </button>
           <button
             onClick={() => setActiveTab('pnl')}
             className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
@@ -599,7 +964,7 @@ export default function ReportsPage() {
                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
             }`}
           >
-            P&L
+            Profit/Loss
           </button>
           <button
             onClick={() => setActiveTab('expenses')}
@@ -611,30 +976,56 @@ export default function ReportsPage() {
           >
             Expenses
           </button>
+
+          {/* Secondary - For Exports */}
+          <div className="hidden sm:block w-px h-6 bg-gray-300 mx-1"></div>
           <button
-            onClick={() => setActiveTab('income')}
+            onClick={() => {
+              setActiveTab('rentroll');
+              fetchRentRoll();
+            }}
             className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
-              activeTab === 'income'
+              activeTab === 'rentroll'
                 ? 'bg-blue-600 text-white'
                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
             }`}
           >
-            Income
+            Rent Roll
           </button>
           <button
-            onClick={() => setActiveTab('balances')}
+            onClick={() => {
+              setActiveTab('transactions');
+              fetchAllTransactions();
+            }}
             className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
-              activeTab === 'balances'
+              activeTab === 'transactions'
                 ? 'bg-blue-600 text-white'
                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
             }`}
           >
-            Balances
+            Ledger
           </button>
         </div>
 
         {activeTab === 'balances' && (
         <>
+        {/* Balances Header with Export */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900">Tenant Balances</h2>
+            <p className="text-xs sm:text-sm text-gray-600">{filteredTenants.length} tenants</p>
+          </div>
+          <button
+            onClick={exportBalancesCSV}
+            className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-1"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Export CSV
+          </button>
+        </div>
+
         {/* Summary Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
@@ -818,141 +1209,6 @@ export default function ReportsPage() {
         </>
         )}
 
-        {/* Income Breakdown Tab */}
-        {activeTab === 'income' && (
-          <div className="space-y-4 sm:space-y-6">
-            {/* Income Summary Cards */}
-            {incomeData && (
-              <>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
-                  <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Total Income</p>
-                    <p className="text-2xl sm:text-3xl font-bold text-green-600">{formatCurrency(incomeData.totalIncome)}</p>
-                    <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                      {incomeData.period.start} to {incomeData.period.end}
-                    </p>
-                  </div>
-
-                  <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Previous Period</p>
-                    <p className="text-2xl sm:text-3xl font-bold text-gray-900">{formatCurrency(incomeData.previousPeriodTotal)}</p>
-                    <p className="text-xs sm:text-sm text-gray-500 mt-1">Comparison period</p>
-                  </div>
-
-                  <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Change</p>
-                    <p className={`text-2xl sm:text-3xl font-bold ${incomeData.changePercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {incomeData.changePercent >= 0 ? '+' : ''}{incomeData.changePercent}%
-                    </p>
-                    <p className="text-xs sm:text-sm text-gray-500 mt-1">vs previous period</p>
-                  </div>
-                </div>
-
-                {/* Income Breakdown Table */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="px-6 py-4 border-b border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900">Income by Category</h3>
-                  </div>
-
-                  {incomeData.breakdown.length === 0 ? (
-                    <div className="text-center py-12">
-                      <p className="text-gray-500">No income recorded for this period</p>
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                              Account
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                              Category
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                              Amount
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                              % of Total
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                          {incomeData.breakdown.map((item) => (
-                            <tr key={item.code} className="hover:bg-gray-50 transition-colors">
-                              <td className="px-6 py-4 text-sm font-medium text-gray-500">{item.code}</td>
-                              <td className="px-6 py-4 text-sm font-medium text-gray-900">{item.name}</td>
-                              <td className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
-                                {formatCurrency(item.amount)}
-                              </td>
-                              <td className="px-6 py-4 text-right text-sm text-gray-600">
-                                {incomeData.totalIncome > 0
-                                  ? ((item.amount / incomeData.totalIncome) * 100).toFixed(1)
-                                  : 0}%
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot className="bg-gray-50">
-                          <tr>
-                            <td className="px-6 py-4 text-sm font-semibold text-gray-900" colSpan={2}>
-                              Total
-                            </td>
-                            <td className="px-6 py-4 text-right text-sm font-bold text-gray-900">
-                              {formatCurrency(incomeData.totalIncome)}
-                            </td>
-                            <td className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
-                              100%
-                            </td>
-                          </tr>
-                        </tfoot>
-                      </table>
-                    </div>
-                  )}
-                </div>
-
-                {/* Visual Breakdown Bar */}
-                {incomeData.breakdown.length > 0 && (
-                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Income Distribution</h3>
-                    <div className="space-y-3">
-                      {incomeData.breakdown.map((item, index) => {
-                        const percentage = incomeData.totalIncome > 0
-                          ? (item.amount / incomeData.totalIncome) * 100
-                          : 0;
-                        const colors = [
-                          'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500',
-                          'bg-pink-500', 'bg-indigo-500', 'bg-red-500', 'bg-orange-500'
-                        ];
-                        return (
-                          <div key={item.code}>
-                            <div className="flex justify-between text-sm mb-1">
-                              <span className="font-medium text-gray-700">{item.name}</span>
-                              <span className="text-gray-600">{formatCurrency(item.amount)}</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-3">
-                              <div
-                                className={`${colors[index % colors.length]} h-3 rounded-full transition-all duration-500`}
-                                style={{ width: `${percentage}%` }}
-                              />
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-
-            {!incomeData && (
-              <div className="bg-white rounded-xl p-12 shadow-sm border border-gray-200 text-center">
-                <p className="text-gray-500">Loading income breakdown...</p>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Profit & Loss Tab */}
         {activeTab === 'pnl' && (
           <div className="space-y-4 sm:space-y-6">
@@ -999,9 +1255,20 @@ export default function ReportsPage() {
 
                 {/* P&L Statement */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                    <h3 className="text-lg font-semibold text-gray-900">Profit & Loss Statement</h3>
-                    <p className="text-sm text-gray-600">{pnlData.period.start} to {pnlData.period.end}</p>
+                  <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Profit & Loss Statement</h3>
+                      <p className="text-sm text-gray-600">{pnlData.period.start} to {pnlData.period.end}</p>
+                    </div>
+                    <button
+                      onClick={exportPnLCSV}
+                      className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Export CSV
+                    </button>
                   </div>
 
                   <div className="divide-y divide-gray-200">
@@ -1141,12 +1408,23 @@ export default function ReportsPage() {
                   {expenses.length} expenses totaling {formatCurrency(expenses.reduce((sum, e) => sum + e.amount, 0))}
                 </p>
               </div>
-              <button
-                onClick={() => setShowExpenseModal(true)}
-                className="px-4 py-2.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm w-full sm:w-auto"
-              >
+              <div className="flex gap-2 w-full sm:w-auto">
+                <button
+                  onClick={exportExpensesCSV}
+                  className="px-3 py-2.5 sm:py-2 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-1 flex-1 sm:flex-none"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Export CSV
+                </button>
+                <button
+                  onClick={() => setShowExpenseModal(true)}
+                  className="px-4 py-2.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm flex-1 sm:flex-none"
+                >
                 + Add Expense
-              </button>
+                </button>
+              </div>
             </div>
 
             {/* Expense Summary by Category */}
@@ -1222,6 +1500,442 @@ export default function ReportsPage() {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Aging Tab */}
+        {activeTab === 'aging' && (
+          <div className="space-y-4 sm:space-y-6">
+            {/* Aging Summary Cards */}
+            {agingData && (
+              <>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-semibold text-gray-900">Aging Report</h2>
+                    <p className="text-xs sm:text-sm text-gray-600">As of {agingData.asOfDate}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={exportAgingCSV}
+                      className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Export CSV
+                    </button>
+                    <button
+                      onClick={fetchAging}
+                      className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                    >
+                    Refresh
+                    </button>
+                  </div>
+                </div>
+
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Total Outstanding</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900">{formatCurrency(agingData.summary.totalOutstanding)}</p>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">{agingData.summary.totalTenants} tenant{agingData.summary.totalTenants !== 1 ? 's' : ''}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Over 30 Days</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-yellow-600">{formatCurrency(agingData.summary.over30Days)}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Over 60 Days</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-orange-600">{formatCurrency(agingData.summary.over60Days)}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Over 90 Days</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-red-600">{formatCurrency(agingData.summary.over90Days)}</p>
+                  </div>
+                </div>
+
+                {/* Aging Buckets */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Aging Bucket</th>
+                          <th className="px-4 sm:px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Tenants</th>
+                          <th className="px-4 sm:px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {agingData.buckets.map((bucket, index) => (
+                          <tr key={bucket.label} className={bucket.count > 0 ? 'hover:bg-gray-50' : ''}>
+                            <td className="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900">{bucket.label}</td>
+                            <td className="px-4 sm:px-6 py-4 text-sm text-gray-600 text-right">{bucket.count}</td>
+                            <td className={`px-4 sm:px-6 py-4 text-sm font-semibold text-right ${
+                              index === 0 ? 'text-gray-900' :
+                              index === 1 ? 'text-yellow-600' :
+                              index === 2 ? 'text-orange-600' : 'text-red-600'
+                            }`}>
+                              {formatCurrency(bucket.amount)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot className="bg-gray-50">
+                        <tr>
+                          <td className="px-4 sm:px-6 py-4 text-sm font-bold text-gray-900">Total</td>
+                          <td className="px-4 sm:px-6 py-4 text-sm font-bold text-gray-900 text-right">{agingData.summary.totalTenants}</td>
+                          <td className="px-4 sm:px-6 py-4 text-sm font-bold text-gray-900 text-right">{formatCurrency(agingData.summary.totalOutstanding)}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Tenant Detail by Bucket */}
+                {agingData.buckets.filter(b => b.count > 0).map((bucket) => (
+                  <div key={bucket.label} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="px-4 sm:px-6 py-3 bg-gray-50 border-b border-gray-200">
+                      <h3 className="text-sm font-semibold text-gray-900">{bucket.label}</h3>
+                      <p className="text-xs text-gray-600">{bucket.count} tenant{bucket.count !== 1 ? 's' : ''} - {formatCurrency(bucket.amount)}</p>
+                    </div>
+                    <div className="divide-y divide-gray-200">
+                      {bucket.tenants.map((tenant) => (
+                        <div
+                          key={tenant.leaseId}
+                          onClick={() => router.push(`/leases/${tenant.leaseId}`)}
+                          className="px-4 sm:px-6 py-3 hover:bg-gray-50 cursor-pointer flex items-center justify-between"
+                        >
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">{tenant.tenantName}</p>
+                            <p className="text-xs text-gray-600">
+                              {tenant.unitName}{tenant.propertyName ? ` - ${tenant.propertyName}` : ''}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Oldest charge: {tenant.oldestChargeDate} ({tenant.daysPastDue} days)
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className={`text-sm font-bold ${
+                              bucket.minDays === 0 ? 'text-gray-900' :
+                              bucket.minDays <= 30 ? 'text-yellow-600' :
+                              bucket.minDays <= 60 ? 'text-orange-600' : 'text-red-600'
+                            }`}>
+                              {formatCurrency(tenant.amount)}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                {agingData.summary.totalTenants === 0 && (
+                  <div className="bg-white rounded-xl p-12 shadow-sm border border-gray-200 text-center">
+                    <div className="text-green-600 mb-2">
+                      <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <p className="text-lg font-semibold text-gray-900">All Caught Up!</p>
+                    <p className="text-sm text-gray-600">No outstanding balances</p>
+                  </div>
+                )}
+              </>
+            )}
+
+            {!agingData && (
+              <div className="bg-white rounded-xl p-12 shadow-sm border border-gray-200 text-center">
+                <p className="text-gray-500">Loading aging data...</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Transactions Tab */}
+        {activeTab === 'transactions' && (
+          <div className="space-y-4 sm:space-y-6">
+            {/* Transactions Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div>
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">All Transactions</h2>
+                <p className="text-xs sm:text-sm text-gray-600">
+                  {allTransactions.length} transactions from {dateRange.start} to {dateRange.end}
+                </p>
+              </div>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <button
+                  onClick={exportAllTransactionsCSV}
+                  disabled={allTransactions.length === 0}
+                  className="px-3 py-2.5 sm:py-2 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-1 flex-1 sm:flex-none disabled:opacity-50"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Export CSV
+                </button>
+                <button
+                  onClick={fetchAllTransactions}
+                  className="px-3 py-2.5 sm:py-2 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex-1 sm:flex-none"
+                >
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            {/* Transactions Table */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              {transactionsLoading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <p className="text-gray-500">Loading transactions...</p>
+                </div>
+              ) : allTransactions.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-500 mb-4">No transactions found for this period</p>
+                  <button
+                    onClick={fetchAllTransactions}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+                  >
+                    Load Transactions
+                  </button>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Account</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Description</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Tenant/Property</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Debit</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Credit</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {allTransactions.map((txn) => (
+                        <tr
+                          key={txn.id}
+                          className={`hover:bg-gray-50 transition-colors ${txn.leaseId ? 'cursor-pointer hover:bg-blue-50' : ''}`}
+                          onClick={() => txn.leaseId && router.push(`/leases/${txn.leaseId}`)}
+                        >
+                          <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
+                            {new Date(txn.date).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            <span className="inline-flex px-2 py-0.5 text-xs font-medium rounded bg-gray-100 text-gray-700">
+                              {txn.accountCode}
+                            </span>
+                            <span className="ml-2 text-gray-600">{txn.accountName}</span>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-900">{txn.description}</td>
+                          <td className="px-4 py-3 text-sm text-gray-600">
+                            {txn.tenantName && (
+                              <div className="font-medium text-blue-600">{txn.tenantName}</div>
+                            )}
+                            {txn.propertyName && (
+                              <div className="text-xs text-gray-500">
+                                {txn.propertyName}{txn.unitName ? ` - ${txn.unitName}` : ''}
+                              </div>
+                            )}
+                            {!txn.tenantName && !txn.propertyName && (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-right font-medium text-gray-900">
+                            {txn.debit > 0 ? formatCurrency(txn.debit) : ''}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-right font-medium text-gray-900">
+                            {txn.credit > 0 ? formatCurrency(txn.credit) : ''}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot className="bg-gray-50">
+                      <tr>
+                        <td colSpan={4} className="px-4 py-3 text-sm font-semibold text-gray-900">
+                          Total ({allTransactions.length} transactions)
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
+                          {formatCurrency(allTransactions.reduce((sum, t) => sum + t.debit, 0))}
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
+                          {formatCurrency(allTransactions.reduce((sum, t) => sum + t.credit, 0))}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Rent Roll Tab */}
+        {activeTab === 'rentroll' && (
+          <div className="space-y-4 sm:space-y-6">
+            {/* Rent Roll Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div>
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">Rent Roll</h2>
+                <p className="text-xs sm:text-sm text-gray-600">
+                  {rentRollData ? `As of ${rentRollData.asOfDate} • ${rentRollData.summary.totalProperties} properties, ${rentRollData.summary.totalUnits} units` : 'Loading...'}
+                </p>
+              </div>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <button
+                  onClick={exportRentRollCSV}
+                  disabled={!rentRollData}
+                  className="px-3 py-2.5 sm:py-2 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-1 flex-1 sm:flex-none disabled:opacity-50"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Export CSV
+                </button>
+                <button
+                  onClick={fetchRentRoll}
+                  className="px-3 py-2.5 sm:py-2 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex-1 sm:flex-none"
+                >
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            {/* Summary Cards */}
+            {rentRollData && (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">Total Units</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-gray-900">{rentRollData.summary.totalUnits}</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">{rentRollData.summary.totalProperties} properties</p>
+                </div>
+                <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">Occupancy</p>
+                  <p className={`text-2xl sm:text-3xl font-bold ${rentRollData.summary.overallOccupancy >= 90 ? 'text-green-600' : rentRollData.summary.overallOccupancy >= 70 ? 'text-yellow-600' : 'text-red-600'}`}>
+                    {rentRollData.summary.overallOccupancy}%
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">{rentRollData.summary.occupiedUnits} occupied, {rentRollData.summary.vacantUnits} vacant</p>
+                </div>
+                <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">Monthly Rent</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-green-600">{formatCurrency(rentRollData.summary.totalMonthlyRent)}</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">from occupied units</p>
+                </div>
+                <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">Annual Rent</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-blue-600">{formatCurrency(rentRollData.summary.totalAnnualRent)}</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">Schedule E total</p>
+                </div>
+              </div>
+            )}
+
+            {/* Properties List */}
+            {rentRollData ? (
+              <div className="space-y-4">
+                {rentRollData.properties.map((property) => (
+                  <div key={property.propertyId} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    {/* Property Header */}
+                    <div className="px-4 sm:px-6 py-3 bg-gray-50 border-b border-gray-200">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                          <h3 className="text-sm font-semibold text-gray-900">{property.propertyName}</h3>
+                          {property.propertyAddress && (
+                            <p className="text-xs text-gray-600">{property.propertyAddress}</p>
+                          )}
+                        </div>
+                        <div className="flex gap-4 text-xs">
+                          <span className="text-gray-600">
+                            <span className="font-medium">{property.occupiedUnits}</span>/{property.totalUnits} occupied
+                          </span>
+                          <span className={`font-medium ${property.occupancyRate >= 90 ? 'text-green-600' : property.occupancyRate >= 70 ? 'text-yellow-600' : 'text-red-600'}`}>
+                            {property.occupancyRate}%
+                          </span>
+                          <span className="font-medium text-green-600">
+                            {formatCurrency(property.totalMonthlyRent)}/mo
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Units Table */}
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Unit</th>
+                            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Tenant</th>
+                            <th className="px-4 py-2 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Monthly</th>
+                            <th className="px-4 py-2 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Annual</th>
+                            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Lease Period</th>
+                            <th className="px-4 py-2 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {property.units.map((unit) => (
+                            <tr
+                              key={unit.unitId}
+                              className={`hover:bg-gray-50 transition-colors ${unit.leaseId ? 'cursor-pointer' : ''}`}
+                              onClick={() => unit.leaseId && router.push(`/leases/${unit.leaseId}`)}
+                            >
+                              <td className="px-4 py-3 text-sm font-medium text-gray-900">{unit.unitName}</td>
+                              <td className="px-4 py-3 text-sm text-gray-900">
+                                {unit.tenantName || <span className="text-gray-400 italic">Vacant</span>}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-right font-medium text-gray-900">
+                                {unit.monthlyRent ? formatCurrency(unit.monthlyRent) : '-'}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-right font-medium text-gray-900">
+                                {unit.annualRent ? formatCurrency(unit.annualRent) : '-'}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-600">
+                                {unit.leaseStart && unit.leaseEnd
+                                  ? `${unit.leaseStart} to ${unit.leaseEnd}`
+                                  : '-'}
+                              </td>
+                              <td className="px-4 py-3 text-center">
+                                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                                  unit.isOccupied
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-red-100 text-red-800'
+                                }`}>
+                                  {unit.isOccupied ? 'Occupied' : 'Vacant'}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot className="bg-gray-50">
+                          <tr>
+                            <td colSpan={2} className="px-4 py-3 text-sm font-semibold text-gray-900">
+                              Property Total
+                            </td>
+                            <td className="px-4 py-3 text-sm text-right font-bold text-green-600">
+                              {formatCurrency(property.totalMonthlyRent)}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-right font-bold text-blue-600">
+                              {formatCurrency(property.totalAnnualRent)}
+                            </td>
+                            <td colSpan={2}></td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                ))}
+
+                {rentRollData.properties.length === 0 && (
+                  <div className="bg-white rounded-xl p-12 shadow-sm border border-gray-200 text-center">
+                    <p className="text-gray-500">No properties found</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl p-12 shadow-sm border border-gray-200 text-center">
+                <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-gray-500">Loading rent roll...</p>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -4,25 +4,71 @@
 
 @layer base {
   :root {
-    --background: 249 250 251;
-    --foreground: 17 24 39;
+    /* Base colors */
+    --background: 249 250 251; /* gray-50 */
+    --foreground: 17 24 39; /* gray-900 */
+    --surface: 255 255 255; /* white */
+    --border: 229 231 235; /* gray-200 */
+
+    /* Card colors */
     --card: 255 255 255;
     --card-foreground: 17 24 39;
-    --border: 229 231 235;
+
+    /* Input colors */
     --input: 229 231 235;
-    --muted: 243 244 246;
-    --muted-foreground: 107 114 128;
+
+    /* Muted colors */
+    --muted: 243 244 246; /* gray-100 */
+    --muted-foreground: 107 114 128; /* gray-500 */
+
+    /* Text colors */
+    --text-primary: 17 24 39; /* gray-900 */
+    --text-secondary: 75 85 99; /* gray-600 */
+    --text-muted: 107 114 128; /* gray-500 */
+
+    /* Status colors */
+    --status-success: 22 163 74; /* green-600 */
+    --status-success-bg: 240 253 244; /* green-50 */
+    --status-warning: 245 158 11; /* amber-500 */
+    --status-warning-bg: 254 252 232; /* amber-50 */
+    --status-error: 220 38 38; /* red-600 */
+    --status-error-bg: 254 242 242; /* red-50 */
+    --status-info: 37 99 235; /* blue-600 */
+    --status-info-bg: 239 246 255; /* blue-50 */
   }
 
   .dark {
-    --background: 17 24 39;
-    --foreground: 243 244 246;
+    /* Base colors */
+    --background: 17 24 39; /* gray-900 */
+    --foreground: 243 244 246; /* gray-100 */
+    --surface: 31 41 55; /* gray-800 */
+    --border: 55 65 81; /* gray-700 */
+
+    /* Card colors */
     --card: 31 41 55;
     --card-foreground: 243 244 246;
-    --border: 55 65 81;
+
+    /* Input colors */
     --input: 55 65 81;
-    --muted: 31 41 55;
-    --muted-foreground: 156 163 175;
+
+    /* Muted colors */
+    --muted: 31 41 55; /* gray-800 */
+    --muted-foreground: 156 163 175; /* gray-400 */
+
+    /* Text colors */
+    --text-primary: 243 244 246; /* gray-100 */
+    --text-secondary: 156 163 175; /* gray-400 */
+    --text-muted: 107 114 128; /* gray-500 */
+
+    /* Status colors */
+    --status-success: 34 197 94; /* green-500 */
+    --status-success-bg: 20 83 45; /* green-900/20 */
+    --status-warning: 251 191 36; /* amber-400 */
+    --status-warning-bg: 120 53 15; /* amber-900/20 */
+    --status-error: 239 68 68; /* red-500 */
+    --status-error-bg: 127 29 29; /* red-900/20 */
+    --status-info: 59 130 246; /* blue-500 */
+    --status-info-bg: 30 58 138; /* blue-900/20 */
   }
 
   body {
@@ -100,4 +146,61 @@ html.dark {
 
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #6b7280;
+}
+
+/* Mobile-friendly utilities */
+@layer utilities {
+  /* Touch-friendly tap targets */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Mobile-friendly table wrapper */
+  .table-mobile {
+    @apply overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Safe area padding for notched phones */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+/* Mobile-first table styles */
+@media (max-width: 640px) {
+  /* Compact table cells on mobile */
+  table th,
+  table td {
+    @apply px-2 py-2 text-xs;
+  }
+
+  /* Stack filters on mobile */
+  .filters-grid {
+    @apply grid-cols-1 gap-2;
+  }
+}
+
+/* Prevent text overflow everywhere */
+* {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Mobile tap highlight */
+@media (hover: none) {
+  button, a, [role="button"] {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
 }

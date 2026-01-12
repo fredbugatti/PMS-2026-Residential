@@ -35,6 +35,7 @@ interface Lease {
   monthlyRentAmount: number;
   endDate: string;
   status: string;
+  balance: number;
 }
 
 interface Property {
@@ -110,6 +111,7 @@ export default function Dashboard() {
     notes: ''
   });
   const [submittingPayment, setSubmittingPayment] = useState(false);
+  const [tenantSearch, setTenantSearch] = useState('');
 
   // Charge form
   const [chargeForm, setChargeForm] = useState({
@@ -211,7 +213,14 @@ export default function Dashboard() {
       }
 
       setProperties(propertiesData);
-      const activeLeases = leasesData.filter((l: any) => l.status === 'ACTIVE');
+      // Merge balance data with leases and sort by balance (highest first)
+      const balanceMap = new Map(
+        (balancesData.tenants || []).map((t: any) => [t.leaseId, t.balance])
+      );
+      const activeLeases = leasesData
+        .filter((l: any) => l.status === 'ACTIVE')
+        .map((l: any) => ({ ...l, balance: balanceMap.get(l.id) || 0 }))
+        .sort((a: any, b: any) => b.balance - a.balance);
       setLeases(activeLeases);
       setVendors(vendorsData);
 
@@ -393,6 +402,12 @@ export default function Dashboard() {
     const amount = parseFloat(paymentForm.amount);
     const selectedLease = leases.find(l => l.id === paymentForm.leaseId);
 
+    // Confirmation dialog
+    const confirmMessage = `Record payment of $${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })} from ${selectedLease?.tenantName || 'tenant'}?`;
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
     // Optimistic update - update UI immediately
     setShowPaymentModal(false);
     setStats(prev => ({
@@ -452,6 +467,12 @@ export default function Dashboard() {
 
     const amount = parseFloat(chargeForm.amount);
     const selectedLease = leases.find(l => l.id === chargeForm.leaseId);
+
+    // Confirmation dialog
+    const confirmMessage = `Add charge of $${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })} to ${selectedLease?.tenantName || 'tenant'} for "${chargeForm.description}"?`;
+    if (!confirm(confirmMessage)) {
+      return;
+    }
 
     // Optimistic update - update UI immediately
     setShowChargeModal(false);
@@ -849,15 +870,30 @@ export default function Dashboard() {
             <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0">
               <button
                 onClick={() => setShowPaymentModal(true)}
-                className="px-4 sm:px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
+                className="px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
               >
-                <span>💵</span> Collect Payment
+                💵 Payment
               </button>
               <button
                 onClick={() => setShowChargeModal(true)}
-                className="px-3 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium flex items-center gap-1 sm:gap-2 whitespace-nowrap flex-shrink-0"
+                className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
               >
-                <span>+</span> Charge
+                + Charge
+              </button>
+              <button
+                onClick={() => setShowWorkOrderModal(true)}
+                className="px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
+              >
+                🔧 Work Order
+              </button>
+              <button
+                onClick={() => {
+                  setQuickCreateType('expense');
+                  setShowQuickCreate(true);
+                }}
+                className="px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
+              >
+                − Expense
               </button>
             </div>
           </div>
@@ -868,36 +904,30 @@ export default function Dashboard() {
         {/* Key Metrics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Link href="/properties" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer">
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Properties</p>
-            <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.totalProperties}</p>
-            <p className="text-xs text-blue-500 dark:text-blue-400 mt-1">{stats.totalUnits} units total →</p>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Units</p>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.totalUnits}</p>
+            <p className="text-xs text-blue-500 dark:text-blue-400 mt-1">{stats.totalProperties} properties →</p>
           </Link>
 
           <Link href="/leases" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-green-300 dark:hover:border-green-600 transition-all cursor-pointer">
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Occupancy</p>
-            <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1">{occupancyRate}%</p>
-            <div className="mt-2 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-green-500 rounded-full transition-all"
-                style={{ width: `${occupancyRate}%` }}
-              />
-            </div>
-            <p className="text-xs text-green-500 dark:text-green-400 mt-1">{stats.occupiedUnits}/{stats.totalUnits} units →</p>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Occupied</p>
+            <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400 mt-1">{stats.occupiedUnits}</p>
+            <p className="text-xs text-green-500 dark:text-green-400 mt-1">{occupancyRate}% full →</p>
           </Link>
 
-          <Link href="/ledger" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-green-300 dark:hover:border-green-600 transition-all cursor-pointer">
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Monthly Revenue</p>
+          <Link href="/reports?tab=pnl" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-green-300 dark:hover:border-green-600 transition-all cursor-pointer">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Rent/Month</p>
             <p className="text-xl sm:text-3xl font-bold text-green-600 dark:text-green-400 mt-1">{formatCurrency(stats.monthlyRevenue)}</p>
-            <p className="text-xs text-green-500 dark:text-green-400 mt-1">all recurring charges →</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">expected income →</p>
           </Link>
 
-          <Link href="/reports" className={`bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border hover:shadow-md transition-all cursor-pointer ${stats.totalOwed > 0 ? 'border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-600' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}`}>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Need to Collect</p>
+          <Link href="/reports?tab=aging" className={`bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border hover:shadow-md transition-all cursor-pointer ${stats.totalOwed > 0 ? 'border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-600' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}`}>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Owed</p>
             <p className={`text-xl sm:text-3xl font-bold mt-1 ${stats.totalOwed > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
               {formatCurrency(stats.totalOwed)}
             </p>
-            <p className={`text-xs mt-1 ${stats.tenantsOwing > 0 ? 'text-red-500 dark:text-red-400' : 'text-gray-500 dark:text-gray-500'}`}>
-              {stats.tenantsOwing > 0 ? `${stats.tenantsOwing} tenant${stats.tenantsOwing !== 1 ? 's' : ''} unpaid →` : 'all paid up'}
+            <p className={`text-xs mt-1 ${stats.tenantsOwing > 0 ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400'}`}>
+              {stats.tenantsOwing > 0 ? `${stats.tenantsOwing} unpaid →` : 'all paid ✓'}
             </p>
           </Link>
         </div>
@@ -973,140 +1003,131 @@ export default function Dashboard() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-          {/* Left Column - Navigation Cards */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-            {/* Quick Navigation */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-              <Link href="/properties" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-blue-200 dark:group-hover:bg-blue-900 transition-colors">
-                  🏢
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Properties</h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{stats.totalProperties} properties</p>
-              </Link>
-
-              <Link href="/leases" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-green-200 dark:group-hover:bg-green-900 transition-colors">
-                  📄
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Leases</h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{stats.activeLeases} active</p>
-              </Link>
-
-              <Link href="/maintenance" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow group">
-                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 transition-colors ${
-                  stats.openWorkOrders > 0 ? 'bg-orange-100 dark:bg-orange-900/50 group-hover:bg-orange-200 dark:group-hover:bg-orange-900' : 'bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600'
-                }`}>
-                  🔧
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Maintenance</h3>
-                <p className={`text-xs sm:text-sm ${stats.openWorkOrders > 0 ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
-                  {stats.openWorkOrders} open
-                </p>
-              </Link>
-
-              <Link href="/accounting" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-purple-200 dark:group-hover:bg-purple-900 transition-colors">
-                  💰
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Accounting</h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Ledger & balances</p>
-              </Link>
-
-              <Link href="/reports" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-indigo-200 dark:group-hover:bg-indigo-900 transition-colors">
-                  📈
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Reports</h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">P&L & balances</p>
-              </Link>
-
-              <Link href="/vendors" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-teal-100 dark:bg-teal-900/50 rounded-lg flex items-center justify-center text-lg sm:text-xl mb-2 sm:mb-3 group-hover:bg-teal-200 dark:group-hover:bg-teal-900 transition-colors">
-                  👷
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Vendors</h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Contractors</p>
-              </Link>
+        {/* Navigation Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+          <Link href="/properties" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-blue-300 transition-all group">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 group-hover:bg-blue-200 dark:group-hover:bg-blue-900 transition-colors">
+              🏢
             </div>
+            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Properties</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{stats.totalProperties} properties</p>
+          </Link>
 
-          </div>
+          <Link href="/leases" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-green-300 transition-all group">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 group-hover:bg-green-200 dark:group-hover:bg-green-900 transition-colors">
+              📄
+            </div>
+            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Leases</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{stats.activeLeases} active</p>
+          </Link>
 
-          {/* Right Column - Alerts & Expiring Leases */}
-          <div className="space-y-4 sm:space-y-6">
-            {/* Needs Attention */}
-            {(stats.totalOwed > 0 || stats.openWorkOrders > 0 || expiringLeases.length > 0) && (
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-red-200 dark:border-red-800">
-                <div className="p-3 sm:p-4 border-b border-red-100 dark:border-red-900 bg-red-50 dark:bg-red-900/20 rounded-t-xl">
-                  <h2 className="font-semibold text-red-800 dark:text-red-300 text-sm sm:text-base">Needs Attention</h2>
-                </div>
-                <div className="p-3 sm:p-4 space-y-3">
-                  {stats.totalOwed > 0 && (
-                    <Link href="/reports" className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/30 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors">
-                      <span className="text-lg sm:text-xl">💸</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-300">
-                          {stats.tenantsOwing} tenant{stats.tenantsOwing !== 1 ? 's' : ''} owe {formatCurrency(stats.totalOwed)}
-                        </p>
-                        <p className="text-xs text-red-600 dark:text-red-400">Tap to collect payments</p>
-                      </div>
-                      <span className="text-red-400">→</span>
-                    </Link>
-                  )}
-                  {stats.openWorkOrders > 0 && (
-                    <Link href="/maintenance" className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-900/30 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors">
-                      <span className="text-lg sm:text-xl">🔧</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-medium text-orange-800 dark:text-orange-300">{stats.openWorkOrders} open work order{stats.openWorkOrders !== 1 ? 's' : ''}</p>
-                        <p className="text-xs text-orange-600 dark:text-orange-400">Tap to view requests</p>
-                      </div>
-                      <span className="text-orange-400">→</span>
-                    </Link>
-                  )}
-                </div>
-              </div>
-            )}
+          <Link href="/maintenance" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-orange-300 transition-all group">
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 transition-colors ${
+              stats.openWorkOrders > 0 ? 'bg-orange-100 dark:bg-orange-900/50 group-hover:bg-orange-200' : 'bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200'
+            }`}>
+              🔧
+            </div>
+            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Maintenance</h3>
+            <p className={`text-sm ${stats.openWorkOrders > 0 ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
+              {stats.openWorkOrders} open
+            </p>
+          </Link>
 
-            {/* Expiring Leases */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700">
+          <Link href="/accounting" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-purple-300 transition-all group">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 group-hover:bg-purple-200 dark:group-hover:bg-purple-900 transition-colors">
+              💰
+            </div>
+            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Accounting</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Ledger & balances</p>
+          </Link>
+
+          <Link href="/reports" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-indigo-300 transition-all group">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 group-hover:bg-indigo-200 dark:group-hover:bg-indigo-900 transition-colors">
+              📊
+            </div>
+            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Reports</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">P&L & analytics</p>
+          </Link>
+
+          <Link href="/vendors" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-teal-300 transition-all group">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-teal-100 dark:bg-teal-900/50 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 group-hover:bg-teal-200 dark:group-hover:bg-teal-900 transition-colors">
+              👷
+            </div>
+            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Vendors</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Contractors</p>
+          </Link>
+        </div>
+
+        {/* Quick Add Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+          <button
+            onClick={() => { setQuickCreateType('property'); setShowQuickCreate(true); }}
+            className="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4 text-center hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all border border-blue-200 dark:border-blue-800"
+          >
+            <div className="text-2xl mb-1">🏢</div>
+            <p className="font-semibold text-blue-700 dark:text-blue-300">+ Property</p>
+          </button>
+          <button
+            onClick={() => { setQuickCreateType('unit'); setShowQuickCreate(true); }}
+            className="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4 text-center hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all border border-blue-200 dark:border-blue-800"
+          >
+            <div className="text-2xl mb-1">🚪</div>
+            <p className="font-semibold text-blue-700 dark:text-blue-300">+ Unit</p>
+          </button>
+          <button
+            onClick={() => { setQuickCreateType('lease'); setShowQuickCreate(true); }}
+            className="bg-green-50 dark:bg-green-900/30 rounded-xl p-4 text-center hover:bg-green-100 dark:hover:bg-green-900/50 transition-all border border-green-200 dark:border-green-800"
+          >
+            <div className="text-2xl mb-1">📝</div>
+            <p className="font-semibold text-green-700 dark:text-green-300">+ Lease</p>
+          </button>
+          <button
+            onClick={() => { setQuickCreateType('vendor'); setShowQuickCreate(true); }}
+            className="bg-teal-50 dark:bg-teal-900/30 rounded-xl p-4 text-center hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-all border border-teal-200 dark:border-teal-800"
+          >
+            <div className="text-2xl mb-1">👷</div>
+            <p className="font-semibold text-teal-700 dark:text-teal-300">+ Vendor</p>
+          </button>
+        </div>
+
+        {/* Expiring Leases - Simple List */}
+        {expiringLeases.length > 0 && (
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+              <div>
                 <h2 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Expiring Soon</h2>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Next 60 days</p>
               </div>
-              <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                {expiringLeases.length === 0 ? (
-                  <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">No leases expiring soon</div>
-                ) : (
-                  expiringLeases.map(lease => {
-                    const daysUntil = getDaysUntil(lease.endDate);
-                    return (
-                      <Link
-                        key={lease.id}
-                        href={`/leases/${lease.id}`}
-                        className="block p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="min-w-0 flex-1">
-                            <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white truncate">{lease.tenantName}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{lease.unitName}</p>
-                          </div>
-                          <div className={`text-right ml-2 ${daysUntil <= 14 ? 'text-red-600 dark:text-red-400' : daysUntil <= 30 ? 'text-orange-600 dark:text-orange-400' : 'text-gray-600 dark:text-gray-400'}`}>
-                            <p className="text-xs sm:text-sm font-medium">{daysUntil} days</p>
-                            <p className="text-xs">{formatDate(lease.endDate)}</p>
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  })
-                )}
-              </div>
-              <Link href="/leases" className="block p-3 text-center text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 border-t border-gray-100 dark:border-gray-700">
-                View All Leases
+              <Link href="/leases" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+                View All →
               </Link>
             </div>
+            <div className="divide-y divide-gray-100 dark:divide-gray-700">
+              {expiringLeases.slice(0, 5).map(lease => {
+                const daysUntil = getDaysUntil(lease.endDate);
+                return (
+                  <Link
+                    key={lease.id}
+                    href={`/leases/${lease.id}`}
+                    className="flex items-center justify-between p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{lease.tenantName}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{lease.unitName}</p>
+                    </div>
+                    <div className={`text-right ml-3 px-2 py-1 rounded-full text-xs font-medium ${
+                      daysUntil <= 14 ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300' :
+                      daysUntil <= 30 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300' :
+                      'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                    }`}>
+                      {daysUntil} days
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Quick Payment Modal */}
@@ -1115,23 +1136,58 @@ export default function Dashboard() {
           <div className="bg-white dark:bg-gray-800 rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Record Payment</h2>
-              <button onClick={() => setShowPaymentModal(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl p-1">&times;</button>
+              <button onClick={() => { setShowPaymentModal(false); setTenantSearch(''); }} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl p-1">&times;</button>
             </div>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Tenant *</label>
+                <input
+                  type="text"
+                  value={tenantSearch}
+                  onChange={(e) => setTenantSearch(e.target.value)}
+                  placeholder="Search tenant name..."
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-2"
+                  autoFocus
+                />
                 <select
                   value={paymentForm.leaseId}
-                  onChange={(e) => setPaymentForm({ ...paymentForm, leaseId: e.target.value })}
+                  onChange={(e) => setPaymentForm({ ...paymentForm, leaseId: e.target.value, amount: '' })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
-                  autoFocus
+                  size={Math.min(6, leases.filter(l => l.tenantName.toLowerCase().includes(tenantSearch.toLowerCase())).length + 1)}
                 >
                   <option value="">Select tenant...</option>
-                  {leases.map(lease => (
-                    <option key={lease.id} value={lease.id}>{lease.tenantName} - {lease.unitName}</option>
+                  {leases
+                    .filter(lease => lease.tenantName.toLowerCase().includes(tenantSearch.toLowerCase()) ||
+                                     lease.unitName.toLowerCase().includes(tenantSearch.toLowerCase()))
+                    .map(lease => (
+                    <option key={lease.id} value={lease.id}>
+                      {lease.tenantName} - {lease.unitName} {lease.balance > 0 ? `($${lease.balance.toLocaleString()} due)` : '(paid up)'}
+                    </option>
                   ))}
                 </select>
               </div>
+              {paymentForm.leaseId && (() => {
+                const selectedLease = leases.find(l => l.id === paymentForm.leaseId);
+                if (!selectedLease) return null;
+                return selectedLease.balance > 0 ? (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-blue-800">Balance due: <strong>${selectedLease.balance.toLocaleString()}</strong></span>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentForm({ ...paymentForm, amount: selectedLease.balance.toFixed(2) })}
+                        className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
+                      >
+                        Pay Full Balance
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <span className="text-sm text-green-800">This tenant is paid up!</span>
+                  </div>
+                );
+              })()}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Amount *</label>
                 <input
@@ -1174,13 +1230,13 @@ export default function Dashboard() {
             </div>
             <div className="flex flex-col-reverse sm:flex-row gap-3 mt-6">
               <button
-                onClick={() => setShowPaymentModal(false)}
+                onClick={() => { setShowPaymentModal(false); setTenantSearch(''); }}
                 className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
               >
                 Cancel
               </button>
               <button
-                onClick={handleRecordPayment}
+                onClick={() => { handleRecordPayment(); setTenantSearch(''); }}
                 disabled={submittingPayment}
                 className="flex-1 px-4 py-3 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium"
               >

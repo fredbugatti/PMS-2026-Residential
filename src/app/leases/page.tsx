@@ -19,6 +19,7 @@ interface Lease {
   status: 'DRAFT' | 'ACTIVE' | 'ENDED' | 'TERMINATED';
   notes: string | null;
   createdAt: string;
+  balance: number;
 }
 
 interface Property {
@@ -63,12 +64,24 @@ export default function LeasesPage() {
 
   const fetchLeases = async () => {
     try {
-      const res = await fetch('/api/leases');
-      if (!res.ok) {
+      const [leasesRes, balancesRes] = await Promise.all([
+        fetch('/api/leases'),
+        fetch('/api/reports/tenant-balances')
+      ]);
+      if (!leasesRes.ok) {
         throw new Error('Failed to fetch leases');
       }
-      const data = await res.json();
-      setLeases(Array.isArray(data) ? data : []);
+      const leasesData = await leasesRes.json();
+      const balancesData = balancesRes.ok ? await balancesRes.json() : { tenants: [] };
+
+      // Merge balance data with leases
+      const balanceMap = new Map(
+        (balancesData.tenants || []).map((t: any) => [t.leaseId, t.balance])
+      );
+      const leasesWithBalance = (Array.isArray(leasesData) ? leasesData : [])
+        .map((l: any) => ({ ...l, balance: balanceMap.get(l.id) || 0 }));
+
+      setLeases(leasesWithBalance);
     } catch (error) {
       console.error('Failed to fetch leases:', error);
       setLeases([]);
@@ -207,6 +220,7 @@ export default function LeasesPage() {
       activeLeases: activeLeases.length,
       totalMonthlyRent: activeLeases.reduce((sum, l) => sum + (Number(l.totalScheduledCharges) || 0), 0),
       totalSecurityDeposits: filtered.reduce((sum, l) => sum + (Number(l.securityDepositAmount) || 0), 0),
+      totalBalance: activeLeases.reduce((sum, l) => sum + (l.balance || 0), 0),
     };
   };
 
@@ -372,6 +386,9 @@ export default function LeasesPage() {
                       <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         Security Deposit
                       </th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Balance
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -431,6 +448,27 @@ export default function LeasesPage() {
                             ? `$${parseFloat(lease.securityDepositAmount.toString()).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                             : '-'}
                         </td>
+                        <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                          {lease.balance > 0 ? (
+                            <div className="flex items-center justify-end gap-2">
+                              <span className="text-sm font-semibold text-red-600">
+                                ${lease.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </span>
+                              <button
+                                onClick={() => window.location.href = `/leases/${lease.id}?action=pay`}
+                                className="px-2 py-1 text-xs font-medium bg-green-600 text-white rounded hover:bg-green-700"
+                              >
+                                Pay
+                              </button>
+                            </div>
+                          ) : lease.balance < 0 ? (
+                            <span className="text-sm font-medium text-green-600">
+                              -${Math.abs(lease.balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} credit
+                            </span>
+                          ) : (
+                            <span className="text-sm text-gray-400">Paid</span>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -461,6 +499,12 @@ export default function LeasesPage() {
                               ${stats.totalSecurityDeposits.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </div>
                             <div className="text-xs text-gray-600">total deposits</div>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className={`font-semibold ${stats.totalBalance > 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                              ${stats.totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
+                            <div className="text-xs text-gray-600">total owed</div>
                           </td>
                         </tr>
                       );
