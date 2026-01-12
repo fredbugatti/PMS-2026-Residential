@@ -228,18 +228,18 @@ export default function AccountingPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Accounting</h1>
-              <p className="text-sm text-gray-600 mt-1">Manage finances and view reports</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Accounting</h1>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">Manage finances and view reports</p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               {activeTab === 'balances' && (
                 <button
                   onClick={handleGenerateRent}
                   disabled={bulkLoading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium disabled:opacity-50"
+                  className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs sm:text-sm font-medium disabled:opacity-50"
                 >
                   {bulkLoading ? 'Loading...' : 'Charge Rent'}
                 </button>
@@ -247,7 +247,7 @@ export default function AccountingPage() {
               {activeTab === 'ledger' && (
                 <button
                   onClick={exportToCSV}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
+                  className="px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-xs sm:text-sm font-medium"
                 >
                   Export CSV
                 </button>
@@ -257,23 +257,23 @@ export default function AccountingPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-4 sm:mb-6">
           <div className="flex border-b border-gray-200">
             <button
               onClick={() => setActiveTab('balances')}
-              className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+              className={`flex-1 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors ${
                 activeTab === 'balances'
                   ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-600'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              Tenant Balances
+              Balances
             </button>
             <button
               onClick={() => setActiveTab('ledger')}
-              className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+              className={`flex-1 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors ${
                 activeTab === 'ledger'
                   ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-600'
                   : 'text-gray-600 hover:bg-gray-50'
@@ -286,36 +286,36 @@ export default function AccountingPage() {
 
         {/* Balances Tab */}
         {activeTab === 'balances' && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                <p className="text-sm text-gray-600">Total Tenants</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{filteredTenants.length}</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+              <div className="bg-white rounded-xl p-3 sm:p-5 shadow-sm border border-gray-200">
+                <p className="text-xs sm:text-sm text-gray-600">Total Tenants</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1">{filteredTenants.length}</p>
               </div>
-              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                <p className="text-sm text-gray-600">Owing</p>
-                <p className="text-2xl font-bold text-red-600 mt-1">{formatCurrency(totalOwed)}</p>
+              <div className="bg-white rounded-xl p-3 sm:p-5 shadow-sm border border-gray-200">
+                <p className="text-xs sm:text-sm text-gray-600">Owing</p>
+                <p className="text-lg sm:text-2xl font-bold text-red-600 mt-1">{formatCurrency(totalOwed)}</p>
               </div>
-              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                <p className="text-sm text-gray-600">Credits</p>
-                <p className="text-2xl font-bold text-green-600 mt-1">{formatCurrency(totalCredits)}</p>
+              <div className="bg-white rounded-xl p-3 sm:p-5 shadow-sm border border-gray-200">
+                <p className="text-xs sm:text-sm text-gray-600">Credits</p>
+                <p className="text-lg sm:text-2xl font-bold text-green-600 mt-1">{formatCurrency(totalCredits)}</p>
               </div>
-              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                <p className="text-sm text-gray-600">Net Balance</p>
-                <p className={`text-2xl font-bold mt-1 ${totalOwed - totalCredits >= 0 ? 'text-gray-900' : 'text-green-600'}`}>
+              <div className="bg-white rounded-xl p-3 sm:p-5 shadow-sm border border-gray-200">
+                <p className="text-xs sm:text-sm text-gray-600">Net Balance</p>
+                <p className={`text-lg sm:text-2xl font-bold mt-1 ${totalOwed - totalCredits >= 0 ? 'text-gray-900' : 'text-green-600'}`}>
                   {formatCurrency(totalOwed - totalCredits)}
                 </p>
               </div>
             </div>
 
             {/* Filters */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-              <div className="flex flex-wrap gap-4 items-center">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
                 <select
                   value={selectedProperty}
                   onChange={(e) => setSelectedProperty(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm w-full sm:w-auto"
                 >
                   <option value="all">All Properties</option>
                   {properties.map(p => (
@@ -327,7 +327,7 @@ export default function AccountingPage() {
                     <button
                       key={f}
                       onClick={() => setBalanceFilter(f)}
-                      className={`px-4 py-2 text-sm font-medium ${
+                      className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium ${
                         balanceFilter === f
                           ? 'bg-blue-600 text-white'
                           : 'bg-white text-gray-700 hover:bg-gray-50'

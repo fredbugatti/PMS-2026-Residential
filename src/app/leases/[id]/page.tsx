@@ -1340,27 +1340,27 @@ export default function LeaseDetailPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             <div>
               <button
                 onClick={() => window.location.href = '/leases'}
                 className="text-sm text-gray-600 hover:text-gray-900 mb-2 flex items-center gap-1"
               >
-                ← Back to Leases
+                ← Back
               </button>
-              <h1 className="text-2xl font-bold text-gray-900">{lease.tenantName}</h1>
-              <p className="text-sm text-gray-600 mt-1">{lease.unitName}</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{lease.tenantName}</h1>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">{lease.unitName} {lease.propertyName && `• ${lease.propertyName}`}</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div className="relative">
                 <button
                   onClick={() => setShowStatusDropdown(!showStatusDropdown)}
                   disabled={updatingStatus}
-                  className={`inline-flex items-center gap-2 px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(lease.status)} hover:opacity-80 transition-opacity disabled:opacity-50`}
+                  className={`inline-flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded-full ${getStatusColor(lease.status)} hover:opacity-80 transition-opacity disabled:opacity-50`}
                 >
                   {lease.status}
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
@@ -1390,18 +1390,18 @@ export default function LeaseDetailPage() {
                   </>
                 )}
               </div>
-{lease.balance > 0 && (
+              {lease.balance > 0 && (
                 <button
                   onClick={() => {
                     setPaymentForm(prev => ({ ...prev, amount: lease.balance.toFixed(2) }));
                     setShowPaymentModal(true);
                   }}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2"
+                  className="px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-1 sm:gap-2 text-sm"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                  Record Payment
+                  <span className="hidden sm:inline">Record</span> Payment
                 </button>
               )}
             </div>
@@ -1409,7 +1409,7 @@ export default function LeaseDetailPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6">
         {/* Lease Expiry Alert - Show at top if expiring soon */}
         {(() => {
           const daysLeft = getDaysUntilLeaseEnds();
@@ -1417,24 +1417,24 @@ export default function LeaseDetailPage() {
 
           if (daysLeft < 0) {
             return (
-              <div className="px-4 py-3 bg-red-100 border border-red-200 rounded-lg flex items-center justify-between">
-                <span className="text-sm font-medium text-red-800">
+              <div className="px-3 sm:px-4 py-2.5 sm:py-3 bg-red-100 border border-red-200 rounded-lg">
+                <span className="text-xs sm:text-sm font-medium text-red-800">
                   Lease expired {Math.abs(daysLeft)} days ago
                 </span>
               </div>
             );
           } else if (daysLeft <= 30) {
             return (
-              <div className="px-4 py-3 bg-orange-100 border border-orange-200 rounded-lg flex items-center justify-between">
-                <span className="text-sm font-medium text-orange-800">
+              <div className="px-3 sm:px-4 py-2.5 sm:py-3 bg-orange-100 border border-orange-200 rounded-lg">
+                <span className="text-xs sm:text-sm font-medium text-orange-800">
                   {daysLeft === 0 ? 'Lease expires today!' : `${daysLeft} days until lease ends`}
                 </span>
               </div>
             );
           } else if (daysLeft <= 90) {
             return (
-              <div className="px-4 py-3 bg-yellow-100 border border-yellow-200 rounded-lg flex items-center justify-between">
-                <span className="text-sm font-medium text-yellow-800">
+              <div className="px-3 sm:px-4 py-2.5 sm:py-3 bg-yellow-100 border border-yellow-200 rounded-lg">
+                <span className="text-xs sm:text-sm font-medium text-yellow-800">
                   {daysLeft} days until lease ends
                 </span>
               </div>
@@ -1446,47 +1446,47 @@ export default function LeaseDetailPage() {
         {/* Combined Balance & Ledger Section - Primary Focus */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           {/* Balance Header */}
-          <div className="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-            <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               {/* Balance */}
-              <div className="flex items-center gap-8">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Current Balance</p>
-                  <p className={`text-3xl font-bold ${lease.balance > 0 ? 'text-red-600' : lease.balance < 0 ? 'text-green-600' : 'text-gray-900'}`}>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">Current Balance</p>
+                  <p className={`text-2xl sm:text-3xl font-bold ${lease.balance > 0 ? 'text-red-600' : lease.balance < 0 ? 'text-green-600' : 'text-gray-900'}`}>
                     {formatCurrency(Math.abs(lease.balance))}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
                     {lease.balance > 0 ? 'Amount owed' : lease.balance < 0 ? 'Credit on account' : 'Paid in full'}
                   </p>
                 </div>
-                <div className="h-12 w-px bg-gray-200"></div>
-                <div className="flex gap-6 text-sm">
+                <div className="hidden sm:block h-12 w-px bg-gray-200"></div>
+                <div className="grid grid-cols-3 sm:flex sm:gap-6 gap-2 text-xs sm:text-sm">
                   <div>
-                    <span className="text-gray-500">Charged:</span>
-                    <span className="ml-2 font-semibold text-gray-900">{formatCurrency(getPaymentSummary().totalCharged)}</span>
+                    <span className="text-gray-500 block sm:inline">Charged</span>
+                    <span className="sm:ml-2 font-semibold text-gray-900 block sm:inline">{formatCurrency(getPaymentSummary().totalCharged)}</span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Paid:</span>
-                    <span className="ml-2 font-semibold text-green-600">{formatCurrency(getPaymentSummary().totalPaid)}</span>
+                    <span className="text-gray-500 block sm:inline">Paid</span>
+                    <span className="sm:ml-2 font-semibold text-green-600 block sm:inline">{formatCurrency(getPaymentSummary().totalPaid)}</span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Rent:</span>
+                    <span className="text-gray-500 block sm:inline">Rent</span>
                     {editingRent ? (
-                      <span className="ml-2 inline-flex items-center gap-1">
+                      <span className="sm:ml-2 inline-flex items-center gap-1 flex-wrap">
                         <span>$</span>
                         <input
                           type="number"
                           value={rentAmount}
                           onChange={(e) => setRentAmount(e.target.value)}
-                          className="w-20 px-1 py-0.5 border border-gray-300 rounded text-sm font-semibold"
+                          className="w-16 sm:w-20 px-1 py-0.5 border border-gray-300 rounded text-xs sm:text-sm font-semibold"
                           step="0.01"
                           autoFocus
                         />
                         <button onClick={handleSaveRent} className="px-1.5 py-0.5 bg-blue-600 text-white text-xs rounded">Save</button>
-                        <button onClick={() => { setEditingRent(false); setRentAmount(lease.monthlyRentAmount?.toString() || ''); }} className="px-1.5 py-0.5 bg-gray-200 text-xs rounded">Cancel</button>
+                        <button onClick={() => { setEditingRent(false); setRentAmount(lease.monthlyRentAmount?.toString() || ''); }} className="px-1.5 py-0.5 bg-gray-200 text-xs rounded">X</button>
                       </span>
                     ) : (
-                      <span className="ml-2 font-semibold text-gray-900">
+                      <span className="sm:ml-2 font-semibold text-gray-900 block sm:inline">
                         {lease.monthlyRentAmount ? formatCurrency(parseFloat(lease.monthlyRentAmount.toString())) : 'Not set'}
                         <button onClick={() => setEditingRent(true)} className="ml-1 text-blue-600 hover:text-blue-800 text-xs">(edit)</button>
                       </span>
@@ -1495,20 +1495,20 @@ export default function LeaseDetailPage() {
                 </div>
               </div>
               {/* Action Buttons */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 {automationSettings?.lateFeeAmount && (
                   <button
                     onClick={handleChargeLateFee}
                     disabled={chargingLateFee}
-                    className="px-3 sm:px-3 py-2.5 sm:py-1.5 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors text-sm font-medium disabled:opacity-50"
+                    className="px-2.5 sm:px-3 py-2 sm:py-1.5 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors text-xs sm:text-sm font-medium disabled:opacity-50"
                   >
-                    {chargingLateFee ? 'Charging...' : 'Late Fee'}
+                    {chargingLateFee ? '...' : 'Late Fee'}
                   </button>
                 )}
                 {lease.portalToken && (
                   <button
                     onClick={() => window.open(`/tenant/${lease.portalToken}`, '_blank')}
-                    className="px-3 sm:px-3 py-2.5 sm:py-1.5 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors text-sm font-medium"
+                    className="px-2.5 sm:px-3 py-2 sm:py-1.5 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors text-xs sm:text-sm font-medium"
                   >
                     Portal
                   </button>
@@ -1523,7 +1523,7 @@ export default function LeaseDetailPage() {
                     setChargeDate(new Date().toISOString().split('T')[0]);
                     setShowChargeModal(true);
                   }}
-                  className="px-3 sm:px-3 py-2.5 sm:py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                  className="px-2.5 sm:px-3 py-2 sm:py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs sm:text-sm font-medium"
                 >
                   + Charge
                 </button>
@@ -1534,7 +1534,7 @@ export default function LeaseDetailPage() {
                     }
                     setShowPaymentModal(true);
                   }}
-                  className="px-3 sm:px-3 py-2.5 sm:py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                  className="px-2.5 sm:px-3 py-2 sm:py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs sm:text-sm font-medium"
                 >
                   + Payment
                 </button>
@@ -1542,30 +1542,30 @@ export default function LeaseDetailPage() {
             </div>
           </div>
           {/* Ledger View Toggle */}
-          <div className="px-6 py-3 border-b border-gray-200 flex items-center justify-between bg-gray-50">
-            <span className="text-sm text-gray-600">
-              {ledgerViewMode === 'simplified' ? 'Showing charges & payments only' : 'Showing full accounting ledger'}
+          <div className="px-4 sm:px-6 py-2.5 sm:py-3 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-gray-50">
+            <span className="text-xs sm:text-sm text-gray-600">
+              {ledgerViewMode === 'simplified' ? 'Charges & payments' : 'Full ledger'}
             </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setLedgerViewMode('simplified')}
-                className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
+                className={`px-2.5 sm:px-3 py-1 text-xs font-medium rounded transition-colors ${
                   ledgerViewMode === 'simplified'
                     ? 'bg-blue-600 text-white'
                     : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                Simplified
+                Simple
               </button>
               <button
                 onClick={() => setLedgerViewMode('full')}
-                className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
+                className={`px-2.5 sm:px-3 py-1 text-xs font-medium rounded transition-colors ${
                   ledgerViewMode === 'full'
                     ? 'bg-blue-600 text-white'
                     : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                Full Ledger
+                Full
               </button>
             </div>
           </div>
@@ -1601,145 +1601,158 @@ export default function LeaseDetailPage() {
             </div>
           ) : ledgerViewMode === 'simplified' ? (
             /* Simplified View - AR entries only */
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
-                      Description
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
-                      Charge
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
-                      Payment
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
-
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {lease.ledgerEntries
-                    .filter(entry => entry.accountCode === '1200')
-                    .map((entry) => (
-                    <tr key={entry.id} className="hover:bg-gray-50 group">
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        {formatDate(entry.entryDate)}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        {entry.description}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-right">
-                        {entry.debitCredit === 'DR' ? (
-                          <span className="text-red-600 font-medium">
-                            +{formatCurrency(parseFloat(entry.amount.toString()))}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-right">
-                        {entry.debitCredit === 'CR' ? (
-                          <span className="text-green-600 font-medium">
-                            -{formatCurrency(parseFloat(entry.amount.toString()))}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-right">
-                        <button
-                          onClick={() => handleDeleteLedgerEntry(entry.id, entry.description)}
-                          className="p-1 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all"
-                          title="Delete entry"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </td>
+            <>
+              {/* Mobile Cards View */}
+              <div className="md:hidden divide-y divide-gray-200">
+                {lease.ledgerEntries
+                  .filter(entry => entry.accountCode === '1200')
+                  .map((entry) => (
+                  <div key={entry.id} className="px-4 py-3 flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-gray-900 truncate">{entry.description}</div>
+                      <div className="text-xs text-gray-500">{formatDate(entry.entryDate)}</div>
+                    </div>
+                    <div className="flex items-center gap-2 ml-3">
+                      <span className={`text-sm font-semibold ${entry.debitCredit === 'DR' ? 'text-red-600' : 'text-green-600'}`}>
+                        {entry.debitCredit === 'DR' ? '+' : '-'}{formatCurrency(parseFloat(entry.amount.toString()))}
+                      </span>
+                      <button
+                        onClick={() => handleDeleteLedgerEntry(entry.id, entry.description)}
+                        className="p-1 text-gray-400 hover:text-red-600"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Date</th>
+                      <th className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Description</th>
+                      <th className="px-4 lg:px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Charge</th>
+                      <th className="px-4 lg:px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Payment</th>
+                      <th className="px-4 lg:px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {lease.ledgerEntries
+                      .filter(entry => entry.accountCode === '1200')
+                      .map((entry) => (
+                      <tr key={entry.id} className="hover:bg-gray-50 group">
+                        <td className="px-4 lg:px-6 py-3 text-sm text-gray-900">{formatDate(entry.entryDate)}</td>
+                        <td className="px-4 lg:px-6 py-3 text-sm text-gray-900">{entry.description}</td>
+                        <td className="px-4 lg:px-6 py-3 text-sm text-right">
+                          {entry.debitCredit === 'DR' ? (
+                            <span className="text-red-600 font-medium">+{formatCurrency(parseFloat(entry.amount.toString()))}</span>
+                          ) : <span className="text-gray-400">-</span>}
+                        </td>
+                        <td className="px-4 lg:px-6 py-3 text-sm text-right">
+                          {entry.debitCredit === 'CR' ? (
+                            <span className="text-green-600 font-medium">-{formatCurrency(parseFloat(entry.amount.toString()))}</span>
+                          ) : <span className="text-gray-400">-</span>}
+                        </td>
+                        <td className="px-4 lg:px-6 py-3 text-sm text-right">
+                          <button
+                            onClick={() => handleDeleteLedgerEntry(entry.id, entry.description)}
+                            className="p-1 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           ) : (
             /* Full Ledger View - All entries with accounting details */
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
-                      Account
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
-                      Description
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
-                      Debit
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
-                      Credit
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
-
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {lease.ledgerEntries.map((entry) => (
-                    <tr key={entry.id} className="hover:bg-gray-50 group">
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        {formatDate(entry.entryDate)}
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        <div className="text-gray-900 font-medium">{entry.account.code}</div>
-                        <div className="text-gray-500 text-xs">{entry.account.name}</div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        {entry.description}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-right">
-                        {entry.debitCredit === 'DR' ? (
-                          <span className="text-gray-900 font-medium">
+            <>
+              {/* Mobile Cards View */}
+              <div className="md:hidden divide-y divide-gray-200">
+                {lease.ledgerEntries.map((entry) => (
+                  <div key={entry.id} className="px-4 py-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-gray-900 truncate">{entry.description}</div>
+                        <div className="text-xs text-gray-500">{formatDate(entry.entryDate)} • {entry.account.code}</div>
+                      </div>
+                      <div className="flex items-center gap-2 ml-3">
+                        <div className="text-right">
+                          <span className={`text-sm font-semibold ${entry.debitCredit === 'DR' ? 'text-blue-600' : 'text-green-600'}`}>
                             {formatCurrency(parseFloat(entry.amount.toString()))}
                           </span>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-right">
-                        {entry.debitCredit === 'CR' ? (
-                          <span className="text-gray-900 font-medium">
-                            {formatCurrency(parseFloat(entry.amount.toString()))}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-right">
+                          <div className="text-xs text-gray-500">{entry.debitCredit === 'DR' ? 'DR' : 'CR'}</div>
+                        </div>
                         <button
                           onClick={() => handleDeleteLedgerEntry(entry.id, entry.description)}
-                          className="p-1 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all"
-                          title="Delete entry"
+                          className="p-1 text-gray-400 hover:text-red-600"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         </button>
-                      </td>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Date</th>
+                      <th className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Account</th>
+                      <th className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Description</th>
+                      <th className="px-4 lg:px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Debit</th>
+                      <th className="px-4 lg:px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Credit</th>
+                      <th className="px-4 lg:px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {lease.ledgerEntries.map((entry) => (
+                      <tr key={entry.id} className="hover:bg-gray-50 group">
+                        <td className="px-4 lg:px-6 py-3 text-sm text-gray-900">{formatDate(entry.entryDate)}</td>
+                        <td className="px-4 lg:px-6 py-3 text-sm">
+                          <div className="text-gray-900 font-medium">{entry.account.code}</div>
+                          <div className="text-gray-500 text-xs">{entry.account.name}</div>
+                        </td>
+                        <td className="px-4 lg:px-6 py-3 text-sm text-gray-900">{entry.description}</td>
+                        <td className="px-4 lg:px-6 py-3 text-sm text-right">
+                          {entry.debitCredit === 'DR' ? (
+                            <span className="text-gray-900 font-medium">{formatCurrency(parseFloat(entry.amount.toString()))}</span>
+                          ) : <span className="text-gray-400">-</span>}
+                        </td>
+                        <td className="px-4 lg:px-6 py-3 text-sm text-right">
+                          {entry.debitCredit === 'CR' ? (
+                            <span className="text-gray-900 font-medium">{formatCurrency(parseFloat(entry.amount.toString()))}</span>
+                          ) : <span className="text-gray-400">-</span>}
+                        </td>
+                        <td className="px-4 lg:px-6 py-3 text-sm text-right">
+                          <button
+                            onClick={() => handleDeleteLedgerEntry(entry.id, entry.description)}
+                            className="p-1 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
 
