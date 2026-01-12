@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
         state: state || null,
         zipCode: zipCode || null,
         totalUnits: totalUnits ? parseInt(totalUnits) : null,
-        propertyType: propertyType || null,
+        propertyType: propertyType || 'RESIDENTIAL',
         notes: notes || null,
         active: true
       }

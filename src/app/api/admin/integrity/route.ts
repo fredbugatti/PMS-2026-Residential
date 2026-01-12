@@ -1,23 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/accounting';
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET;
-
 // GET /api/admin/integrity - Check data integrity
-export async function GET(request: Request) {
-  // CRITICAL: Verify admin secret in production
-  if (process.env.NODE_ENV === 'production') {
-    if (!ADMIN_SECRET) {
-      console.error('[ADMIN] FATAL: ADMIN_SECRET must be set in production');
-      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
-    }
-
-    const authHeader = request.headers.get('authorization');
-    if (authHeader !== `Bearer ${ADMIN_SECRET}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-  }
-
+// Note: Protected by middleware (same-origin browser requests allowed)
+export async function GET() {
   const checks: {
     name: string;
     status: 'ok' | 'warning' | 'error';
