@@ -6,7 +6,17 @@
       "Bash(brew install:*)",
       "Bash(brew services start:*)",
       "Bash(npx prisma generate)",
-      "Bash(/opt/homebrew/opt/postgresql@15/bin/psql:*)"
+      "Bash(/opt/homebrew/opt/postgresql@15/bin/psql:*)",
+      "Bash(ls:*)",
+      "Bash(npm install:*)",
+      "Bash(cd /Users/fredcohen/Desktop/PMS\\\\ V4 && npx tsc:*)",
+      "Bash(cd:*)",
+      "Bash(npm run build)",
+      "Bash(timeout 15 npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(lsof:*)",
+      "Bash(pkill:*)",
+      "Bash(git add src/app/globals.css src/app/leases/[id]/page.tsx src/app/leases/page.tsx src/app/ledger/page.tsx src/app/page.tsx src/app/reports/page.tsx src/app/api/reports/rent-roll/ src/app/api/reports/all-transactions/ src/app/api/reports/aging/ src/app/leases/[id]/statement/ src/components/ui/ package.json package-lock.json)"
     ]
   }
 }
