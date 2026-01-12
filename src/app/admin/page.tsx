@@ -162,7 +162,11 @@ export default function AdminPage() {
     setTesting(true);
     setTestResult(null);
     try {
-      const res = await fetch('/api/cron/daily-charges');
+      const res = await fetch('/api/admin/run-cron', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ job: 'daily-charges' })
+      });
       setTestResult(await res.json());
       fetchAllData();
     } catch (error: any) {
