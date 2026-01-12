@@ -798,87 +798,109 @@ export default function ReportsPage() {
           </div>
         </div>
 
+        {/* Quick Link to Everything Report */}
+        <a
+          href="/reports/portfolio-overview"
+          className="block mb-4 p-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-semibold text-lg">Everything Report</div>
+              <div className="text-blue-100 text-sm">See all properties, tenants, finances, work orders in one place</div>
+            </div>
+            <span className="text-2xl">→</span>
+          </div>
+        </a>
+
         {/* Report Type Tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-          <button
-            onClick={() => setActiveTab('pnl')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
-              activeTab === 'pnl'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            P&L
-          </button>
-          <button
-            onClick={() => setActiveTab('balance-sheet')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
-              activeTab === 'balance-sheet'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            Balance Sheet
-          </button>
-          <button
-            onClick={() => setActiveTab('cash-flow')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
-              activeTab === 'cash-flow'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            Cash Flow
-          </button>
-          <button
-            onClick={() => setActiveTab('aged-ar')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
-              activeTab === 'aged-ar'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            Aged A/R
-          </button>
-          <button
-            onClick={() => setActiveTab('trial-balance')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
-              activeTab === 'trial-balance'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            Trial Balance
-          </button>
-          <button
-            onClick={() => setActiveTab('expenses')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
-              activeTab === 'expenses'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            Expenses
-          </button>
-          <button
-            onClick={() => setActiveTab('income')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
-              activeTab === 'income'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            Income
-          </button>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-2">
           <button
             onClick={() => setActiveTab('balances')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
+            className={`p-3 rounded-lg text-left transition-colors ${
               activeTab === 'balances'
                 ? 'bg-blue-600 text-white'
                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
             }`}
           >
-            Balances
+            <div className="font-medium text-sm">Tenant Balances</div>
+            <div className={`text-xs ${activeTab === 'balances' ? 'text-blue-100' : 'text-gray-500'}`}>Who owes what</div>
+          </button>
+          <button
+            onClick={() => setActiveTab('aged-ar')}
+            className={`p-3 rounded-lg text-left transition-colors ${
+              activeTab === 'aged-ar'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            <div className="font-medium text-sm">Aged A/R</div>
+            <div className={`text-xs ${activeTab === 'aged-ar' ? 'text-blue-100' : 'text-gray-500'}`}>How old is debt</div>
+          </button>
+          <button
+            onClick={() => setActiveTab('pnl')}
+            className={`p-3 rounded-lg text-left transition-colors ${
+              activeTab === 'pnl'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            <div className="font-medium text-sm">Profit & Loss</div>
+            <div className={`text-xs ${activeTab === 'pnl' ? 'text-blue-100' : 'text-gray-500'}`}>Am I making money</div>
+          </button>
+          <button
+            onClick={() => setActiveTab('balance-sheet')}
+            className={`p-3 rounded-lg text-left transition-colors ${
+              activeTab === 'balance-sheet'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            <div className="font-medium text-sm">Balance Sheet</div>
+            <div className={`text-xs ${activeTab === 'balance-sheet' ? 'text-blue-100' : 'text-gray-500'}`}>Own vs owe</div>
+          </button>
+          <button
+            onClick={() => setActiveTab('cash-flow')}
+            className={`p-3 rounded-lg text-left transition-colors ${
+              activeTab === 'cash-flow'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            <div className="font-medium text-sm">Cash Flow</div>
+            <div className={`text-xs ${activeTab === 'cash-flow' ? 'text-blue-100' : 'text-gray-500'}`}>Where cash went</div>
+          </button>
+          <button
+            onClick={() => setActiveTab('income')}
+            className={`p-3 rounded-lg text-left transition-colors ${
+              activeTab === 'income'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            <div className="font-medium text-sm">Income</div>
+            <div className={`text-xs ${activeTab === 'income' ? 'text-blue-100' : 'text-gray-500'}`}>Money coming in</div>
+          </button>
+          <button
+            onClick={() => setActiveTab('expenses')}
+            className={`p-3 rounded-lg text-left transition-colors ${
+              activeTab === 'expenses'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            <div className="font-medium text-sm">Expenses</div>
+            <div className={`text-xs ${activeTab === 'expenses' ? 'text-blue-100' : 'text-gray-500'}`}>Money going out</div>
+          </button>
+          <button
+            onClick={() => setActiveTab('trial-balance')}
+            className={`p-3 rounded-lg text-left transition-colors ${
+              activeTab === 'trial-balance'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            <div className="font-medium text-sm">Trial Balance</div>
+            <div className={`text-xs ${activeTab === 'trial-balance' ? 'text-blue-100' : 'text-gray-500'}`}>All account totals</div>
           </button>
         </div>
 

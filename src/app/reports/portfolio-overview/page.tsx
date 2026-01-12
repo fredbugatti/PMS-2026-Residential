@@ -241,9 +241,9 @@ export default function PortfolioOverviewPage() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Master Portfolio Report</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Everything Report</h1>
               <p className="text-sm text-gray-500">
-                Generated: {formatDate(report.generatedAt)} at{' '}
+                All properties, tenants, finances, work orders in one place | Generated: {formatDate(report.generatedAt)} at{' '}
                 {new Date(report.generatedAt).toLocaleTimeString()}
               </p>
             </div>
