@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       prisma.property.findMany({
         include: {
           units: {
-            select: { id: true, status: true, monthlyRent: true }
+            select: { id: true, status: true }
           },
           leases: {
             where: { status: 'ACTIVE' },
@@ -41,7 +41,6 @@ export async function GET(request: NextRequest) {
         select: {
           id: true,
           status: true,
-          monthlyRent: true,
           propertyId: true
         }
       }),
@@ -185,8 +184,14 @@ export async function GET(request: NextRequest) {
       const totalUnits = p.units.length;
       const occupiedUnits = p.units.filter(u => u.status === 'OCCUPIED').length;
       const vacantUnits = p.units.filter(u => u.status === 'VACANT').length;
-      const totalPotentialRent = p.units.reduce((sum, u) => sum + Number(u.monthlyRent || 0), 0);
-      const activeLeases = p.leases.length;
+      const activeLeasesCount = p.leases.length;
+
+      // Calculate rent from scheduled charges for this property's active leases
+      const propertyLeaseIds = p.leases.map(l => l.id);
+      const propertyRentCharges = scheduledCharges.filter(
+        sc => propertyLeaseIds.includes(sc.leaseId) && sc.accountCode === '4000'
+      );
+      const totalMonthlyRent = propertyRentCharges.reduce((sum, sc) => sum + Number(sc.amount), 0);
 
       return {
         id: p.id,
@@ -199,8 +204,8 @@ export async function GET(request: NextRequest) {
         occupiedUnits,
         vacantUnits,
         occupancyRate: totalUnits > 0 ? ((occupiedUnits / totalUnits) * 100).toFixed(1) : '0',
-        activeLeases,
-        totalPotentialRent
+        activeLeases: activeLeasesCount,
+        totalPotentialRent: totalMonthlyRent
       };
     });
 
