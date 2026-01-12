@@ -169,6 +169,7 @@ export default function ReportsPage() {
   const [drillDownLoading, setDrillDownLoading] = useState(false);
 
   useEffect(() => {
+    document.title = 'Reports | Sanprinon';
     fetchReport();
     fetchProperties();
     fetchIncomeBreakdown();
@@ -498,7 +499,7 @@ export default function ReportsPage() {
                   disabled={bulkLoading}
                   className="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {bulkLoading ? 'Loading...' : 'Generate Rent'}
+                  {bulkLoading ? 'Loading...' : 'Charge Rent'}
                 </button>
                 <button
                   onClick={fetchReport}
@@ -631,19 +632,19 @@ export default function ReportsPage() {
           </div>
 
           <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-            <p className="text-xs sm:text-sm text-gray-600 mb-1">Tenants Owing</p>
+            <p className="text-xs sm:text-sm text-gray-600 mb-1">Need to Collect</p>
             <p className="text-2xl sm:text-3xl font-bold text-red-600">{filteredSummary.tenantsOwing}</p>
             <p className="text-xs sm:text-sm text-gray-500 mt-1">{formatCurrency(filteredSummary.totalOwed)}</p>
           </div>
 
           <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-            <p className="text-xs sm:text-sm text-gray-600 mb-1">Credit Balances</p>
+            <p className="text-xs sm:text-sm text-gray-600 mb-1">Overpaid</p>
             <p className="text-2xl sm:text-3xl font-bold text-green-600">{filteredSummary.tenantsWithCredit}</p>
             <p className="text-xs sm:text-sm text-gray-500 mt-1">{formatCurrency(filteredSummary.totalCredits)}</p>
           </div>
 
           <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-            <p className="text-xs sm:text-sm text-gray-600 mb-1">Net AR Balance</p>
+            <p className="text-xs sm:text-sm text-gray-600 mb-1">Amount Owed</p>
             <p className={`text-2xl sm:text-3xl font-bold ${filteredSummary.netBalance >= 0 ? 'text-gray-900' : 'text-green-600'}`}>
               {formatCurrency(filteredSummary.netBalance)}
             </p>
@@ -672,7 +673,7 @@ export default function ReportsPage() {
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
-                Owing ({filteredSummary.tenantsOwing})
+                Unpaid ({filteredSummary.tenantsOwing})
               </button>
               <button
                 onClick={() => setFilter('credit')}
@@ -682,7 +683,7 @@ export default function ReportsPage() {
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
-                Credit ({filteredSummary.tenantsWithCredit})
+                Overpaid ({filteredSummary.tenantsWithCredit})
               </button>
               <button
                 onClick={() => setFilter('zero')}
@@ -1312,7 +1313,7 @@ export default function ReportsPage() {
             <div className="p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-xl flex items-center justify-between">
               <div>
                 <h2 className="text-lg sm:text-xl font-bold text-gray-900">
-                  {bulkResults ? 'Charge Results' : 'Generate Monthly Rent'}
+                  {bulkResults ? 'Charges Posted' : 'Charge Rent'}
                 </h2>
                 {!bulkResults && (
                   <p className="text-xs sm:text-sm text-gray-600 mt-1">

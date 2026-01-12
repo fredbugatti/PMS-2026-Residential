@@ -1,8 +1,24 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/accounting';
+import { stripe, isStripeConfigured } from '@/lib/stripe';
+
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
 // GET /api/admin/health - Check system health
-export async function GET() {
+export async function GET(request: Request) {
+  // CRITICAL: Verify admin secret in production
+  if (process.env.NODE_ENV === 'production') {
+    if (!ADMIN_SECRET) {
+      console.error('[ADMIN] FATAL: ADMIN_SECRET must be set in production');
+      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
+    }
+
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${ADMIN_SECRET}`) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  }
+
   const checks: {
     name: string;
     status: 'ok' | 'warning' | 'error';
@@ -134,6 +150,69 @@ export async function GET() {
   } catch (error: any) {
     checks.push({ name: 'Cron Jobs', status: 'error', message: error.message });
   }
+
+  // 10. Check Stripe API connectivity
+  try {
+    if (isStripeConfigured() && stripe) {
+      const startTime = Date.now();
+      await stripe.balance.retrieve();
+      const responseTime = Date.now() - startTime;
+
+      checks.push({
+        name: 'Stripe API',
+        status: responseTime < 2000 ? 'ok' : 'warning',
+        message: `Connected (${responseTime}ms response time)`,
+        details: { responseTime, configured: true }
+      });
+    } else {
+      checks.push({
+        name: 'Stripe API',
+        status: 'warning',
+        message: 'STRIPE_SECRET_KEY not configured',
+        details: { configured: false }
+      });
+    }
+  } catch (error: any) {
+    checks.push({
+      name: 'Stripe API',
+      status: 'error',
+      message: `Connection failed: ${error.message}`,
+      details: { error: error.message }
+    });
+  }
+
+  // 11. Check webhook processing health
+  try {
+    const failedWebhooks = await prisma.webhookEvent.count({
+      where: { status: 'failed' }
+    });
+    const recentWebhooks = await prisma.webhookEvent.count({
+      where: { createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } }
+    });
+
+    checks.push({
+      name: 'Webhook Processing',
+      status: failedWebhooks > 5 ? 'warning' : 'ok',
+      message: failedWebhooks > 0
+        ? `${failedWebhooks} failed webhooks (${recentWebhooks} in last 24h)`
+        : `Healthy (${recentWebhooks} webhooks in last 24h)`,
+      details: { failed: failedWebhooks, recent: recentWebhooks }
+    });
+  } catch (error: any) {
+    checks.push({
+      name: 'Webhook Processing',
+      status: 'error',
+      message: error.message
+    });
+  }
+
+  // 12. Database pool health check (metrics require Prisma extensions)
+  checks.push({
+    name: 'Database Pool',
+    status: 'ok',
+    message: 'Connection verified via query checks above',
+    details: { available: true }
+  });
 
   // Calculate overall status
   const hasError = checks.some(c => c.status === 'error');

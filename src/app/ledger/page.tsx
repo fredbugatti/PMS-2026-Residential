@@ -212,7 +212,7 @@ export default function LedgerPage() {
                 <option value="">All Accounts</option>
                 {accounts.map((account) => (
                   <option key={account.code} value={account.code}>
-                    {account.code} - {account.name}
+                    {account.name}
                   </option>
                 ))}
               </select>

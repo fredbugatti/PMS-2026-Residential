@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/accounting';
+import { prisma, voidLedgerEntry } from '@/lib/accounting';
+
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
 // GET /api/ledger/[id] - Get single ledger entry
 export async function GET(
@@ -42,11 +44,34 @@ export async function GET(
 }
 
 // DELETE /api/ledger/[id] - Delete (void) a ledger entry
+// Requires ADMIN_SECRET authentication in production
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Explicit auth check for this sensitive operation
+    if (process.env.NODE_ENV === 'production') {
+      if (!ADMIN_SECRET) {
+        console.error('[Auth] CRITICAL: ADMIN_SECRET not set for ledger void');
+        return NextResponse.json(
+          { error: 'Server configuration error' },
+          { status: 500 }
+        );
+      }
+
+      const authHeader = request.headers.get('x-api-key') || request.headers.get('authorization');
+      const providedKey = authHeader?.replace('Bearer ', '');
+
+      if (!providedKey || providedKey !== ADMIN_SECRET) {
+        console.warn(`[Auth] Unauthorized ledger void attempt`);
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        );
+      }
+    }
+
     const { id } = await params;
 
     // Get the entry first to check it exists
@@ -61,15 +86,17 @@ export async function DELETE(
       );
     }
 
-    // Delete the entry
-    await prisma.ledgerEntry.delete({
-      where: { id }
+    // Void the entry (soft delete - database trigger prevents hard delete)
+    await voidLedgerEntry({
+      entryId: id,
+      reason: 'Admin void via API',
+      voidedBy: 'admin'
     });
 
     return NextResponse.json({
       success: true,
-      message: 'Ledger entry deleted',
-      deletedEntry: {
+      message: 'Ledger entry voided',
+      voidedEntry: {
         id: entry.id,
         description: entry.description,
         amount: entry.amount

@@ -5,9 +5,27 @@ import { useState, useEffect } from 'react';
 interface Account {
   code: string;
   name: string;
+  description: string | null;
   type: 'ASSET' | 'LIABILITY' | 'INCOME' | 'EXPENSE' | 'EQUITY';
   normalBalance: 'DR' | 'CR';
   active: boolean;
+  transactionCount: number;
+  totalDebits: string;
+  totalCredits: string;
+}
+
+interface Transaction {
+  id: string;
+  entryDate: string;
+  amount: string;
+  debitCredit: 'DR' | 'CR';
+  description: string;
+  postedBy: string;
+  createdAt: string;
+  voided: boolean;
+  leaseId: string | null;
+  unitNumber: string | null;
+  propertyName: string | null;
 }
 
 const ACCOUNT_TYPES = [
@@ -18,6 +36,9 @@ const ACCOUNT_TYPES = [
   { value: 'EQUITY', label: 'Equity', normalBalance: 'CR' },
 ];
 
+type SortField = 'code' | 'name' | 'transactionCount' | 'balance';
+type SortDirection = 'asc' | 'desc';
+
 export default function ChartOfAccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,10 +46,20 @@ export default function ChartOfAccountsPage() {
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [filter, setFilter] = useState<string>('all');
   const [saving, setSaving] = useState(false);
+  const [sortField, setSortField] = useState<SortField>('code');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+
+  // Transaction drill-down state
+  const [showTransactions, setShowTransactions] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactionsLoading, setTransactionsLoading] = useState(false);
+  const [transactionsSummary, setTransactionsSummary] = useState({ totalDebits: 0, totalCredits: 0 });
 
   const [formData, setFormData] = useState({
     code: '',
     name: '',
+    description: '',
     type: 'EXPENSE' as Account['type'],
     active: true,
   });
@@ -49,6 +80,28 @@ export default function ChartOfAccountsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchTransactions = async (accountCode: string) => {
+    setTransactionsLoading(true);
+    try {
+      const res = await fetch(`/api/chart-of-accounts/${accountCode}/transactions?limit=100`);
+      if (res.ok) {
+        const data = await res.json();
+        setTransactions(data.transactions);
+        setTransactionsSummary(data.summary);
+      }
+    } catch (error) {
+      console.error('Failed to fetch transactions:', error);
+    } finally {
+      setTransactionsLoading(false);
+    }
+  };
+
+  const openTransactionsModal = (account: Account) => {
+    setSelectedAccount(account);
+    setShowTransactions(true);
+    fetchTransactions(account.code);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -109,6 +162,7 @@ export default function ChartOfAccountsPage() {
     setFormData({
       code: '',
       name: '',
+      description: '',
       type: 'EXPENSE',
       active: true,
     });
@@ -120,6 +174,7 @@ export default function ChartOfAccountsPage() {
     setFormData({
       code: account.code,
       name: account.name,
+      description: account.description || '',
       type: account.type,
       active: account.active,
     });
@@ -142,6 +197,60 @@ export default function ChartOfAccountsPage() {
     }
   };
 
+  const formatCurrency = (amount: string | number) => {
+    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num || 0);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const calculateBalance = (account: Account) => {
+    const debits = parseFloat(account.totalDebits) || 0;
+    const credits = parseFloat(account.totalCredits) || 0;
+    // For debit-normal accounts (Assets, Expenses): Balance = Debits - Credits
+    // For credit-normal accounts (Liabilities, Income, Equity): Balance = Credits - Debits
+    if (account.normalBalance === 'DR') {
+      return debits - credits;
+    }
+    return credits - debits;
+  };
+
+  const toggleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection(field === 'transactionCount' || field === 'balance' ? 'desc' : 'asc');
+    }
+  };
+
+  const sortAccounts = (accountList: Account[]) => {
+    return [...accountList].sort((a, b) => {
+      let comparison = 0;
+      switch (sortField) {
+        case 'code':
+          comparison = a.code.localeCompare(b.code);
+          break;
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'transactionCount':
+          comparison = a.transactionCount - b.transactionCount;
+          break;
+        case 'balance':
+          comparison = calculateBalance(a) - calculateBalance(b);
+          break;
+      }
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  };
+
   const filteredAccounts = filter === 'all'
     ? accounts
     : accounts.filter(a => a.type === filter);
@@ -152,6 +261,10 @@ export default function ChartOfAccountsPage() {
     groups[type].push(account);
     return groups;
   }, {} as Record<string, Account[]>);
+
+  // Calculate totals for summary
+  const totalTransactions = filteredAccounts.reduce((sum, a) => sum + a.transactionCount, 0);
+  const accountsWithActivity = filteredAccounts.filter(a => a.transactionCount > 0).length;
 
   if (loading) {
     return (
@@ -182,8 +295,30 @@ export default function ChartOfAccountsPage() {
         </button>
       </div>
 
+      {/* Summary Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">{accounts.length}</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">Total Accounts</div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+          <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{accountsWithActivity}</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">With Activity</div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+          <div className="text-2xl font-bold text-green-600 dark:text-green-400">{totalTransactions}</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">Total Transactions</div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">
+            {accounts.filter(a => !a.active).length}
+          </div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">Inactive</div>
+        </div>
+      </div>
+
       {/* Filter Tabs */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+      <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
         <button
           onClick={() => setFilter('all')}
           className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors ${
@@ -209,6 +344,32 @@ export default function ChartOfAccountsPage() {
         ))}
       </div>
 
+      {/* Sort Controls */}
+      <div className="flex items-center gap-2 mb-6">
+        <span className="text-sm text-gray-500 dark:text-gray-400">Sort by:</span>
+        {[
+          { field: 'code' as SortField, label: 'Code' },
+          { field: 'name' as SortField, label: 'Name' },
+          { field: 'transactionCount' as SortField, label: 'Transactions' },
+          { field: 'balance' as SortField, label: 'Balance' },
+        ].map(({ field, label }) => (
+          <button
+            key={field}
+            onClick={() => toggleSort(field)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
+              sortField === field
+                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
+                : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+            }`}
+          >
+            {label}
+            {sortField === field && (
+              <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
       {/* Accounts List */}
       <div className="space-y-6">
         {Object.entries(groupedAccounts).map(([type, typeAccounts]) => (
@@ -224,20 +385,55 @@ export default function ChartOfAccountsPage() {
               </h2>
             </div>
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {typeAccounts
-                .sort((a, b) => a.code.localeCompare(b.code))
-                .map(account => (
+              {sortAccounts(typeAccounts).map(account => (
                 <div key={account.code} className={`px-6 py-4 flex items-center justify-between ${!account.active ? 'opacity-50' : ''}`}>
-                  <div className="flex items-center gap-4">
-                    <div className="font-mono text-sm font-semibold text-gray-600 dark:text-gray-400 w-16">
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="font-mono text-sm font-semibold text-gray-600 dark:text-gray-400 w-16 flex-shrink-0">
                       {account.code}
                     </div>
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <div className="font-medium text-gray-900 dark:text-white">{account.name}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        Normal Balance: {account.normalBalance === 'DR' ? 'Debit' : 'Credit'}
+                      {account.description && (
+                        <div className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                          {account.description}
+                        </div>
+                      )}
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Increases with: {account.normalBalance === 'DR' ? 'Money In' : 'Money Out'}
                         {!account.active && <span className="ml-2 text-red-500">(Inactive)</span>}
                       </div>
+                    </div>
+                    {/* Transaction Count & Balance - More Visible */}
+                    <div className="flex-shrink-0 text-right mr-4">
+                      {account.transactionCount > 0 ? (
+                        <button
+                          onClick={() => openTransactionsModal(account)}
+                          className="group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="bg-blue-50 dark:bg-blue-900/30 px-3 py-2 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors">
+                              <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                                {account.transactionCount}
+                              </div>
+                              <div className="text-xs text-blue-500 dark:text-blue-300">transactions</div>
+                            </div>
+                            <div className="bg-green-50 dark:bg-green-900/30 px-3 py-2 rounded-lg group-hover:bg-green-100 dark:group-hover:bg-green-900/50 transition-colors">
+                              <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                                {formatCurrency(calculateBalance(account))}
+                              </div>
+                              <div className="text-xs text-green-500 dark:text-green-300">balance</div>
+                            </div>
+                          </div>
+                          <div className="text-xs text-blue-500 dark:text-blue-400 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            Click to view details →
+                          </div>
+                        </button>
+                      ) : (
+                        <div className="bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-lg">
+                          <div className="text-lg font-bold text-gray-400 dark:text-gray-500">0</div>
+                          <div className="text-xs text-gray-400 dark:text-gray-500">transactions</div>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -271,7 +467,7 @@ export default function ChartOfAccountsPage() {
         )}
       </div>
 
-      {/* Modal */}
+      {/* Edit/Create Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full">
@@ -311,6 +507,22 @@ export default function ChartOfAccountsPage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   required
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="What is this account used for? (e.g., Money tenants pay each month for rent)"
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Plain English explanation of when to use this account
+                </p>
               </div>
 
               <div>
@@ -358,6 +570,143 @@ export default function ChartOfAccountsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Transactions Drill-Down Modal */}
+      {showTransactions && selectedAccount && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {selectedAccount.code} - {selectedAccount.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    {selectedAccount.description || 'No description'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowTransactions(false)}
+                  className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Summary */}
+              <div className="flex gap-6 mt-4">
+                <div className="text-center">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 uppercase">Money In</div>
+                  <div className="text-lg font-semibold text-green-600 dark:text-green-400">
+                    {formatCurrency(transactionsSummary.totalDebits)}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 uppercase">Money Out</div>
+                  <div className="text-lg font-semibold text-red-600 dark:text-red-400">
+                    {formatCurrency(transactionsSummary.totalCredits)}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 uppercase">Net Balance</div>
+                  <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+                    {formatCurrency(calculateBalance(selectedAccount))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Transactions List */}
+            <div className="flex-1 overflow-y-auto">
+              {transactionsLoading ? (
+                <div className="p-8 text-center text-gray-500">Loading transactions...</div>
+              ) : transactions.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">No transactions found</div>
+              ) : (
+                <table className="w-full">
+                  <thead className="bg-gray-50 dark:bg-gray-700 sticky top-0">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Description</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Property/Unit</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-green-600 dark:text-green-400 uppercase">In (+)</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-red-600 dark:text-red-400 uppercase">Out (-)</th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {transactions.map((tx) => (
+                      <tr
+                        key={tx.id}
+                        className={`hover:bg-gray-50 dark:hover:bg-gray-700/50 ${tx.voided ? 'opacity-50 line-through' : ''}`}
+                      >
+                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-white whitespace-nowrap">
+                          {formatDate(tx.entryDate)}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                          {tx.description}
+                          {tx.voided && <span className="ml-2 text-red-500 text-xs">(VOIDED)</span>}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                          {tx.propertyName && tx.unitNumber
+                            ? `${tx.propertyName} - ${tx.unitNumber}`
+                            : tx.propertyName || '-'}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-right font-mono">
+                          {tx.debitCredit === 'DR' ? (
+                            <span className="text-green-600 dark:text-green-400 font-medium">+{formatCurrency(tx.amount)}</span>
+                          ) : (
+                            <span className="text-gray-300 dark:text-gray-600">-</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-right font-mono">
+                          {tx.debitCredit === 'CR' ? (
+                            <span className="text-red-600 dark:text-red-400 font-medium">-{formatCurrency(tx.amount)}</span>
+                          ) : (
+                            <span className="text-gray-300 dark:text-gray-600">-</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            {tx.leaseId && (
+                              <a
+                                href={`/leases/${tx.leaseId}`}
+                                className="text-blue-600 dark:text-blue-400 hover:underline text-xs"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                View Lease
+                              </a>
+                            )}
+                            <a
+                              href={`/ledger?entry=${tx.id}`}
+                              className="text-blue-600 dark:text-blue-400 hover:underline text-xs"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              View Entry
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+              <button
+                onClick={() => setShowTransactions(false)}
+                className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

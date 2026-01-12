@@ -1,19 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma, postEntry } from '@/lib/accounting';
+import { NextRequest } from 'next/server';
+import { prisma, withLedgerTransaction } from '@/lib/accounting';
+import { validate, returnDepositSchema } from '@/lib/validation';
+import { handleApiError, apiCreated, checkRateLimit, rateLimitResponse, getClientIdentifier } from '@/lib/api-utils';
 
 // POST /api/deposits/return - Return deposit (DR Deposits Held / CR Cash)
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { amount, leaseId, description, returnDate, deductions } = body;
-
-    // Validate required fields
-    if (!amount || !leaseId) {
-      return NextResponse.json(
-        { error: 'Amount and leaseId are required' },
-        { status: 400 }
-      );
+    // Rate limit: 30 deposits per minute per client
+    const clientId = getClientIdentifier(request);
+    const rateLimit = checkRateLimit('deposits-return', clientId, { windowMs: 60000, maxRequests: 30 });
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.resetIn);
     }
+
+    const body = await request.json();
+
+    // Validate input
+    const { amount, leaseId, description, returnDate, deductions } = validate(returnDepositSchema, body);
 
     // Parse and validate return date
     const entryDate = returnDate ? new Date(returnDate) : new Date();
@@ -25,88 +28,79 @@ export async function POST(request: NextRequest) {
     });
 
     if (!lease) {
-      return NextResponse.json(
-        { error: 'Lease not found' },
-        { status: 404 }
-      );
+      throw new Error('Lease not found');
     }
 
     const finalDescription = description || `Security deposit returned - ${lease.tenantName} (${lease.unitName})`;
 
-    // Post DR Deposits Held entry (2100) - Release liability
-    const depositEntry = await postEntry({
-      accountCode: '2100',
-      amount: parseFloat(amount),
-      debitCredit: 'DR',
-      description: finalDescription,
-      entryDate: entryDate,
-      leaseId: leaseId,
-      postedBy: 'user'
-    });
+    // Post all entries atomically - if any fails, all roll back
+    const entries = await withLedgerTransaction(async (tx, postEntry) => {
+      const allEntries = [];
 
-    // Post CR Cash entry (1000) - Cash out
-    const cashEntry = await postEntry({
-      accountCode: '1000',
-      amount: parseFloat(amount),
-      debitCredit: 'CR',
-      description: finalDescription,
-      entryDate: entryDate,
-      leaseId: leaseId,
-      postedBy: 'user'
-    });
+      // Post DR Deposits Held entry (2100) - Release liability
+      const depositEntry = await postEntry({
+        accountCode: '2100',
+        amount,
+        debitCredit: 'DR',
+        description: finalDescription,
+        entryDate,
+        leaseId,
+        postedBy: 'user'
+      });
+      allEntries.push(depositEntry);
 
-    // If there are deductions, post them as expenses
-    const deductionEntries = [];
-    if (deductions && Array.isArray(deductions) && deductions.length > 0) {
-      for (const deduction of deductions) {
-        if (deduction.amount && deduction.amount > 0) {
+      // Post CR Cash entry (1000) - Cash out
+      const cashEntry = await postEntry({
+        accountCode: '1000',
+        amount,
+        debitCredit: 'CR',
+        description: finalDescription,
+        entryDate,
+        leaseId,
+        postedBy: 'user'
+      });
+      allEntries.push(cashEntry);
+
+      // If there are deductions, post them as expenses
+      if (deductions && deductions.length > 0) {
+        for (const deduction of deductions) {
+          const deductionDesc = `Deposit deduction: ${deduction.description || 'Expense'}`;
+
           // DR Expense (5000)
           const expenseEntry = await postEntry({
             accountCode: '5000',
-            amount: parseFloat(deduction.amount),
+            amount: deduction.amount,
             debitCredit: 'DR',
-            description: `Deposit deduction: ${deduction.description || 'Expense'}`,
-            entryDate: entryDate,
-            leaseId: leaseId,
+            description: deductionDesc,
+            entryDate,
+            leaseId,
             postedBy: 'user'
           });
+          allEntries.push(expenseEntry);
 
-          // DR Deposits Held (2100) - Reduce liability
+          // CR Deposits Held (2100) - Offset from deposit
           const depositDeductionEntry = await postEntry({
             accountCode: '2100',
-            amount: parseFloat(deduction.amount),
-            debitCredit: 'DR',
-            description: `Deposit deduction: ${deduction.description || 'Expense'}`,
-            entryDate: entryDate,
-            leaseId: leaseId,
+            amount: deduction.amount,
+            debitCredit: 'CR',
+            description: deductionDesc,
+            entryDate,
+            leaseId,
             postedBy: 'user'
           });
-
-          deductionEntries.push(expenseEntry, depositDeductionEntry);
+          allEntries.push(depositDeductionEntry);
         }
       }
-    }
 
-    return NextResponse.json({
-      success: true,
-      message: `Deposit of ${amount} returned${deductions?.length ? ` with ${deductions.length} deductions` : ''}`,
-      entries: [depositEntry, cashEntry, ...deductionEntries]
-    }, { status: 201 });
+      return allEntries;
+    });
 
-  } catch (error: any) {
-    console.error('POST /api/deposits/return error:', error);
-
-    // Handle idempotency errors
-    if (error.message?.includes('Unique constraint') || error.message?.includes('Duplicate')) {
-      return NextResponse.json(
-        { error: 'This deposit return has already been recorded' },
-        { status: 409 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: error.message || 'Failed to record deposit return' },
-      { status: 500 }
+    return apiCreated(
+      { entries },
+      `Deposit of $${amount} returned${deductions?.length ? ` with ${deductions.length} deductions` : ''}`
     );
+
+  } catch (error) {
+    return handleApiError(error, 'POST /api/deposits/return');
   }
 }

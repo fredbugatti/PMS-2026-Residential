@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/accounting';
+import { prisma, postDoubleEntry } from '@/lib/accounting';
 
 // POST /api/leases/[id]/charge-rent - Charge monthly rent
 export async function POST(
@@ -83,35 +83,26 @@ export async function POST(
       );
     }
 
-    // Create the rent charge ledger entries
+    // Create the rent charge ledger entries (atomic double-entry)
     const description = `Rent charge for ${chargeMonth} - ${lease.tenantName}`;
 
-    // DR Accounts Receivable (increase asset)
-    await prisma.ledgerEntry.create({
-      data: {
+    await postDoubleEntry({
+      debitEntry: {
         entryDate: targetDate,
-        accountCode: '1200',
+        accountCode: '1200', // AR
         amount: monthlyRentAmount,
         debitCredit: 'DR',
         description,
-        idempotencyKey,
         postedBy: manual ? 'manual' : 'system',
-        status: 'POSTED',
         leaseId: lease.id
-      }
-    });
-
-    // CR Rental Income (increase income)
-    await prisma.ledgerEntry.create({
-      data: {
+      },
+      creditEntry: {
         entryDate: targetDate,
-        accountCode: '4000',
+        accountCode: '4000', // Rental Income
         amount: monthlyRentAmount,
         debitCredit: 'CR',
         description,
-        idempotencyKey: `${idempotencyKey}-cr`,
         postedBy: manual ? 'manual' : 'system',
-        status: 'POSTED',
         leaseId: lease.id
       }
     });

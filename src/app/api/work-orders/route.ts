@@ -1,9 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { prisma } from '@/lib/accounting';
+import { validate, idSchema } from '@/lib/validation';
+import { handleApiError, checkRateLimit, rateLimitResponse, getClientIdentifier } from '@/lib/api-utils';
+
+// Work order creation schema - matches Prisma required fields
+const createWorkOrderSchema = z.object({
+  propertyId: idSchema,
+  unitId: idSchema, // Required in schema
+  leaseId: idSchema.optional(),
+  title: z.string().min(1, 'Title is required').max(200),
+  description: z.string().min(1, 'Description is required').max(5000),
+  category: z.enum(['PLUMBING', 'ELECTRICAL', 'HVAC', 'APPLIANCE', 'GENERAL', 'OTHER']),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'EMERGENCY']).default('MEDIUM'),
+  status: z.enum(['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
+  reportedBy: z.string().min(1, 'Reporter name is required').max(200),
+  reportedEmail: z.string().email().optional().or(z.literal('')),
+  vendorId: idSchema.optional(),
+  assignedTo: z.string().max(200).optional(),
+  estimatedCost: z.number().nonnegative().optional(),
+  scheduledDate: z.string().optional(),
+  photos: z.array(z.string()).optional(),
+  internalNotes: z.string().max(5000).optional()
+});
 
 // GET /api/work-orders - List all work orders with filters
 export async function GET(request: NextRequest) {
   try {
+    // Rate limit: 120 reads per minute per client
+    const clientId = getClientIdentifier(request);
+    const rateLimit = checkRateLimit('work-orders-get', clientId, { windowMs: 60000, maxRequests: 120 });
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.resetIn);
+    }
+
     const { searchParams } = new URL(request.url);
     const propertyId = searchParams.get('propertyId');
     const unitId = searchParams.get('unitId');
@@ -52,12 +82,8 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(workOrders);
-  } catch (error: any) {
-    console.error('GET /api/work-orders error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to fetch work orders' },
-      { status: 500 }
-    );
+  } catch (error) {
+    return handleApiError(error, 'GET /api/work-orders');
   }
 }
 
@@ -95,29 +121,39 @@ async function generateInvoiceNumber(): Promise<string> {
 // POST /api/work-orders - Create new work order
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 60 work orders per minute per client
+    const clientId = getClientIdentifier(request);
+    const rateLimit = checkRateLimit('work-orders-post', clientId, { windowMs: 60000, maxRequests: 60 });
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.resetIn);
+    }
+
     const body = await request.json();
+
+    // Validate input
+    const validated = validate(createWorkOrderSchema, body);
 
     // Auto-generate invoice number
     const invoiceNumber = await generateInvoiceNumber();
 
     const workOrder = await prisma.workOrder.create({
       data: {
-        propertyId: body.propertyId,
-        unitId: body.unitId,
-        leaseId: body.leaseId || null,
-        title: body.title,
-        description: body.description,
-        category: body.category,
-        priority: body.priority || 'MEDIUM',
-        status: body.status || 'OPEN',
-        reportedBy: body.reportedBy,
-        reportedEmail: body.reportedEmail || null,
-        vendorId: body.vendorId || null,
-        assignedTo: body.assignedTo || null,
-        estimatedCost: body.estimatedCost ? parseFloat(body.estimatedCost) : null,
-        scheduledDate: body.scheduledDate ? new Date(body.scheduledDate) : null,
-        photos: body.photos || [],
-        internalNotes: body.internalNotes || null,
+        propertyId: validated.propertyId,
+        unitId: validated.unitId,
+        leaseId: validated.leaseId,
+        title: validated.title,
+        description: validated.description,
+        category: validated.category,
+        priority: validated.priority,
+        status: validated.status || 'OPEN',
+        reportedBy: validated.reportedBy,
+        reportedEmail: validated.reportedEmail || undefined,
+        vendorId: validated.vendorId,
+        assignedTo: validated.assignedTo,
+        estimatedCost: validated.estimatedCost,
+        scheduledDate: validated.scheduledDate ? new Date(validated.scheduledDate) : undefined,
+        photos: validated.photos || [],
+        internalNotes: validated.internalNotes,
         invoiceNumber
       },
       include: {
@@ -144,11 +180,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(workOrder, { status: 201 });
 
-  } catch (error: any) {
-    console.error('POST /api/work-orders error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to create work order' },
-      { status: 400 }
-    );
+  } catch (error) {
+    return handleApiError(error, 'POST /api/work-orders');
   }
 }

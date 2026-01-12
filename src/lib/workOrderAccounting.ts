@@ -1,4 +1,4 @@
-import { prisma } from './accounting';
+import { prisma, postDoubleEntry } from './accounting';
 
 /**
  * Create ledger entries when a work order is completed and paid
@@ -19,89 +19,68 @@ export async function createWorkOrderLedgerEntries(
 
   try {
     if (paidBy === 'OWNER') {
-      // Owner pays: Record as maintenance expense
-      // DR: Maintenance Expense (6100)
-      await prisma.ledgerEntry.create({
-        data: {
+      // Owner pays: Record as maintenance expense (atomic)
+      await postDoubleEntry({
+        debitEntry: {
           entryDate: new Date(entryDate),
-          accountCode: '6100',
+          accountCode: '6100', // Maintenance Expense
           amount: actualCost,
           debitCredit: 'DR',
           description: `Maintenance: ${description}`,
-          idempotencyKey: `${idempotencyBase}-expense-dr`,
           postedBy: 'System - Work Order',
-          leaseId: leaseId
-        }
-      });
-
-      // CR: Cash (1000)
-      await prisma.ledgerEntry.create({
-        data: {
+          leaseId: leaseId || undefined
+        },
+        creditEntry: {
           entryDate: new Date(entryDate),
-          accountCode: '1000',
+          accountCode: '1000', // Cash
           amount: actualCost,
           debitCredit: 'CR',
           description: `Maintenance payment: ${description}`,
-          idempotencyKey: `${idempotencyBase}-cash-cr`,
           postedBy: 'System - Work Order'
         }
       });
     } else if (paidBy === 'TENANT') {
       // Tenant pays (tenant-caused damage)
-      // First, record the expense (owner paid vendor)
-      // DR: Maintenance Expense (6100)
-      await prisma.ledgerEntry.create({
-        data: {
+      // First transaction: Expense and Cash payment (atomic)
+      await postDoubleEntry({
+        debitEntry: {
           entryDate: new Date(entryDate),
-          accountCode: '6100',
+          accountCode: '6100', // Maintenance Expense
           amount: actualCost,
           debitCredit: 'DR',
           description: `Maintenance (tenant damage): ${description}`,
-          idempotencyKey: `${idempotencyBase}-expense-dr`,
           postedBy: 'System - Work Order',
-          leaseId: leaseId
-        }
-      });
-
-      // CR: Cash (1000)
-      await prisma.ledgerEntry.create({
-        data: {
+          leaseId: leaseId || undefined
+        },
+        creditEntry: {
           entryDate: new Date(entryDate),
-          accountCode: '1000',
+          accountCode: '1000', // Cash
           amount: actualCost,
           debitCredit: 'CR',
           description: `Maintenance payment: ${description}`,
-          idempotencyKey: `${idempotencyBase}-cash-cr`,
           postedBy: 'System - Work Order'
         }
       });
 
-      // Then, charge the tenant (recovery)
-      // DR: Accounts Receivable (1200)
-      await prisma.ledgerEntry.create({
-        data: {
+      // Second transaction: Charge tenant for recovery (atomic)
+      await postDoubleEntry({
+        debitEntry: {
           entryDate: new Date(entryDate),
-          accountCode: '1200',
+          accountCode: '1200', // AR
           amount: actualCost,
           debitCredit: 'DR',
           description: `Tenant damage charge: ${description}`,
-          idempotencyKey: `${idempotencyBase}-ar-dr`,
           postedBy: 'System - Work Order',
-          leaseId: leaseId
-        }
-      });
-
-      // CR: Maintenance Recovery Income (4200)
-      await prisma.ledgerEntry.create({
-        data: {
+          leaseId: leaseId || undefined
+        },
+        creditEntry: {
           entryDate: new Date(entryDate),
-          accountCode: '4200',
+          accountCode: '4200', // Maintenance Recovery Income
           amount: actualCost,
           debitCredit: 'CR',
           description: `Maintenance recovery: ${description}`,
-          idempotencyKey: `${idempotencyBase}-recovery-cr`,
           postedBy: 'System - Work Order',
-          leaseId: leaseId
+          leaseId: leaseId || undefined
         }
       });
     }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma, postEntry } from '@/lib/accounting';
+import { prisma, withLedgerTransaction } from '@/lib/accounting';
 
 // Force dynamic rendering since we use request.headers
 export const dynamic = 'force-dynamic';
@@ -12,9 +12,14 @@ export async function GET(request: NextRequest) {
   const startTime = Date.now();
 
   try {
-    // Verify cron secret (skip in development)
-    const authHeader = request.headers.get('authorization');
-    if (process.env.NODE_ENV === 'production' && CRON_SECRET) {
+    // CRITICAL: Verify cron secret in production (fail-closed)
+    if (process.env.NODE_ENV === 'production') {
+      if (!CRON_SECRET) {
+        console.error('[CRON] FATAL: CRON_SECRET must be set in production');
+        return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
+      }
+
+      const authHeader = request.headers.get('authorization');
       if (authHeader !== `Bearer ${CRON_SECRET}`) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
@@ -140,43 +145,47 @@ export async function GET(request: NextRequest) {
             message: 'Created pending expense - awaiting confirmation'
           });
         } else {
-          // Auto-post the expense directly to ledger
-          // Post entry 1: DR Expense Account (increase expense)
-          await postEntry({
-            accountCode: expense.accountCode,
-            amount: Number(expense.amount),
-            debitCredit: 'DR',
-            description: entryDescription,
-            entryDate: today,
-            postedBy: 'cron-expense'
+          // Auto-post the expense directly to ledger using transaction
+          const expenseAmount = Number(expense.amount);
+
+          await withLedgerTransaction(async (tx, postEntry) => {
+            // Post entry 1: DR Expense Account (increase expense)
+            await postEntry({
+              accountCode: expense.accountCode,
+              amount: expenseAmount,
+              debitCredit: 'DR',
+              description: entryDescription,
+              entryDate: today,
+              postedBy: 'cron-expense'
+            });
+
+            // Post entry 2: CR Cash (decrease cash)
+            await postEntry({
+              accountCode: '1000',
+              amount: expenseAmount,
+              debitCredit: 'CR',
+              description: entryDescription,
+              entryDate: today,
+              postedBy: 'cron-expense'
+            });
+
+            // Update last posted date (within same transaction)
+            await tx.scheduledExpense.update({
+              where: { id: expense.id },
+              data: { lastPostedDate: today }
+            });
           });
 
-          // Post entry 2: CR Cash (decrease cash)
-          await postEntry({
-            accountCode: '1000',
-            amount: Number(expense.amount),
-            debitCredit: 'CR',
-            description: entryDescription,
-            entryDate: today,
-            postedBy: 'cron-expense'
-          });
-
-          // Update last posted date
-          await prisma.scheduledExpense.update({
-            where: { id: expense.id },
-            data: { lastPostedDate: today }
-          });
-
-          totalAmountPosted += Number(expense.amount);
+          totalAmountPosted += expenseAmount;
 
           results.push({
             expenseId: expense.id,
             propertyId: expense.propertyId,
             propertyName: expense.property.name,
             description: expense.description,
-            amount: Number(expense.amount),
+            amount: expenseAmount,
             status: 'posted',
-            message: `Posted ${expense.description} of $${Number(expense.amount).toFixed(2)}`
+            message: `Posted ${expense.description} of $${expenseAmount.toFixed(2)}`
           });
         }
 

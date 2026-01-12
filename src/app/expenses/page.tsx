@@ -101,6 +101,7 @@ export default function ExpensesPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showOptionalFields, setShowOptionalFields] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -202,6 +203,7 @@ export default function ExpensesPage() {
 
       setSuccess('Expense recorded successfully!');
       setShowOneTimeForm(false);
+      setShowOptionalFields(false);
       setOneTimeForm({
         accountCode: '5000',
         amount: '',
@@ -449,7 +451,7 @@ export default function ExpensesPage() {
                       required
                     >
                       {expenseAccounts.map(acc => (
-                        <option key={acc.code} value={acc.code}>{acc.code} - {acc.name}</option>
+                        <option key={acc.code} value={acc.code}>{acc.name}</option>
                       ))}
                     </select>
                   </div>
@@ -491,40 +493,55 @@ export default function ExpensesPage() {
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Property (optional)
-                    </label>
-                    <select
-                      value={oneTimeForm.propertyId}
-                      onChange={(e) => setOneTimeForm({ ...oneTimeForm, propertyId: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  {!showOptionalFields ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowOptionalFields(true)}
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                     >
-                      <option value="">-- Select Property --</option>
-                      {properties.map(p => (
-                        <option key={p.id} value={p.id}>{p.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Vendor (optional)
-                    </label>
-                    <select
-                      value={oneTimeForm.vendorId}
-                      onChange={(e) => setOneTimeForm({ ...oneTimeForm, vendorId: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    >
-                      <option value="">-- Select Vendor --</option>
-                      {vendors.map(v => (
-                        <option key={v.id} value={v.id}>{v.name}{v.company ? ` (${v.company})` : ''}</option>
-                      ))}
-                    </select>
-                  </div>
+                      + Add property or vendor
+                    </button>
+                  ) : (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Property (optional)
+                        </label>
+                        <select
+                          value={oneTimeForm.propertyId}
+                          onChange={(e) => setOneTimeForm({ ...oneTimeForm, propertyId: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        >
+                          <option value="">-- Select Property --</option>
+                          {properties.map(p => (
+                            <option key={p.id} value={p.id}>{p.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Vendor (optional)
+                        </label>
+                        <select
+                          value={oneTimeForm.vendorId}
+                          onChange={(e) => setOneTimeForm({ ...oneTimeForm, vendorId: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        >
+                          <option value="">-- Select Vendor --</option>
+                          {vendors.map(v => (
+                            <option key={v.id} value={v.id}>{v.name}{v.company ? ` (${v.company})` : ''}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </>
+                  )}
                   <div className="flex gap-3 pt-2">
                     <button
                       type="button"
-                      onClick={() => setShowOneTimeForm(false)}
+                      onClick={() => {
+                        setShowOneTimeForm(false);
+                        setShowOptionalFields(false);
+                      }}
                       className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
                     >
                       Cancel
@@ -686,7 +703,7 @@ export default function ExpensesPage() {
                       required
                     >
                       {expenseAccounts.map(acc => (
-                        <option key={acc.code} value={acc.code}>{acc.code} - {acc.name}</option>
+                        <option key={acc.code} value={acc.code}>{acc.name}</option>
                       ))}
                     </select>
                   </div>

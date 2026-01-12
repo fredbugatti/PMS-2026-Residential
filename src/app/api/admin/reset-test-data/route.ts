@@ -1,8 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/accounting';
 
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
+
 // POST /api/admin/reset-test-data - Reset database with fresh test data
 export async function POST(request: NextRequest) {
+  // CRITICAL: Verify admin secret in production
+  if (process.env.NODE_ENV === 'production') {
+    if (!ADMIN_SECRET) {
+      console.error('[ADMIN] FATAL: ADMIN_SECRET must be set in production');
+      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
+    }
+
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${ADMIN_SECRET}`) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  }
+
   try {
     const body = await request.json().catch(() => ({}));
     const { confirm, mode } = body;

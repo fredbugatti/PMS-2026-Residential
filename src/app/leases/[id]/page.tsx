@@ -230,6 +230,8 @@ export default function LeaseDetailPage() {
         tenantEmail: data.tenantEmail || '',
         tenantPhone: data.tenantPhone || ''
       });
+      // Update page title with tenant name
+      document.title = `${data.tenantName} - Lease | Sanprinon`;
     } catch (error) {
       console.error('Failed to fetch lease:', error);
     } finally {
@@ -1053,7 +1055,7 @@ export default function LeaseDetailPage() {
   };
 
   const addCharge = () => {
-    setCharges([...charges, { amount: '', chargeType: 'other', description: '' }]);
+    setCharges([...charges, { amount: '', chargeType: 'rent', description: '' }]);
   };
 
   const removeCharge = (index: number) => {
@@ -1191,8 +1193,32 @@ export default function LeaseDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="text-gray-600">Loading lease...</div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+        <div className="max-w-6xl mx-auto">
+          {/* Header skeleton */}
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gray-200 rounded-full animate-pulse"></div>
+              <div className="flex-1">
+                <div className="h-6 bg-gray-200 rounded w-48 mb-2 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+              </div>
+              <div className="flex gap-2">
+                <div className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div className="h-8 w-24 bg-gray-200 rounded-lg animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+          {/* Content skeleton */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="h-6 bg-gray-200 rounded w-32 mb-4 animate-pulse"></div>
+            <div className="space-y-3">
+              <div className="h-10 bg-gray-100 rounded animate-pulse"></div>
+              <div className="h-10 bg-gray-100 rounded animate-pulse"></div>
+              <div className="h-10 bg-gray-100 rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -1269,7 +1295,10 @@ export default function LeaseDetailPage() {
               </div>
 {lease.balance > 0 && (
                 <button
-                  onClick={() => setShowPaymentModal(true)}
+                  onClick={() => {
+                    setPaymentForm(prev => ({ ...prev, amount: lease.balance.toFixed(2) }));
+                    setShowPaymentModal(true);
+                  }}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1374,7 +1403,7 @@ export default function LeaseDetailPage() {
                   <button
                     onClick={handleChargeLateFee}
                     disabled={chargingLateFee}
-                    className="px-3 py-1.5 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors text-sm font-medium disabled:opacity-50"
+                    className="px-3 sm:px-3 py-2.5 sm:py-1.5 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors text-sm font-medium disabled:opacity-50"
                   >
                     {chargingLateFee ? 'Charging...' : 'Late Fee'}
                   </button>
@@ -1382,7 +1411,7 @@ export default function LeaseDetailPage() {
                 {lease.portalToken && (
                   <button
                     onClick={() => window.open(`/tenant/${lease.portalToken}`, '_blank')}
-                    className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors text-sm font-medium"
+                    className="px-3 sm:px-3 py-2.5 sm:py-1.5 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors text-sm font-medium"
                   >
                     Portal
                   </button>
@@ -1397,13 +1426,18 @@ export default function LeaseDetailPage() {
                     setChargeDate(new Date().toISOString().split('T')[0]);
                     setShowChargeModal(true);
                   }}
-                  className="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                  className="px-3 sm:px-3 py-2.5 sm:py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                 >
                   + Charge
                 </button>
                 <button
-                  onClick={() => setShowPaymentModal(true)}
-                  className="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                  onClick={() => {
+                    if (lease.balance > 0) {
+                      setPaymentForm(prev => ({ ...prev, amount: lease.balance.toFixed(2) }));
+                    }
+                    setShowPaymentModal(true);
+                  }}
+                  className="px-3 sm:px-3 py-2.5 sm:py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
                 >
                   + Payment
                 </button>
@@ -1439,9 +1473,34 @@ export default function LeaseDetailPage() {
             </div>
           </div>
           {lease.ledgerEntries.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">No ledger entries yet</p>
-              <p className="text-sm text-gray-400 mt-1">Use the buttons above to add charges or payments</p>
+            <div className="text-center py-12 px-4">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <span className="text-xl">📋</span>
+              </div>
+              <p className="text-gray-900 font-medium mb-1">No transactions yet</p>
+              <p className="text-sm text-gray-500 mb-4">Charges and payments will appear here.</p>
+              <div className="flex gap-2 justify-center">
+                <button
+                  onClick={() => {
+                    setCharges([{
+                      amount: lease.monthlyRentAmount ? lease.monthlyRentAmount.toString() : '',
+                      chargeType: 'rent',
+                      description: ''
+                    }]);
+                    setChargeDate(new Date().toISOString().split('T')[0]);
+                    setShowChargeModal(true);
+                  }}
+                  className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+                >
+                  + Charge
+                </button>
+                <button
+                  onClick={() => setShowPaymentModal(true)}
+                  className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700"
+                >
+                  + Payment
+                </button>
+              </div>
             </div>
           ) : ledgerViewMode === 'simplified' ? (
             /* Simplified View - AR entries only */
@@ -2199,7 +2258,7 @@ export default function LeaseDetailPage() {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <h2 className="text-lg font-semibold text-gray-900">Tenant Portal Access</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Tenant Payment Link</h2>
             </div>
             <div className="flex items-center gap-2">
               {lease.portalToken ? (
@@ -2223,14 +2282,14 @@ export default function LeaseDetailPage() {
                       <div className="text-2xl">✓</div>
                       <div className="flex-1">
                         <h3 className="text-sm font-medium text-green-900 mb-1">
-                          Portal Access is Active
+                          Payment Link Active
                         </h3>
                         <p className="text-sm text-green-700 mb-3">
-                          {lease.tenantName} can access their tenant portal using the unique link below.
+                          {lease.tenantName} can view balance and make payments using the link below.
                         </p>
 
                         <div className="bg-white p-3 rounded border border-green-300 mb-3">
-                          <p className="text-xs text-gray-500 mb-1">Portal URL</p>
+                          <p className="text-xs text-gray-500 mb-1">Payment Link</p>
                           <p className="text-sm font-mono text-gray-900 break-all">
                             {`${typeof window !== 'undefined' ? window.location.origin : ''}/tenant/${lease.portalToken}`}
                           </p>
@@ -2315,10 +2374,10 @@ export default function LeaseDetailPage() {
                       <div className="text-2xl">🔒</div>
                       <div className="flex-1">
                         <h3 className="text-sm font-medium text-gray-900 mb-1">
-                          Portal Access Not Configured
+                          Payment Link Not Created
                         </h3>
                         <p className="text-sm text-gray-600 mb-3">
-                          Generate a secure portal link to give {lease.tenantName} access to their tenant dashboard.
+                          Create a payment link so {lease.tenantName} can view their balance and pay online.
                         </p>
 
                         <button
@@ -2326,25 +2385,21 @@ export default function LeaseDetailPage() {
                           disabled={generatingPortal}
                           className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
                         >
-                          {generatingPortal ? 'Generating...' : 'Generate Portal Link'}
+                          {generatingPortal ? 'Creating...' : 'Create Payment Link'}
                         </button>
                       </div>
                     </div>
                   </div>
 
                   <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <h4 className="text-sm font-medium text-blue-900 mb-2">About Tenant Portal</h4>
-                    <p className="text-sm text-blue-700 mb-2">
-                      The tenant portal provides a secure way for tenants to:
-                    </p>
+                    <h4 className="text-sm font-medium text-blue-900 mb-2">What tenants can do</h4>
                     <ul className="text-sm text-blue-700 space-y-1">
-                      <li>• View their lease details and rent information</li>
-                      <li>• Track rent due dates and lease expiration</li>
-                      <li>• Submit and track maintenance requests</li>
-                      <li>• Access their information 24/7</li>
+                      <li>• View their balance and pay online</li>
+                      <li>• See rent due dates</li>
+                      <li>• Submit maintenance requests</li>
                     </ul>
                     <p className="text-xs text-blue-600 mt-3">
-                      No password required - access is via a unique secure link.
+                      No password required - access via unique secure link.
                     </p>
                   </div>
                 </div>
@@ -2654,11 +2709,11 @@ export default function LeaseDetailPage() {
         </div>
       )}
 
-      {/* Payment Modal */}
+      {/* Payment Modal - Bottom sheet on mobile */}
       {showPaymentModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-            <div className="p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-xl">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-gray-900">Record Payment</h2>
                 <button
@@ -2675,7 +2730,7 @@ export default function LeaseDetailPage() {
               </div>
             </div>
 
-            <form onSubmit={handlePaymentSubmit} className="p-6 space-y-4">
+            <form onSubmit={handlePaymentSubmit} className="p-4 sm:p-6 space-y-4">
               {error && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                   <p className="text-sm text-red-800">{error}</p>
@@ -2684,17 +2739,30 @@ export default function LeaseDetailPage() {
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-900">
-                  <span className="font-semibold">Current Balance:</span> ${formatCurrency(lease.balance)}
+                  <span className="font-semibold">Balance Due:</span> {formatCurrency(lease.balance)}
                 </p>
-                <p className="text-xs text-blue-700 mt-1">
-                  This will post: DR Cash / CR Accounts Receivable
-                </p>
+                {lease.balance > 0 && (
+                  <p className="text-xs text-blue-700 mt-1">
+                    Recording this payment will reduce the amount owed.
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Payment Amount *
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Payment Amount *
+                  </label>
+                  {lease.balance > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setPaymentForm({ ...paymentForm, amount: lease.balance.toFixed(2) })}
+                      className="text-xs text-green-600 hover:text-green-800 font-medium"
+                    >
+                      Pay Full Balance ({formatCurrency(lease.balance)})
+                    </button>
+                  )}
+                </div>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                   <input
@@ -2704,11 +2772,16 @@ export default function LeaseDetailPage() {
                     required
                     value={paymentForm.amount}
                     onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full pl-8 pr-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base sm:text-sm"
                     placeholder="0.00"
                     autoFocus
                   />
                 </div>
+                {parseFloat(paymentForm.amount) > lease.balance && lease.balance > 0 && (
+                  <p className="mt-1 text-xs text-amber-600">
+                    This is more than the balance due. The extra {formatCurrency(parseFloat(paymentForm.amount) - lease.balance)} will become a credit.
+                  </p>
+                )}
               </div>
 
               <div>
@@ -2720,7 +2793,7 @@ export default function LeaseDetailPage() {
                   required
                   value={paymentForm.paymentDate}
                   onChange={(e) => setPaymentForm({ ...paymentForm, paymentDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base sm:text-sm"
                 />
               </div>
 
@@ -2732,26 +2805,26 @@ export default function LeaseDetailPage() {
                   type="text"
                   value={paymentForm.description}
                   onChange={(e) => setPaymentForm({ ...paymentForm, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base sm:text-sm"
                   placeholder={`Payment from ${lease.tenantName}`}
                 />
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
                 <button
                   type="button"
                   onClick={() => {
                     setShowPaymentModal(false);
                     setError('');
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-3 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Recording...' : 'Record Payment'}
                 </button>
@@ -2761,11 +2834,11 @@ export default function LeaseDetailPage() {
         </div>
       )}
 
-      {/* Charge Modal */}
+      {/* Charge Modal - Bottom sheet on mobile */}
       {showChargeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-xl">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Post Charges</h2>
@@ -2785,7 +2858,7 @@ export default function LeaseDetailPage() {
               </div>
             </div>
 
-            <form onSubmit={handleChargeSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleChargeSubmit} className="p-4 sm:p-6 space-y-4">
               {error && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                   <p className="text-sm text-red-800">{error}</p>
@@ -2910,21 +2983,21 @@ export default function LeaseDetailPage() {
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
                 <button
                   type="button"
                   onClick={() => {
                     setShowChargeModal(false);
                     setError('');
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Posting...' : `Post ${charges.filter(c => c.amount && parseFloat(c.amount) > 0).length} Charge${charges.filter(c => c.amount && parseFloat(c.amount) > 0).length !== 1 ? 's' : ''}`}
                 </button>

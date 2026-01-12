@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma, postEntry } from '@/lib/accounting';
+import { prisma, withLedgerTransaction } from '@/lib/accounting';
 import { chargeCustomer, isStripeConfigured } from '@/lib/stripe';
 
 // Force dynamic rendering
@@ -11,8 +11,13 @@ const CRON_SECRET = process.env.CRON_SECRET;
 // POST /api/cron/process-autopay - Process autopay payments
 export async function POST(request: NextRequest) {
   try {
-    // Verify cron secret in production
-    if (CRON_SECRET) {
+    // CRITICAL: Verify cron secret in production (fail-closed)
+    if (process.env.NODE_ENV === 'production') {
+      if (!CRON_SECRET) {
+        console.error('[CRON] FATAL: CRON_SECRET must be set in production');
+        return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
+      }
+
       const authHeader = request.headers.get('authorization');
       if (authHeader !== `Bearer ${CRON_SECRET}`) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -29,6 +34,7 @@ export async function POST(request: NextRequest) {
 
     const today = new Date();
     const dayOfMonth = today.getDate();
+    const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD for idempotency
 
     // Find all active leases with autopay enabled for today
     const leasesToProcess = await prisma.lease.findMany({
@@ -61,7 +67,7 @@ export async function POST(request: NextRequest) {
         leaseId: string;
         tenantName: string;
         amount: number;
-        status: 'succeeded' | 'failed' | 'skipped';
+        status: 'succeeded' | 'processing' | 'failed' | 'skipped';
         error?: string;
       }>
     };
@@ -112,6 +118,10 @@ export async function POST(request: NextRequest) {
 
       results.processed++;
 
+      // Generate idempotency key to prevent duplicate charges if cron retries
+      // Format: autopay-{leaseId}-{date} ensures only one charge per lease per day
+      const idempotencyKey = `autopay-${lease.id}-${dateStr}`;
+
       // Attempt to charge the customer
       const description = `Rent payment for ${lease.tenantName} - ${lease.propertyName || ''} ${lease.unitName}`;
 
@@ -125,51 +135,59 @@ export async function POST(request: NextRequest) {
           tenantName: lease.tenantName,
           propertyName: lease.propertyName || '',
           unitName: lease.unitName
-        }
+        },
+        idempotencyKey // Prevents duplicate charges on retry
       );
 
       if (chargeResult.success) {
         results.succeeded++;
+        const paymentStatus = chargeResult.paymentIntent?.status || 'processing';
 
-        // Post payment to ledger - use today Date object
-        const entryDate = today;
+        // Only post to ledger for ACH payments that are processing or succeeded
+        // ACH typically goes to 'processing' first, then webhook confirms 'succeeded'
+        // We post immediately because the payment has been initiated
 
-        // Credit AR (reduce what tenant owes)
-        await postEntry({
-          entryDate,
-          accountCode: '1200', // Accounts Receivable
-          amount,
-          debitCredit: 'CR',
-          description: `Autopay: ${description}`,
-          leaseId: lease.id,
-          postedBy: 'autopay'
-        });
+        // Post both ledger entries and lease update in a single transaction
+        await withLedgerTransaction(async (tx, postEntry) => {
+          const paymentDesc = `Autopay: ${description} [${idempotencyKey}]`;
 
-        // Debit Cash (increase cash)
-        await postEntry({
-          entryDate,
-          accountCode: '1000', // Operating Cash
-          amount,
-          debitCredit: 'DR',
-          description: `Autopay: ${description}`,
-          leaseId: lease.id,
-          postedBy: 'autopay'
-        });
+          // Credit AR (reduce what tenant owes)
+          await postEntry({
+            entryDate: today,
+            accountCode: '1200', // Accounts Receivable
+            amount,
+            debitCredit: 'CR',
+            description: paymentDesc,
+            leaseId: lease.id,
+            postedBy: 'autopay'
+          });
 
-        // Update lease with payment info
-        await prisma.lease.update({
-          where: { id: lease.id },
-          data: {
-            stripeLastPaymentDate: today,
-            stripeLastPaymentStatus: 'succeeded'
-          }
+          // Debit Cash in Transit (payment initiated but not yet confirmed)
+          await postEntry({
+            entryDate: today,
+            accountCode: '1001', // Cash in Transit (moves to 1000 on webhook success)
+            amount,
+            debitCredit: 'DR',
+            description: paymentDesc,
+            leaseId: lease.id,
+            postedBy: 'autopay'
+          });
+
+          // Update lease with payment info
+          await tx.lease.update({
+            where: { id: lease.id },
+            data: {
+              stripeLastPaymentDate: today,
+              stripeLastPaymentStatus: paymentStatus === 'succeeded' ? 'succeeded' : 'processing'
+            }
+          });
         });
 
         results.details.push({
           leaseId: lease.id,
           tenantName: lease.tenantName,
           amount,
-          status: 'succeeded'
+          status: paymentStatus === 'succeeded' ? 'succeeded' : 'processing'
         });
       } else {
         results.failed++;

@@ -1,22 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma, postEntry } from '@/lib/accounting';
+import { NextRequest } from 'next/server';
+import { prisma, postDoubleEntry } from '@/lib/accounting';
+import { validate, receiveDepositSchema } from '@/lib/validation';
+import { handleApiError, apiCreated, checkRateLimit, rateLimitResponse, getClientIdentifier } from '@/lib/api-utils';
 
 // POST /api/deposits/receive - Record deposit received (DR Cash / CR Deposits Held)
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { amount, leaseId, description, receiptDate } = body;
-
-    // Validate required fields
-    if (!amount || !leaseId) {
-      return NextResponse.json(
-        { error: 'Amount and leaseId are required' },
-        { status: 400 }
-      );
+    // Rate limit: 30 deposits per minute per client
+    const clientId = getClientIdentifier(request);
+    const rateLimit = checkRateLimit('deposits-receive', clientId, { windowMs: 60000, maxRequests: 30 });
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.resetIn);
     }
 
+    const body = await request.json();
+
+    // Validate input
+    const { amount, leaseId, description, depositDate } = validate(receiveDepositSchema, body);
+
     // Parse and validate receipt date
-    const entryDate = receiptDate ? new Date(receiptDate) : new Date();
+    const entryDate = depositDate ? new Date(depositDate) : new Date();
 
     // Get lease info for description
     const lease = await prisma.lease.findUnique({
@@ -25,56 +28,39 @@ export async function POST(request: NextRequest) {
     });
 
     if (!lease) {
-      return NextResponse.json(
-        { error: 'Lease not found' },
-        { status: 404 }
-      );
+      throw new Error('Lease not found');
     }
 
     const finalDescription = description || `Security deposit received - ${lease.tenantName} (${lease.unitName})`;
 
-    // Post DR Cash entry (1000)
-    const cashEntry = await postEntry({
-      accountCode: '1000',
-      amount: parseFloat(amount),
-      debitCredit: 'DR',
-      description: finalDescription,
-      entryDate: entryDate,
-      leaseId: leaseId,
-      postedBy: 'user'
+    // Post both entries atomically - if either fails, both roll back
+    const { debit: cashEntry, credit: depositEntry } = await postDoubleEntry({
+      debitEntry: {
+        accountCode: '1000',
+        amount,
+        debitCredit: 'DR',
+        description: finalDescription,
+        entryDate,
+        leaseId,
+        postedBy: 'user'
+      },
+      creditEntry: {
+        accountCode: '2100',
+        amount,
+        debitCredit: 'CR',
+        description: finalDescription,
+        entryDate,
+        leaseId,
+        postedBy: 'user'
+      }
     });
 
-    // Post CR Deposits Held entry (2100)
-    const depositEntry = await postEntry({
-      accountCode: '2100',
-      amount: parseFloat(amount),
-      debitCredit: 'CR',
-      description: finalDescription,
-      entryDate: entryDate,
-      leaseId: leaseId,
-      postedBy: 'user'
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: `Deposit of ${amount} received and recorded`,
-      entries: [cashEntry, depositEntry]
-    }, { status: 201 });
-
-  } catch (error: any) {
-    console.error('POST /api/deposits/receive error:', error);
-
-    // Handle idempotency errors
-    if (error.message?.includes('Unique constraint') || error.message?.includes('Duplicate')) {
-      return NextResponse.json(
-        { error: 'This deposit has already been recorded' },
-        { status: 409 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: error.message || 'Failed to record deposit receipt' },
-      { status: 500 }
+    return apiCreated(
+      { entries: [cashEntry, depositEntry] },
+      `Deposit of $${amount} received and recorded`
     );
+
+  } catch (error) {
+    return handleApiError(error, 'POST /api/deposits/receive');
   }
 }

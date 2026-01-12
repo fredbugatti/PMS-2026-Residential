@@ -126,6 +126,8 @@ export default function PropertyDetailPage() {
       if (!res.ok) throw new Error('Failed to fetch property');
       const data = await res.json();
       setProperty(data);
+      // Update page title with property name
+      document.title = `${data.name} | Sanprinon`;
     } catch (error) {
       console.error('Failed to fetch property:', error);
     } finally {
@@ -547,11 +549,14 @@ export default function PropertyDetailPage() {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         {unit.leases.length > 0 ? (
-                          <div>
+                          <a
+                            href={`/leases/${unit.leases[0].id}`}
+                            className="text-blue-600 hover:text-blue-800 font-medium hover:underline"
+                          >
                             {unit.leases[0].tenantName}
-                          </div>
+                          </a>
                         ) : (
-                          <span className="text-gray-400">-</span>
+                          <span className="text-gray-400">Vacant</span>
                         )}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">

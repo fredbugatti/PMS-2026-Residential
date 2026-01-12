@@ -249,15 +249,23 @@ export default function LeasesPage() {
       {/* Leases List */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
         {getFilteredLeases().length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 text-center py-12">
-            <p className="text-gray-500 mb-4">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 sm:p-12 text-center">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl sm:text-3xl">📄</span>
+            </div>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
               {selectedProperty === 'all' ? 'No leases yet' : 'No leases for this property'}
+            </h3>
+            <p className="text-gray-500 mb-6 text-sm sm:text-base max-w-md mx-auto">
+              {selectedProperty === 'all'
+                ? 'Add your first lease to start tracking rent payments and tenant information.'
+                : 'Select a different property or create a new lease for this one.'}
             </p>
             <button
               onClick={() => setShowModal(true)}
-              className="text-blue-600 hover:text-blue-700 font-medium"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
-              Create your first lease
+              + New Lease
             </button>
           </div>
         ) : (

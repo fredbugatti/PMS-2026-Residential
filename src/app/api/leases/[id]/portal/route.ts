@@ -13,11 +13,16 @@ export async function POST(
     // Generate a secure random token
     const token = crypto.randomBytes(32).toString('hex');
 
-    // Update the lease with the new portal token
+    // Token expires in 90 days by default
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 90);
+
+    // Update the lease with the new portal token and expiration
     const lease = await prisma.lease.update({
       where: { id },
       data: {
-        portalToken: token
+        portalToken: token,
+        portalTokenExpiresAt: expiresAt
       },
       include: {
         property: true,
@@ -31,6 +36,7 @@ export async function POST(
       success: true,
       token,
       portalUrl,
+      expiresAt,
       lease: {
         id: lease.id,
         tenantName: lease.tenantName,
@@ -59,6 +65,7 @@ export async function DELETE(
       where: { id },
       data: {
         portalToken: null,
+        portalTokenExpiresAt: null,
         portalLastAccess: null
       }
     });

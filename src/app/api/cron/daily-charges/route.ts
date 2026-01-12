@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma, postEntry } from '@/lib/accounting';
+import { prisma, withLedgerTransaction } from '@/lib/accounting';
 
 // Force dynamic rendering since we use request.headers
 export const dynamic = 'force-dynamic';
@@ -12,9 +12,14 @@ export async function GET(request: NextRequest) {
   const startTime = Date.now();
 
   try {
-    // Verify cron secret (skip in development)
-    const authHeader = request.headers.get('authorization');
-    if (process.env.NODE_ENV === 'production' && CRON_SECRET) {
+    // CRITICAL: Verify cron secret in production (fail-closed)
+    if (process.env.NODE_ENV === 'production') {
+      if (!CRON_SECRET) {
+        console.error('[CRON] FATAL: CRON_SECRET must be set in production');
+        return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
+      }
+
+      const authHeader = request.headers.get('authorization');
       if (authHeader !== `Bearer ${CRON_SECRET}`) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
@@ -85,45 +90,50 @@ export async function GET(request: NextRequest) {
       try {
         // Create description with month (e.g., "Rent - January 2025")
         const entryDescription = `${charge.description} - ${monthName}`;
+        const chargeAmount = Number(charge.amount);
 
-        // Post entry 1: DR Accounts Receivable (increase what tenant owes)
-        await postEntry({
-          accountCode: '1200',
-          amount: Number(charge.amount),
-          debitCredit: 'DR',
-          description: entryDescription,
-          entryDate: today,
-          leaseId: charge.leaseId,
-          postedBy: 'cron-daily'
+        // Post both entries AND update lastChargedDate in a single transaction
+        // If any part fails, everything rolls back - books stay balanced
+        await withLedgerTransaction(async (tx, postEntry) => {
+          // Post entry 1: DR Accounts Receivable (increase what tenant owes)
+          await postEntry({
+            accountCode: '1200',
+            amount: chargeAmount,
+            debitCredit: 'DR',
+            description: entryDescription,
+            entryDate: today,
+            leaseId: charge.leaseId,
+            postedBy: 'cron-daily'
+          });
+
+          // Post entry 2: CR Income (record revenue)
+          await postEntry({
+            accountCode: charge.accountCode,
+            amount: chargeAmount,
+            debitCredit: 'CR',
+            description: entryDescription,
+            entryDate: today,
+            leaseId: charge.leaseId,
+            postedBy: 'cron-daily'
+          });
+
+          // Update last charged date (within same transaction)
+          await tx.scheduledCharge.update({
+            where: { id: charge.id },
+            data: { lastChargedDate: today }
+          });
         });
 
-        // Post entry 2: CR Income (record revenue)
-        await postEntry({
-          accountCode: charge.accountCode,
-          amount: Number(charge.amount),
-          debitCredit: 'CR',
-          description: entryDescription,
-          entryDate: today,
-          leaseId: charge.leaseId,
-          postedBy: 'cron-daily'
-        });
-
-        // Update last charged date
-        await prisma.scheduledCharge.update({
-          where: { id: charge.id },
-          data: { lastChargedDate: today }
-        });
-
-        totalAmountPosted += Number(charge.amount);
+        totalAmountPosted += chargeAmount;
 
         results.push({
           chargeId: charge.id,
           leaseId: charge.leaseId,
           tenantName: charge.lease.tenantName,
           description: charge.description,
-          amount: Number(charge.amount),
+          amount: chargeAmount,
           status: 'posted',
-          message: `Posted ${charge.description} of $${Number(charge.amount).toFixed(2)}`
+          message: `Posted ${charge.description} of $${chargeAmount.toFixed(2)}`
         });
 
       } catch (error: any) {

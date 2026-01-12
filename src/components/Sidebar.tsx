@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from './ThemeProvider';
@@ -11,7 +12,8 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
 
   const isActive = (path: string) => {
     if (path === '/' && pathname === '/') return true;
@@ -19,26 +21,74 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
     return false;
   };
 
-  const navItems = [
+  const isGroupActive = (paths: string[]) => {
+    return paths.some(path => pathname.startsWith(path));
+  };
+
+  // Simplified navigation structure
+  const mainNavItems = [
     { name: 'Dashboard', path: '/', icon: '📊' },
-    { name: 'Properties', path: '/properties', icon: '🏠' },
-    { name: 'Leases', path: '/leases', icon: '📄' },
-    { name: 'Maintenance', path: '/maintenance', icon: '🔧' },
-    { name: 'Vendors', path: '/vendors', icon: '👷' },
-    { name: 'Expenses', path: '/expenses', icon: '💸' },
-    { name: 'Accounting', path: '/accounting', icon: '💰' },
-    { name: 'Reports', path: '/reports', icon: '📈' },
-    { name: 'Documents', path: '/documents', icon: '📁' },
-    { name: 'Settings', path: '/settings', icon: '⚙️' },
-    { name: 'Admin', path: '/admin', icon: '🛠️' },
+  ];
+
+  const groupedNavItems = [
+    {
+      name: 'Money',
+      icon: '💰',
+      id: 'money',
+      paths: ['/accounting', '/ledger', '/reports', '/expenses', '/bills-due'],
+      items: [
+        { name: 'Balances', path: '/accounting', icon: '💵' },
+        { name: 'Ledger', path: '/ledger', icon: '📒' },
+        { name: 'Reports', path: '/reports', icon: '📈' },
+        { name: 'Expenses', path: '/expenses', icon: '💸' },
+        { name: 'Bills Due', path: '/bills-due', icon: '📋' },
+      ]
+    },
+    {
+      name: 'Tenants',
+      icon: '👥',
+      id: 'tenants',
+      paths: ['/properties', '/leases'],
+      items: [
+        { name: 'Properties', path: '/properties', icon: '🏠' },
+        { name: 'Leases', path: '/leases', icon: '📄' },
+      ]
+    },
+    {
+      name: 'Maintenance',
+      icon: '🔧',
+      id: 'maintenance',
+      paths: ['/maintenance', '/vendors'],
+      items: [
+        { name: 'Work Orders', path: '/maintenance', icon: '🔧' },
+        { name: 'Vendors', path: '/vendors', icon: '👷' },
+      ]
+    },
+    {
+      name: 'More',
+      icon: '⚙️',
+      id: 'more',
+      paths: ['/documents', '/settings', '/admin'],
+      items: [
+        { name: 'Documents', path: '/documents', icon: '📁' },
+        { name: 'Settings', path: '/settings', icon: '⚙️' },
+        { name: 'Admin', path: '/admin', icon: '🛠️' },
+      ]
+    },
   ];
 
   const handleNavClick = () => {
-    // Close sidebar on mobile when navigating
     if (onClose) {
       onClose();
     }
   };
+
+  const toggleGroup = (groupId: string) => {
+    setExpandedGroup(expandedGroup === groupId ? null : groupId);
+  };
+
+  // Auto-expand active group
+  const activeGroupId = groupedNavItems.find(g => isGroupActive(g.paths))?.id;
 
   return (
     <>
@@ -84,7 +134,8 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-4">
           <div className="space-y-1">
-            {navItems.map((item) => (
+            {/* Dashboard - always visible */}
+            {mainNavItems.map((item) => (
               <Link
                 key={item.path}
                 href={item.path}
@@ -99,6 +150,59 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                 <span className="font-medium">{item.name}</span>
               </Link>
             ))}
+
+            {/* Grouped navigation */}
+            {groupedNavItems.map((group) => {
+              const isExpanded = expandedGroup === group.id || activeGroupId === group.id;
+              const groupIsActive = isGroupActive(group.paths);
+
+              return (
+                <div key={group.id}>
+                  <button
+                    onClick={() => toggleGroup(group.id)}
+                    className={`w-full flex items-center justify-between gap-3 px-3 py-3 rounded-lg transition-colors ${
+                      groupIsActive
+                        ? 'bg-gray-800 text-white'
+                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">{group.icon}</span>
+                      <span className="font-medium">{group.name}</span>
+                    </div>
+                    <svg
+                      className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {/* Expanded items */}
+                  {isExpanded && (
+                    <div className="ml-4 mt-1 space-y-1 border-l border-gray-700 pl-4">
+                      {group.items.map((item) => (
+                        <Link
+                          key={item.path}
+                          href={item.path}
+                          onClick={handleNavClick}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm ${
+                            isActive(item.path)
+                              ? 'bg-blue-600 text-white'
+                              : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                          }`}
+                        >
+                          <span className="text-lg">{item.icon}</span>
+                          <span>{item.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </nav>
 

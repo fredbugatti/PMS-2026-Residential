@@ -197,8 +197,18 @@ export default function VendorsPage() {
               <tbody className="divide-y divide-gray-200">
                 {vendors.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                      No vendors found. Add your first vendor to get started.
+                    <td colSpan={7} className="px-6 py-12 text-center">
+                      <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <span className="text-xl">👷</span>
+                      </div>
+                      <p className="text-gray-900 font-medium mb-1">No vendors yet</p>
+                      <p className="text-gray-500 text-sm mb-4">Add contractors and service providers to assign to work orders.</p>
+                      <button
+                        onClick={() => setShowForm(true)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                      >
+                        + Add Vendor
+                      </button>
                     </td>
                   </tr>
                 ) : (

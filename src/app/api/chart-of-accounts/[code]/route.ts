@@ -37,7 +37,7 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const { name, type, normalBalance, active } = body;
+    const { name, description, type, normalBalance, active } = body;
 
     // Check if account exists
     const existing = await prisma.chartOfAccounts.findUnique({
@@ -55,6 +55,7 @@ export async function PUT(
       where: { code: params.code },
       data: {
         ...(name !== undefined && { name }),
+        ...(description !== undefined && { description }),
         ...(type !== undefined && { type }),
         ...(normalBalance !== undefined && { normalBalance }),
         ...(active !== undefined && { active }),

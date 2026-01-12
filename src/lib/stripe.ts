@@ -9,9 +9,9 @@ if (!stripeSecretKey) {
 
 export const stripe = stripeSecretKey
   ? new Stripe(stripeSecretKey, {
-      apiVersion: '2025-12-15.clover',
-      typescript: true,
-    })
+    apiVersion: '2025-12-15.clover',
+    typescript: true,
+  })
   : null;
 
 // Check if Stripe is configured
@@ -132,32 +132,38 @@ export async function detachPaymentMethod(
 }
 
 // Create a PaymentIntent and charge the customer (ACH bank account)
+// idempotencyKey prevents duplicate charges if the request is retried
 export async function chargeCustomer(
   customerId: string,
   paymentMethodId: string,
   amount: number, // Amount in dollars
   description: string,
-  metadata?: Record<string, string>
+  metadata?: Record<string, string>,
+  idempotencyKey?: string
 ): Promise<{ success: boolean; paymentIntent?: Stripe.PaymentIntent; error?: string }> {
   if (!stripe) {
     return { success: false, error: 'Stripe is not configured' };
   }
 
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
-      currency: 'usd',
-      customer: customerId,
-      payment_method: paymentMethodId,
-      payment_method_types: ['us_bank_account'], // ACH only
-      off_session: true,
-      confirm: true,
-      description,
-      metadata: {
-        ...metadata,
-        source: 'pms_autopay'
-      }
-    });
+    const paymentIntent = await stripe.paymentIntents.create(
+      {
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: 'usd',
+        customer: customerId,
+        payment_method: paymentMethodId,
+        payment_method_types: ['us_bank_account'], // ACH only
+        off_session: true,
+        confirm: true,
+        description,
+        metadata: {
+          ...metadata,
+          source: 'pms_autopay'
+        }
+      },
+      // Use idempotency key to prevent duplicate charges on retry
+      idempotencyKey ? { idempotencyKey } : undefined
+    );
 
     // ACH payments typically go to 'processing' first, then 'succeeded' after bank confirms
     if (paymentIntent.status === 'succeeded' || paymentIntent.status === 'processing') {

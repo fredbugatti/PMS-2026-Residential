@@ -241,7 +241,7 @@ export default function AccountingPage() {
                   disabled={bulkLoading}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium disabled:opacity-50"
                 >
-                  {bulkLoading ? 'Loading...' : 'Generate Monthly Rent'}
+                  {bulkLoading ? 'Loading...' : 'Charge Rent'}
                 </button>
               )}
               {activeTab === 'ledger' && (
@@ -279,7 +279,7 @@ export default function AccountingPage() {
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              General Ledger
+              Transactions
             </button>
           </div>
         </div>
@@ -416,7 +416,7 @@ export default function AccountingPage() {
                 >
                   <option value="">All Accounts</option>
                   {accounts.map(a => (
-                    <option key={a.code} value={a.code}>{a.code} - {a.name}</option>
+                    <option key={a.code} value={a.code}>{a.name}</option>
                   ))}
                 </select>
                 <select
@@ -517,7 +517,7 @@ export default function AccountingPage() {
           <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900">
-                {bulkResults ? 'Charges Posted' : 'Generate Monthly Rent'}
+                {bulkResults ? 'Charges Posted' : 'Charge Rent'}
               </h2>
             </div>
             <div className="p-6">

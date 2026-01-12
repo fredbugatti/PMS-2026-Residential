@@ -28,7 +28,13 @@ interface Vendor {
     status: string;
     priority: string;
     actualCost: number | null;
+    invoiceNumber: string | null;
+    invoiceDate: string | null;
+    dueDate: string | null;
     paymentStatus: string;
+    paymentMethod: string | null;
+    checkNumber: string | null;
+    paidDate: string | null;
     property: {
       id: string;
       name: string;
@@ -44,6 +50,7 @@ export default function VendorDetail() {
   const params = useParams();
   const [vendor, setVendor] = useState<Vendor | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'all' | 'unpaid' | 'paid'>('all');
 
   useEffect(() => {
     fetchVendor();
@@ -134,109 +141,197 @@ export default function VendorDetail() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="text-sm text-gray-600 mb-1">Total Work Orders</div>
-            <div className="text-3xl font-bold text-gray-900">{vendor.workOrders.length}</div>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="text-sm text-gray-600 mb-1">Total Paid</div>
-            <div className="text-3xl font-bold text-green-600">${vendor.totalPaid.toFixed(2)}</div>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="text-sm text-gray-600 mb-1">Total Unpaid</div>
-            <div className="text-3xl font-bold text-orange-600">${vendor.totalUnpaid.toFixed(2)}</div>
-          </div>
-        </div>
+        {(() => {
+          const currentYear = new Date().getFullYear();
+          const ytdPaid = vendor.workOrders
+            .filter(wo => wo.paymentStatus === 'PAID' && wo.paidDate && new Date(wo.paidDate).getFullYear() === currentYear)
+            .reduce((sum, wo) => sum + (wo.actualCost || 0), 0);
+          const unpaidCount = vendor.workOrders.filter(wo => wo.paymentStatus !== 'PAID' && wo.actualCost).length;
+
+          return (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="text-sm text-gray-600 mb-1">Total Work Orders</div>
+                <div className="text-3xl font-bold text-gray-900">{vendor.workOrders.length}</div>
+              </div>
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="text-sm text-gray-600 mb-1">Total Paid</div>
+                <div className="text-3xl font-bold text-green-600">${vendor.totalPaid.toFixed(2)}</div>
+              </div>
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="text-sm text-gray-600 mb-1">Outstanding</div>
+                <div className="text-3xl font-bold text-orange-600">${vendor.totalUnpaid.toFixed(2)}</div>
+                {unpaidCount > 0 && <div className="text-xs text-gray-500 mt-1">{unpaidCount} invoices</div>}
+              </div>
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="text-sm text-gray-600 mb-1">YTD Paid ({currentYear})</div>
+                <div className="text-3xl font-bold text-blue-600">${ytdPaid.toFixed(2)}</div>
+              </div>
+            </div>
+          );
+        })()}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Work Orders */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">Work Orders</h2>
+              {/* Tabs */}
+              <div className="border-b border-gray-200 px-4">
+                <nav className="flex gap-4 -mb-px">
+                  {[
+                    { id: 'all', label: 'All Work Orders' },
+                    { id: 'unpaid', label: 'Unpaid' },
+                    { id: 'paid', label: 'Payment History' },
+                  ].map((tab) => {
+                    const unpaidCount = vendor.workOrders.filter(wo => wo.paymentStatus !== 'PAID' && wo.actualCost).length;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id as any)}
+                        className={`py-4 px-2 text-sm font-medium border-b-2 transition-colors ${
+                          activeTab === tab.id
+                            ? 'border-blue-600 text-blue-600'
+                            : 'border-transparent text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        {tab.label}
+                        {tab.id === 'unpaid' && unpaidCount > 0 && (
+                          <span className="ml-2 bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">
+                            {unpaidCount}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </nav>
               </div>
               <div className="overflow-x-auto">
-                {vendor.workOrders.length === 0 ? (
-                  <div className="p-12 text-center text-gray-500">
-                    No work orders assigned to this vendor yet.
-                  </div>
-                ) : (
-                  <table className="w-full">
-                    <thead className="bg-gray-50 border-b border-gray-200">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Work Order
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Property/Unit
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Priority
-                        </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Cost
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Payment
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {vendor.workOrders.map((wo) => (
-                        <tr key={wo.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4">
-                            <Link
-                              href={`/maintenance/${wo.id}`}
-                              className="text-blue-600 hover:text-blue-800 font-medium"
-                            >
-                              {wo.title}
-                            </Link>
-                            <div className="text-xs text-gray-500">
-                              {new Date(wo.createdAt).toLocaleDateString()}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-sm">
-                            <div className="text-gray-900">{wo.property.name}</div>
-                            <div className="text-xs text-gray-500">Unit {wo.unit.unitNumber}</div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(wo.status)}`}>
-                              {wo.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(wo.priority)}`}>
-                              {wo.priority}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-right text-sm">
-                            {wo.actualCost ? (
-                              <span className="font-medium text-gray-900">
-                                ${Number(wo.actualCost).toFixed(2)}
-                              </span>
-                            ) : (
-                              <span className="text-gray-400">-</span>
-                            )}
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                              wo.paymentStatus === 'PAID'
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-yellow-100 text-yellow-800'
-                            }`}>
-                              {wo.paymentStatus}
-                            </span>
-                          </td>
+                {(() => {
+                  const filteredWorkOrders = vendor.workOrders.filter(wo => {
+                    if (activeTab === 'unpaid') return wo.paymentStatus !== 'PAID' && wo.actualCost;
+                    if (activeTab === 'paid') return wo.paymentStatus === 'PAID';
+                    return true;
+                  });
+
+                  if (filteredWorkOrders.length === 0) {
+                    return (
+                      <div className="p-12 text-center text-gray-500">
+                        {activeTab === 'unpaid'
+                          ? 'No unpaid invoices!'
+                          : activeTab === 'paid'
+                          ? 'No payment history yet.'
+                          : 'No work orders assigned to this vendor yet.'}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <table className="w-full">
+                      <thead className="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Work Order
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Property/Unit
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Invoice #
+                          </th>
+                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Amount
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {activeTab === 'paid' ? 'Paid Date' : 'Due Date'}
+                          </th>
+                          {activeTab === 'paid' && (
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Method
+                            </th>
+                          )}
+                          {activeTab !== 'paid' && (
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Status
+                            </th>
+                          )}
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {filteredWorkOrders.map((wo) => (
+                          <tr key={wo.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-6 py-4">
+                              <Link
+                                href={`/maintenance/${wo.id}`}
+                                className="text-blue-600 hover:text-blue-800 font-medium"
+                              >
+                                {wo.title}
+                              </Link>
+                              <div className="text-xs text-gray-500">
+                                {new Date(wo.createdAt).toLocaleDateString()}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm">
+                              <div className="text-gray-900">{wo.property.name}</div>
+                              <div className="text-xs text-gray-500">Unit {wo.unit.unitNumber}</div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-900">
+                              {wo.invoiceNumber || '-'}
+                            </td>
+                            <td className="px-6 py-4 text-right text-sm">
+                              {wo.actualCost ? (
+                                <span className="font-medium text-gray-900">
+                                  ${Number(wo.actualCost).toFixed(2)}
+                                </span>
+                              ) : (
+                                <span className="text-gray-400">-</span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-sm">
+                              {activeTab === 'paid' ? (
+                                wo.paidDate ? new Date(wo.paidDate).toLocaleDateString() : '-'
+                              ) : (
+                                <>
+                                  {wo.dueDate ? (
+                                    <div>
+                                      <div>{new Date(wo.dueDate).toLocaleDateString()}</div>
+                                      {new Date(wo.dueDate) < new Date() && wo.paymentStatus !== 'PAID' && (
+                                        <div className="text-xs text-red-600">Overdue</div>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    '-'
+                                  )}
+                                </>
+                              )}
+                            </td>
+                            {activeTab === 'paid' && (
+                              <td className="px-6 py-4 text-sm text-gray-900">
+                                {wo.paymentMethod?.replace(/_/g, ' ') || '-'}
+                                {wo.checkNumber && (
+                                  <div className="text-xs text-gray-500">#{wo.checkNumber}</div>
+                                )}
+                              </td>
+                            )}
+                            {activeTab !== 'paid' && (
+                              <td className="px-6 py-4">
+                                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                                  wo.paymentStatus === 'PAID'
+                                    ? 'bg-green-100 text-green-800'
+                                    : wo.paymentStatus === 'PENDING'
+                                    ? 'bg-yellow-100 text-yellow-800'
+                                    : 'bg-red-100 text-red-800'
+                                }`}>
+                                  {wo.paymentStatus}
+                                </span>
+                              </td>
+                            )}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  );
+                })()}
               </div>
             </div>
           </div>

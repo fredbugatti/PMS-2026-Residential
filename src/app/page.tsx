@@ -12,6 +12,7 @@ interface Stats {
   occupiedUnits: number;
   activeLeases: number;
   totalOwed: number;
+  tenantsOwing: number;
   openWorkOrders: number;
   monthlyRevenue: number;
 }
@@ -57,6 +58,13 @@ interface Vendor {
   company: string | null;
 }
 
+interface FinancialSnapshot {
+  income: number;
+  expenses: number;
+  netIncome: number;
+  profitMargin: number;
+}
+
 export default function Dashboard() {
   const { showSuccess, showError, showWarning } = useToast();
   const [stats, setStats] = useState<Stats>({
@@ -65,6 +73,7 @@ export default function Dashboard() {
     occupiedUnits: 0,
     activeLeases: 0,
     totalOwed: 0,
+    tenantsOwing: 0,
     openWorkOrders: 0,
     monthlyRevenue: 0
   });
@@ -78,11 +87,19 @@ export default function Dashboard() {
   const [leases, setLeases] = useState<Lease[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [financialSnapshot, setFinancialSnapshot] = useState<FinancialSnapshot>({
+    income: 0,
+    expenses: 0,
+    netIncome: 0,
+    profitMargin: 0
+  });
 
   // Quick action modals
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showChargeModal, setShowChargeModal] = useState(false);
   const [showWorkOrderModal, setShowWorkOrderModal] = useState(false);
+  const [showQuickCreate, setShowQuickCreate] = useState(false);
+  const [quickCreateType, setQuickCreateType] = useState<string | null>(null);
 
   // Payment form
   const [paymentForm, setPaymentForm] = useState({
@@ -117,6 +134,34 @@ export default function Dashboard() {
   const [workOrderPhotos, setWorkOrderPhotos] = useState<File[]>([]);
   const [workOrderPhotoPreviewUrls, setWorkOrderPhotoPreviewUrls] = useState<string[]>([]);
 
+  // Quick create forms
+  const [propertyForm, setPropertyForm] = useState({ name: '', address: '' });
+  const [unitForm, setUnitForm] = useState({ propertyId: '', unitNumber: '', bedrooms: '1', bathrooms: '1', rent: '' });
+  const [leaseForm, setLeaseForm] = useState({
+    propertyId: '',
+    unitId: '',
+    tenantName: '',
+    tenantEmail: '',
+    tenantPhone: '',
+    monthlyRent: '',
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]
+  });
+  const [expenseForm, setExpenseForm] = useState({
+    accountCode: '5000',
+    amount: '',
+    description: '',
+    entryDate: new Date().toISOString().split('T')[0]
+  });
+  const [vendorForm, setVendorForm] = useState({
+    name: '',
+    company: '',
+    email: '',
+    phone: '',
+    specialty: ''
+  });
+  const [submittingQuickCreate, setSubmittingQuickCreate] = useState(false);
+
   // Cron status
   const [cronStatus, setCronStatus] = useState<{
     status: 'ok' | 'warning' | 'pending';
@@ -130,14 +175,20 @@ export default function Dashboard() {
 
   const fetchAllData = useCallback(async () => {
     try {
-      const [propertiesRes, leasesRes, balancesRes, workOrdersRes, vendorsRes, ledgerRes, monthlyChargesRes] = await Promise.all([
+      // Get current month date range for P&L
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+      const [propertiesRes, leasesRes, balancesRes, workOrdersRes, vendorsRes, ledgerRes, monthlyChargesRes, pnlRes] = await Promise.all([
         fetch('/api/properties?includeUnits=true'),
         fetch('/api/leases'),
         fetch('/api/reports/tenant-balances'),
         fetch('/api/work-orders'),
         fetch('/api/vendors?active=true'),
         fetch('/api/ledger?limit=10'),
-        fetch('/api/scheduled-charges?summary=true')
+        fetch('/api/scheduled-charges?summary=true'),
+        fetch(`/api/reports/profit-loss?startDate=${monthStart}&endDate=${monthEnd}`)
       ]);
 
       const propertiesData = propertiesRes.ok ? await propertiesRes.json() : [];
@@ -147,6 +198,17 @@ export default function Dashboard() {
       const vendorsData = vendorsRes.ok ? await vendorsRes.json() : [];
       const ledgerData = ledgerRes.ok ? await ledgerRes.json() : [];
       const monthlyChargesData = monthlyChargesRes.ok ? await monthlyChargesRes.json() : { totalMonthly: 0 };
+      const pnlData = pnlRes.ok ? await pnlRes.json() : null;
+
+      // Update financial snapshot
+      if (pnlData) {
+        setFinancialSnapshot({
+          income: pnlData.income?.total || 0,
+          expenses: pnlData.expenses?.total || 0,
+          netIncome: pnlData.summary?.netOperatingIncome || 0,
+          profitMargin: pnlData.summary?.profitMargin || 0
+        });
+      }
 
       setProperties(propertiesData);
       const activeLeases = leasesData.filter((l: any) => l.status === 'ACTIVE');
@@ -155,7 +217,9 @@ export default function Dashboard() {
 
       const totalUnits = propertiesData.reduce((sum: number, p: any) => sum + (p.units?.length || 0), 0);
       const occupiedUnits = activeLeases.length;
-      const totalOwed = balancesData.tenants?.filter((t: any) => t.balance > 0).reduce((sum: number, t: any) => sum + t.balance, 0) || 0;
+      const tenantsWithBalance = balancesData.tenants?.filter((t: any) => t.balance > 0) || [];
+      const totalOwed = tenantsWithBalance.reduce((sum: number, t: any) => sum + t.balance, 0);
+      const tenantsOwing = tenantsWithBalance.length;
       // Monthly revenue now includes ALL recurring charges (rent + parking + pet fees + etc)
       const monthlyRevenue = monthlyChargesData.totalMonthly || 0;
       const openWorkOrders = workOrdersData.filter((wo: any) => wo.status === 'OPEN' || wo.status === 'IN_PROGRESS').length;
@@ -166,12 +230,12 @@ export default function Dashboard() {
         occupiedUnits,
         activeLeases: activeLeases.length,
         totalOwed,
+        tenantsOwing,
         openWorkOrders,
         monthlyRevenue
       });
 
       // Find leases expiring in next 60 days
-      const now = new Date();
       const sixtyDaysFromNow = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
       const expiring = activeLeases.filter((l: any) => {
         const endDate = new Date(l.endDate);
@@ -535,6 +599,199 @@ export default function Dashboard() {
     }
   };
 
+  const handleQuickCreateProperty = async () => {
+    if (!propertyForm.name) {
+      showWarning('Please enter a property name');
+      return;
+    }
+
+    setSubmittingQuickCreate(true);
+    try {
+      const res = await fetch('/api/properties', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(propertyForm)
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to create property');
+      }
+
+      showSuccess('Property created! Now add a unit.');
+      setPropertyForm({ name: '', address: '' });
+      setQuickCreateType('unit');
+      fetchAllData();
+    } catch (error: any) {
+      showError(error.message || 'Failed to create property');
+    } finally {
+      setSubmittingQuickCreate(false);
+    }
+  };
+
+  const handleQuickCreateUnit = async () => {
+    if (!unitForm.propertyId || !unitForm.unitNumber) {
+      showWarning('Please select a property and enter a unit number');
+      return;
+    }
+
+    setSubmittingQuickCreate(true);
+    try {
+      const res = await fetch('/api/units', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...unitForm,
+          bedrooms: parseInt(unitForm.bedrooms) || 1,
+          bathrooms: parseFloat(unitForm.bathrooms) || 1,
+          marketRent: unitForm.rent ? parseFloat(unitForm.rent) : undefined
+        })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to create unit');
+      }
+
+      showSuccess('Unit created! Now add a tenant.');
+      setUnitForm({ propertyId: '', unitNumber: '', bedrooms: '1', bathrooms: '1', rent: '' });
+      setQuickCreateType('lease');
+      fetchAllData();
+    } catch (error: any) {
+      showError(error.message || 'Failed to create unit');
+    } finally {
+      setSubmittingQuickCreate(false);
+    }
+  };
+
+  const handleQuickCreateLease = async () => {
+    if (!leaseForm.unitId || !leaseForm.tenantName || !leaseForm.monthlyRent) {
+      showWarning('Please fill in all required fields');
+      return;
+    }
+
+    setSubmittingQuickCreate(true);
+    try {
+      const res = await fetch('/api/leases', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          unitId: leaseForm.unitId,
+          tenantName: leaseForm.tenantName,
+          tenantEmail: leaseForm.tenantEmail || undefined,
+          tenantPhone: leaseForm.tenantPhone || undefined,
+          monthlyRentAmount: parseFloat(leaseForm.monthlyRent),
+          startDate: leaseForm.startDate,
+          endDate: leaseForm.endDate
+        })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to create lease');
+      }
+
+      showSuccess('Lease created successfully!');
+      setLeaseForm({
+        propertyId: '',
+        unitId: '',
+        tenantName: '',
+        tenantEmail: '',
+        tenantPhone: '',
+        monthlyRent: '',
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]
+      });
+      setShowQuickCreate(false);
+      setQuickCreateType(null);
+      fetchAllData();
+    } catch (error: any) {
+      showError(error.message || 'Failed to create lease');
+    } finally {
+      setSubmittingQuickCreate(false);
+    }
+  };
+
+  const handleQuickCreateExpense = async () => {
+    if (!expenseForm.amount || !expenseForm.description) {
+      showWarning('Please enter an amount and description');
+      return;
+    }
+
+    setSubmittingQuickCreate(true);
+    try {
+      const res = await fetch('/api/expenses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accountCode: expenseForm.accountCode,
+          amount: parseFloat(expenseForm.amount),
+          description: expenseForm.description,
+          entryDate: expenseForm.entryDate
+        })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to record expense');
+      }
+
+      showSuccess('Expense recorded successfully!');
+      setExpenseForm({
+        accountCode: '5000',
+        amount: '',
+        description: '',
+        entryDate: new Date().toISOString().split('T')[0]
+      });
+      setShowQuickCreate(false);
+      setQuickCreateType(null);
+      fetchAllData();
+    } catch (error: any) {
+      showError(error.message || 'Failed to record expense');
+    } finally {
+      setSubmittingQuickCreate(false);
+    }
+  };
+
+  const handleQuickCreateVendor = async () => {
+    if (!vendorForm.name) {
+      showWarning('Please enter a vendor name');
+      return;
+    }
+
+    setSubmittingQuickCreate(true);
+    try {
+      const res = await fetch('/api/vendors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: vendorForm.name,
+          company: vendorForm.company || undefined,
+          email: vendorForm.email || undefined,
+          phone: vendorForm.phone || undefined,
+          specialty: vendorForm.specialty || undefined
+        })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to create vendor');
+      }
+
+      showSuccess('Vendor created successfully!');
+      setVendorForm({ name: '', company: '', email: '', phone: '', specialty: '' });
+      setShowQuickCreate(false);
+      setQuickCreateType(null);
+      fetchAllData();
+    } catch (error: any) {
+      showError(error.message || 'Failed to create vendor');
+    } finally {
+      setSubmittingQuickCreate(false);
+    }
+  };
+
+  const selectedLeaseProperty = properties.find(p => p.id === leaseForm.propertyId);
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -580,21 +837,15 @@ export default function Dashboard() {
             <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0">
               <button
                 onClick={() => setShowPaymentModal(true)}
-                className="px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-1 sm:gap-2 whitespace-nowrap flex-shrink-0"
+                className="px-4 sm:px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
               >
-                <span>+</span> Payment
+                <span>💵</span> Collect Payment
               </button>
               <button
                 onClick={() => setShowChargeModal(true)}
-                className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-1 sm:gap-2 whitespace-nowrap flex-shrink-0"
+                className="px-3 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium flex items-center gap-1 sm:gap-2 whitespace-nowrap flex-shrink-0"
               >
                 <span>+</span> Charge
-              </button>
-              <button
-                onClick={() => setShowWorkOrderModal(true)}
-                className="px-3 sm:px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium flex items-center gap-1 sm:gap-2 whitespace-nowrap flex-shrink-0"
-              >
-                <span>+</span> Work Order
               </button>
             </div>
           </div>
@@ -628,12 +879,14 @@ export default function Dashboard() {
             <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">all recurring charges</p>
           </div>
 
-          <Link href="/reports" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Outstanding</p>
+          <Link href="/reports" className={`bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border hover:shadow-md transition-shadow ${stats.totalOwed > 0 ? 'border-red-200 dark:border-red-800' : 'border-gray-200 dark:border-gray-700'}`}>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Need to Collect</p>
             <p className={`text-xl sm:text-3xl font-bold mt-1 ${stats.totalOwed > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
               {formatCurrency(stats.totalOwed)}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">total owed - click to view</p>
+            <p className={`text-xs mt-1 ${stats.tenantsOwing > 0 ? 'text-red-500 dark:text-red-400' : 'text-gray-500 dark:text-gray-500'}`}>
+              {stats.tenantsOwing > 0 ? `${stats.tenantsOwing} tenant${stats.tenantsOwing !== 1 ? 's' : ''} unpaid` : 'all paid up'}
+            </p>
           </Link>
         </div>
 
@@ -766,70 +1019,37 @@ export default function Dashboard() {
               </Link>
             </div>
 
-            {/* Recent Activity */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Recent Activity</h2>
-              </div>
-              <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                {recentActivity.length === 0 ? (
-                  <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">No recent activity</div>
-                ) : (
-                  recentActivity.map(activity => (
-                    <div key={activity.id} className="p-3 sm:p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                      <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                        <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm flex-shrink-0 ${
-                          activity.type === 'payment' ? 'bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400' : 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400'
-                        }`}>
-                          {activity.type === 'payment' ? '💵' : '📝'}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs sm:text-sm text-gray-900 dark:text-gray-100 line-clamp-1">{activity.description}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(activity.date)}</p>
-                        </div>
-                      </div>
-                      {activity.amount && (
-                        <span className={`text-xs sm:text-sm font-medium ml-2 flex-shrink-0 ${
-                          activity.type === 'payment' ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-gray-100'
-                        }`}>
-                          {activity.type === 'payment' ? '+' : ''}{formatCurrency(activity.amount)}
-                        </span>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-              <Link href="/accounting" className="block p-3 text-center text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 border-t border-gray-100 dark:border-gray-700">
-                View All Transactions
-              </Link>
-            </div>
           </div>
 
           {/* Right Column - Alerts & Expiring Leases */}
           <div className="space-y-4 sm:space-y-6">
             {/* Needs Attention */}
-            {(stats.totalOwed > 0 || stats.openWorkOrders > 0) && (
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-                <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700">
-                  <h2 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Needs Attention</h2>
+            {(stats.totalOwed > 0 || stats.openWorkOrders > 0 || expiringLeases.length > 0) && (
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-red-200 dark:border-red-800">
+                <div className="p-3 sm:p-4 border-b border-red-100 dark:border-red-900 bg-red-50 dark:bg-red-900/20 rounded-t-xl">
+                  <h2 className="font-semibold text-red-800 dark:text-red-300 text-sm sm:text-base">Needs Attention</h2>
                 </div>
                 <div className="p-3 sm:p-4 space-y-3">
                   {stats.totalOwed > 0 && (
                     <Link href="/reports" className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/30 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors">
                       <span className="text-lg sm:text-xl">💸</span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-300">{formatCurrency(stats.totalOwed)} Outstanding</p>
-                        <p className="text-xs text-red-600 dark:text-red-400">View unpaid balances</p>
+                        <p className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-300">
+                          {stats.tenantsOwing} tenant{stats.tenantsOwing !== 1 ? 's' : ''} owe {formatCurrency(stats.totalOwed)}
+                        </p>
+                        <p className="text-xs text-red-600 dark:text-red-400">Tap to collect payments</p>
                       </div>
+                      <span className="text-red-400">→</span>
                     </Link>
                   )}
                   {stats.openWorkOrders > 0 && (
                     <Link href="/maintenance" className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-900/30 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors">
                       <span className="text-lg sm:text-xl">🔧</span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-medium text-orange-800 dark:text-orange-300">{stats.openWorkOrders} Open Work Orders</p>
-                        <p className="text-xs text-orange-600 dark:text-orange-400">View maintenance requests</p>
+                        <p className="text-xs sm:text-sm font-medium text-orange-800 dark:text-orange-300">{stats.openWorkOrders} open work order{stats.openWorkOrders !== 1 ? 's' : ''}</p>
+                        <p className="text-xs text-orange-600 dark:text-orange-400">Tap to view requests</p>
                       </div>
+                      <span className="text-orange-400">→</span>
                     </Link>
                   )}
                 </div>
@@ -892,6 +1112,7 @@ export default function Dashboard() {
                   value={paymentForm.leaseId}
                   onChange={(e) => setPaymentForm({ ...paymentForm, leaseId: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  autoFocus
                 >
                   <option value="">Select tenant...</option>
                   {leases.map(lease => (
@@ -924,16 +1145,20 @@ export default function Dashboard() {
                   <option value="OTHER">Other</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Reference # (optional)</label>
-                <input
-                  type="text"
-                  value={paymentForm.referenceNumber}
-                  onChange={(e) => setPaymentForm({ ...paymentForm, referenceNumber: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
-                  placeholder="Check number, confirmation, etc."
-                />
-              </div>
+              {(paymentForm.paymentMethod === 'CHECK' || paymentForm.paymentMethod === 'MONEY_ORDER') && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {paymentForm.paymentMethod === 'CHECK' ? 'Check #' : 'Money Order #'} (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={paymentForm.referenceNumber}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, referenceNumber: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                    placeholder={paymentForm.paymentMethod === 'CHECK' ? 'Check number' : 'Money order number'}
+                  />
+                </div>
+              )}
             </div>
             <div className="flex flex-col-reverse sm:flex-row gap-3 mt-6">
               <button
@@ -969,6 +1194,7 @@ export default function Dashboard() {
                   value={chargeForm.leaseId}
                   onChange={(e) => setChargeForm({ ...chargeForm, leaseId: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  autoFocus
                 >
                   <option value="">Select tenant...</option>
                   {leases.map(lease => (
@@ -1196,6 +1422,515 @@ export default function Dashboard() {
                 {submittingWorkOrder ? 'Creating...' : 'Create Work Order'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Action Button - Quick Create */}
+      <button
+        onClick={() => setShowQuickCreate(true)}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 hover:shadow-xl transition-all flex items-center justify-center text-2xl z-40"
+        title="Quick Create"
+      >
+        +
+      </button>
+
+      {/* Quick Create Modal */}
+      {showQuickCreate && (
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-t-xl sm:rounded-xl w-full sm:max-w-lg p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+                  {!quickCreateType ? 'Quick Create' :
+                   quickCreateType === 'property' ? 'New Property' :
+                   quickCreateType === 'unit' ? 'New Unit' :
+                   quickCreateType === 'lease' ? 'New Lease' :
+                   quickCreateType === 'expense' ? 'Record Expense' :
+                   quickCreateType === 'vendor' ? 'New Vendor' :
+                   'Quick Create'}
+                </h2>
+                {!quickCreateType && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">What would you like to create?</p>
+                )}
+              </div>
+              <button
+                onClick={() => { setShowQuickCreate(false); setQuickCreateType(null); }}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl p-1"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Entity Selection Grid */}
+            {!quickCreateType && (
+              <div className="grid grid-cols-3 gap-3">
+                <button
+                  onClick={() => setQuickCreateType('property')}
+                  className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+                >
+                  <span className="text-2xl mb-1">🏢</span>
+                  <span className="font-medium text-gray-900 dark:text-white text-sm">Property</span>
+                </button>
+                <button
+                  onClick={() => setQuickCreateType('unit')}
+                  className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+                >
+                  <span className="text-2xl mb-1">🚪</span>
+                  <span className="font-medium text-gray-900 dark:text-white text-sm">Unit</span>
+                </button>
+                <button
+                  onClick={() => setQuickCreateType('lease')}
+                  className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all"
+                >
+                  <span className="text-2xl mb-1">📄</span>
+                  <span className="font-medium text-gray-900 dark:text-white text-sm">Lease</span>
+                </button>
+                <button
+                  onClick={() => { setShowQuickCreate(false); setShowPaymentModal(true); }}
+                  className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all"
+                >
+                  <span className="text-2xl mb-1">💵</span>
+                  <span className="font-medium text-gray-900 dark:text-white text-sm">Payment</span>
+                </button>
+                <button
+                  onClick={() => { setShowQuickCreate(false); setShowChargeModal(true); }}
+                  className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all"
+                >
+                  <span className="text-2xl mb-1">+$</span>
+                  <span className="font-medium text-gray-900 dark:text-white text-sm">Charge</span>
+                </button>
+                <button
+                  onClick={() => setQuickCreateType('expense')}
+                  className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                >
+                  <span className="text-2xl mb-1">💸</span>
+                  <span className="font-medium text-gray-900 dark:text-white text-sm">Expense</span>
+                </button>
+                <button
+                  onClick={() => { setShowQuickCreate(false); setShowWorkOrderModal(true); }}
+                  className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-orange-500 dark:hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all"
+                >
+                  <span className="text-2xl mb-1">🔧</span>
+                  <span className="font-medium text-gray-900 dark:text-white text-sm">Work Order</span>
+                </button>
+                <button
+                  onClick={() => setQuickCreateType('vendor')}
+                  className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-teal-500 dark:hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-all"
+                >
+                  <span className="text-2xl mb-1">👷</span>
+                  <span className="font-medium text-gray-900 dark:text-white text-sm">Vendor</span>
+                </button>
+              </div>
+            )}
+
+            {/* Property Form */}
+            {quickCreateType === 'property' && (
+              <div className="space-y-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-blue-800 dark:text-blue-200">Start by creating a property. Then add units and tenants.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Property Name *</label>
+                  <input
+                    type="text"
+                    value={propertyForm.name}
+                    onChange={(e) => setPropertyForm({ ...propertyForm, name: e.target.value })}
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="e.g., Sunset Apartments"
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address (optional)</label>
+                  <input
+                    type="text"
+                    value={propertyForm.address}
+                    onChange={(e) => setPropertyForm({ ...propertyForm, address: e.target.value })}
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="123 Main St, City, State"
+                  />
+                </div>
+                <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
+                  <button
+                    onClick={() => setQuickCreateType(null)}
+                    className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleQuickCreateProperty}
+                    disabled={submittingQuickCreate}
+                    className="flex-1 px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium"
+                  >
+                    {submittingQuickCreate ? 'Creating...' : 'Create Property'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Unit Form */}
+            {quickCreateType === 'unit' && (
+              <div className="space-y-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-blue-800 dark:text-blue-200">Add a unit to an existing property.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Property *</label>
+                  <select
+                    value={unitForm.propertyId}
+                    onChange={(e) => setUnitForm({ ...unitForm, propertyId: e.target.value })}
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    autoFocus
+                  >
+                    <option value="">Select property...</option>
+                    {properties.map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit Number *</label>
+                  <input
+                    type="text"
+                    value={unitForm.unitNumber}
+                    onChange={(e) => setUnitForm({ ...unitForm, unitNumber: e.target.value })}
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="e.g., 101, A, 2B"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bedrooms</label>
+                    <select
+                      value={unitForm.bedrooms}
+                      onChange={(e) => setUnitForm({ ...unitForm, bedrooms: e.target.value })}
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                      <option value="0">Studio</option>
+                      <option value="1">1 BR</option>
+                      <option value="2">2 BR</option>
+                      <option value="3">3 BR</option>
+                      <option value="4">4 BR</option>
+                      <option value="5">5+ BR</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bathrooms</label>
+                    <select
+                      value={unitForm.bathrooms}
+                      onChange={(e) => setUnitForm({ ...unitForm, bathrooms: e.target.value })}
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                      <option value="1">1 BA</option>
+                      <option value="1.5">1.5 BA</option>
+                      <option value="2">2 BA</option>
+                      <option value="2.5">2.5 BA</option>
+                      <option value="3">3+ BA</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Market Rent (optional)</label>
+                  <input
+                    type="number"
+                    value={unitForm.rent}
+                    onChange={(e) => setUnitForm({ ...unitForm, rent: e.target.value })}
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="1500"
+                  />
+                </div>
+                <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
+                  <button
+                    onClick={() => setQuickCreateType(null)}
+                    className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleQuickCreateUnit}
+                    disabled={submittingQuickCreate}
+                    className="flex-1 px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium"
+                  >
+                    {submittingQuickCreate ? 'Creating...' : 'Create Unit'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Lease Form */}
+            {quickCreateType === 'lease' && (
+              <div className="space-y-4">
+                <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-green-800 dark:text-green-200">Add a new tenant to a vacant unit.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Property *</label>
+                  <select
+                    value={leaseForm.propertyId}
+                    onChange={(e) => setLeaseForm({ ...leaseForm, propertyId: e.target.value, unitId: '' })}
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    autoFocus
+                  >
+                    <option value="">Select property...</option>
+                    {properties.map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+                {selectedLeaseProperty && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit *</label>
+                    <select
+                      value={leaseForm.unitId}
+                      onChange={(e) => setLeaseForm({ ...leaseForm, unitId: e.target.value })}
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                      <option value="">Select unit...</option>
+                      {selectedLeaseProperty.units?.map(u => (
+                        <option key={u.id} value={u.id}>{u.unitNumber}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tenant Name *</label>
+                  <input
+                    type="text"
+                    value={leaseForm.tenantName}
+                    onChange={(e) => setLeaseForm({ ...leaseForm, tenantName: e.target.value })}
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="Full name"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                    <input
+                      type="email"
+                      value={leaseForm.tenantEmail}
+                      onChange={(e) => setLeaseForm({ ...leaseForm, tenantEmail: e.target.value })}
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="email@example.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
+                    <input
+                      type="tel"
+                      value={leaseForm.tenantPhone}
+                      onChange={(e) => setLeaseForm({ ...leaseForm, tenantPhone: e.target.value })}
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="(555) 123-4567"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monthly Rent *</label>
+                  <input
+                    type="number"
+                    value={leaseForm.monthlyRent}
+                    onChange={(e) => setLeaseForm({ ...leaseForm, monthlyRent: e.target.value })}
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="1500"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
+                    <input
+                      type="date"
+                      value={leaseForm.startDate}
+                      onChange={(e) => setLeaseForm({ ...leaseForm, startDate: e.target.value })}
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
+                    <input
+                      type="date"
+                      value={leaseForm.endDate}
+                      onChange={(e) => setLeaseForm({ ...leaseForm, endDate: e.target.value })}
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
+                  <button
+                    onClick={() => setQuickCreateType(null)}
+                    className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleQuickCreateLease}
+                    disabled={submittingQuickCreate}
+                    className="flex-1 px-4 py-3 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium"
+                  >
+                    {submittingQuickCreate ? 'Creating...' : 'Create Lease'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Expense Form */}
+            {quickCreateType === 'expense' && (
+              <div className="space-y-4">
+                <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-red-800 dark:text-red-200">Record an operating expense.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                  <select
+                    value={expenseForm.accountCode}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, accountCode: e.target.value })}
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    autoFocus
+                  >
+                    <option value="5000">Repairs & Maintenance</option>
+                    <option value="5100">Utilities</option>
+                    <option value="5200">Property Management</option>
+                    <option value="5300">Insurance</option>
+                    <option value="5400">Property Taxes</option>
+                    <option value="5500">Legal & Professional</option>
+                    <option value="5900">Other Expenses</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount *</label>
+                  <input
+                    type="number"
+                    value={expenseForm.amount}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description *</label>
+                  <input
+                    type="text"
+                    value={expenseForm.description}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, description: e.target.value })}
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="What was this expense for?"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                  <input
+                    type="date"
+                    value={expenseForm.entryDate}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, entryDate: e.target.value })}
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
+                  <button
+                    onClick={() => setQuickCreateType(null)}
+                    className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleQuickCreateExpense}
+                    disabled={submittingQuickCreate}
+                    className="flex-1 px-4 py-3 sm:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 font-medium"
+                  >
+                    {submittingQuickCreate ? 'Recording...' : 'Record Expense'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Vendor Form */}
+            {quickCreateType === 'vendor' && (
+              <div className="space-y-4">
+                <div className="bg-teal-50 dark:bg-teal-900/20 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-teal-800 dark:text-teal-200">Add a contractor or service provider.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contact Name *</label>
+                  <input
+                    type="text"
+                    value={vendorForm.name}
+                    onChange={(e) => setVendorForm({ ...vendorForm, name: e.target.value })}
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="John Smith"
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Company (optional)</label>
+                  <input
+                    type="text"
+                    value={vendorForm.company}
+                    onChange={(e) => setVendorForm({ ...vendorForm, company: e.target.value })}
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="ABC Plumbing Inc."
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                    <input
+                      type="email"
+                      value={vendorForm.email}
+                      onChange={(e) => setVendorForm({ ...vendorForm, email: e.target.value })}
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="email@example.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
+                    <input
+                      type="tel"
+                      value={vendorForm.phone}
+                      onChange={(e) => setVendorForm({ ...vendorForm, phone: e.target.value })}
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="(555) 123-4567"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Specialty</label>
+                  <select
+                    value={vendorForm.specialty}
+                    onChange={(e) => setVendorForm({ ...vendorForm, specialty: e.target.value })}
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="">Select specialty...</option>
+                    <option value="Plumbing">Plumbing</option>
+                    <option value="Electrical">Electrical</option>
+                    <option value="HVAC">HVAC</option>
+                    <option value="General Contractor">General Contractor</option>
+                    <option value="Landscaping">Landscaping</option>
+                    <option value="Cleaning">Cleaning</option>
+                    <option value="Pest Control">Pest Control</option>
+                    <option value="Appliance Repair">Appliance Repair</option>
+                    <option value="Roofing">Roofing</option>
+                    <option value="Painting">Painting</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
+                  <button
+                    onClick={() => setQuickCreateType(null)}
+                    className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleQuickCreateVendor}
+                    disabled={submittingQuickCreate}
+                    className="flex-1 px-4 py-3 sm:py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 font-medium"
+                  >
+                    {submittingQuickCreate ? 'Creating...' : 'Create Vendor'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

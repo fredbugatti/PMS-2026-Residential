@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/accounting';
+import { prisma, postDoubleEntry } from '@/lib/accounting';
 import { Decimal } from '@prisma/client/runtime/library';
 
 // POST /api/leases/[id]/charge-late-fee - Charge late fee
@@ -136,35 +136,26 @@ export async function POST(
       );
     }
 
-    // Create the late fee ledger entries
+    // Create the late fee ledger entries (atomic double-entry)
     const description = `Late fee for ${feeMonth} - ${lease.tenantName}`;
 
-    // DR Accounts Receivable (increase asset)
-    await prisma.ledgerEntry.create({
-      data: {
+    await postDoubleEntry({
+      debitEntry: {
         entryDate: targetDate,
-        accountCode: '1200',
-        amount: lateFeeAmount,
+        accountCode: '1200', // AR
+        amount: Number(lateFeeAmount),
         debitCredit: 'DR',
         description,
-        idempotencyKey,
         postedBy: manual ? 'manual' : 'system',
-        status: 'POSTED',
         leaseId: lease.id
-      }
-    });
-
-    // CR Late Fee Income (increase income)
-    await prisma.ledgerEntry.create({
-      data: {
+      },
+      creditEntry: {
         entryDate: targetDate,
-        accountCode: '4100',
-        amount: lateFeeAmount,
+        accountCode: '4100', // Late Fee Income
+        amount: Number(lateFeeAmount),
         debitCredit: 'CR',
         description,
-        idempotencyKey: `${idempotencyKey}-cr`,
         postedBy: manual ? 'manual' : 'system',
-        status: 'POSTED',
         leaseId: lease.id
       }
     });

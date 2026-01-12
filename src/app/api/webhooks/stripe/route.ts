@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { prisma, postEntry } from '@/lib/accounting';
+import { prisma, postDoubleEntry } from '@/lib/accounting';
 import { stripe } from '@/lib/stripe';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -23,12 +23,21 @@ export async function POST(request: NextRequest) {
   let event: Stripe.Event;
 
   try {
-    // Verify webhook signature (skip in development if no secret configured)
+    // SECURITY: Always verify webhook signature in production
+    if (process.env.NODE_ENV === 'production' && !webhookSecret) {
+      console.error('[Webhook] CRITICAL: STRIPE_WEBHOOK_SECRET must be set in production');
+      return NextResponse.json(
+        { error: 'Webhook secret not configured' },
+        { status: 500 }
+      );
+    }
+
     if (webhookSecret) {
+      // Verify signature - this is the secure path
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } else {
-      // In development without webhook secret, parse directly (NOT SECURE FOR PRODUCTION)
-      console.warn('[Webhook] No STRIPE_WEBHOOK_SECRET configured - skipping signature verification');
+      // Development only - allow unverified webhooks for local testing
+      console.warn('[Webhook] WARNING: Skipping signature verification (dev mode only)');
       event = JSON.parse(body) as Stripe.Event;
     }
   } catch (err: any) {
@@ -138,9 +147,40 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent, webho
     }
   });
 
-  // Note: Ledger entries should already be posted when payment was initiated
-  // This webhook confirms the ACH completed successfully
-  // If we need to post entries here (e.g., payment was pending), we would do it here
+  // Transfer from Cash in Transit to Operating Cash (ACH confirmed)
+  // Payment was initiated by autopay → debited to Transit (1001)
+  // Now confirmed by bank → move to Operating Cash (1000)
+  try {
+    await postDoubleEntry({
+      debitEntry: {
+        entryDate: new Date(),
+        accountCode: '1000', // Operating Cash
+        amount,
+        debitCredit: 'DR',
+        description: `ACH Settlement Confirmed: ${paymentIntent.id}`,
+        leaseId,
+        postedBy: 'stripe_webhook'
+      },
+      creditEntry: {
+        entryDate: new Date(),
+        accountCode: '1001', // Cash in Transit
+        amount,
+        debitCredit: 'CR',
+        description: `ACH Settlement Confirmed: ${paymentIntent.id}`,
+        leaseId,
+        postedBy: 'stripe_webhook'
+      }
+    });
+    console.log(`[Webhook] Transferred $${amount} from Transit (1001) to Operating Cash (1000)`);
+  } catch (err: any) {
+    console.error('[Webhook] Failed to post Transit → Cash transfer:', err.message);
+    // Mark webhook as failed so it can be retried
+    await prisma.webhookEvent.update({
+      where: { id: webhookEventId },
+      data: { status: 'failed', errorMessage: err.message }
+    });
+    throw err;
+  }
 
   await prisma.webhookEvent.update({
     where: { id: webhookEventId },
@@ -190,36 +230,47 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent, webhookE
   });
 
   // IMPORTANT: Reverse the ledger entries since payment was rejected
-  // We need to find the original entries and post reversing entries
+  // Autopay posted: DR Transit (1001), CR AR (1200)
+  // Now reverse: DR AR (1200), CR Transit (1001)
+  // Operating Cash (1000) is never touched for failed payments
   const entryDate = new Date();
   const reversalDesc = `REVERSED: Payment failed - ${failureMessage} [${paymentIntent.id}]`;
 
   try {
-    // Debit AR back (increase what tenant owes again)
-    await postEntry({
-      entryDate,
-      accountCode: '1200',
-      amount,
-      debitCredit: 'DR',
-      description: reversalDesc,
-      leaseId,
-      postedBy: 'webhook_reversal'
-    });
-
-    // Credit Cash back (decrease cash)
-    await postEntry({
-      entryDate,
-      accountCode: '1000',
-      amount,
-      debitCredit: 'CR',
-      description: reversalDesc,
-      leaseId,
-      postedBy: 'webhook_reversal'
+    await postDoubleEntry({
+      debitEntry: {
+        entryDate,
+        accountCode: '1200', // Accounts Receivable (restore what tenant owes)
+        amount,
+        debitCredit: 'DR',
+        description: reversalDesc,
+        leaseId,
+        postedBy: 'webhook_reversal'
+      },
+      creditEntry: {
+        entryDate,
+        accountCode: '1001', // Cash in Transit (reverse the initiated payment)
+        amount,
+        debitCredit: 'CR',
+        description: reversalDesc,
+        leaseId,
+        postedBy: 'webhook_reversal'
+      }
     });
 
     console.log(`[Webhook] Posted reversal entries for failed payment ${paymentIntent.id}`);
   } catch (err: any) {
     console.error('[Webhook] Failed to post reversal entries:', err.message);
+    // CRITICAL: Mark webhook as failed so it can be retried
+    await prisma.webhookEvent.update({
+      where: { id: webhookEventId },
+      data: {
+        status: 'failed',
+        errorMessage: `Reversal failed: ${err.message}`
+      }
+    });
+    // Throw error to return 500 to Stripe, triggering automatic retry
+    throw err;
   }
 
   await prisma.webhookEvent.update({

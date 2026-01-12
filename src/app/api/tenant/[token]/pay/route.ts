@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma, postEntry } from '@/lib/accounting';
+import { prisma, postEntry, postDoubleEntry } from '@/lib/accounting';
 import {
   stripe,
   isStripeConfigured,
@@ -233,6 +233,11 @@ export async function POST(
       const chargeAmount = Math.round(paymentAmount * 100) / 100;
       const description = `Payment for ${lease.tenantName} - ${lease.propertyName || ''} ${lease.unitName}`;
 
+      // Generate idempotency key to prevent duplicate charges
+      // Format: tenant-pay-{leaseId}-{amount}-{timestamp}
+      // Uses timestamp rounded to minute to allow retries within same request window
+      const idempotencyKey = `tenant-pay-${lease.id}-${chargeAmount}-${Math.floor(Date.now() / 60000)}`;
+
       const result = await chargeCustomer(
         lease.stripeCustomerId,
         lease.stripePaymentMethodId,
@@ -242,7 +247,8 @@ export async function POST(
           leaseId: lease.id,
           tenantName: lease.tenantName,
           type: 'one_time_payment'
-        }
+        },
+        idempotencyKey
       );
 
       if (result.success && result.paymentIntent) {
@@ -257,29 +263,34 @@ export async function POST(
           // Include timestamp in description to ensure unique idempotency key
           const paymentDesc = `Payment: ${description} [${Date.now()}]`;
 
-          // Credit AR (reduce what tenant owes)
-          const arEntry = await postEntry({
-            entryDate,
-            accountCode: '1200',
-            amount: chargeAmount,
-            debitCredit: 'CR',
-            description: paymentDesc,
-            leaseId: lease.id,
-            postedBy: 'tenant_portal'
-          });
-          console.log('AR entry posted:', arEntry.id);
+          // Determine account code based on payment status
+          // ACH processing → Cash in Transit (like autopay)
+          // Card or settled ACH → Operating Cash
+          const cashAccountCode = result.paymentIntent.status === 'processing' ? '1001' : '1000';
 
-          // Debit Cash (increase cash)
-          const cashEntry = await postEntry({
-            entryDate,
-            accountCode: '1000',
-            amount: chargeAmount,
-            debitCredit: 'DR',
-            description: paymentDesc,
-            leaseId: lease.id,
-            postedBy: 'tenant_portal'
+          // Post atomic double-entry (both entries succeed or both fail)
+          await postDoubleEntry({
+            debitEntry: {
+              entryDate,
+              accountCode: cashAccountCode, // 1001 for ACH processing, 1000 for settled
+              amount: chargeAmount,
+              debitCredit: 'DR',
+              description: paymentDesc,
+              leaseId: lease.id,
+              postedBy: 'tenant_portal'
+            },
+            creditEntry: {
+              entryDate,
+              accountCode: '1200',
+              amount: chargeAmount,
+              debitCredit: 'CR',
+              description: paymentDesc,
+              leaseId: lease.id,
+              postedBy: 'tenant_portal'
+            }
           });
-          console.log('Cash entry posted:', cashEntry.id);
+
+          console.log('Ledger entries posted atomically');
         } catch (ledgerError: any) {
           console.error('Failed to post ledger entries:', ledgerError);
           // Still return success since payment went through, but log the error
@@ -340,29 +351,33 @@ export async function POST(
         // Include paymentIntentId to ensure unique idempotency key
         const paymentDesc = `Payment: ${baseDescription} [${paymentIntentId}]`;
 
-        // Post payment to ledger
+        // Post payment to ledger (atomic double-entry)
         const entryDate = new Date();
 
-        // Credit AR (reduce what tenant owes)
-        await postEntry({
-          entryDate,
-          accountCode: '1200',
-          amount: chargeAmount,
-          debitCredit: 'CR',
-          description: paymentDesc,
-          leaseId: lease.id,
-          postedBy: 'tenant_portal'
-        });
+        // Determine account code based on payment status
+        // ACH processing → Cash in Transit (like autopay)
+        // Card or settled ACH → Operating Cash
+        const cashAccountCode = paymentIntent.status === 'processing' ? '1001' : '1000';
 
-        // Debit Cash (increase cash)
-        await postEntry({
-          entryDate,
-          accountCode: '1000',
-          amount: chargeAmount,
-          debitCredit: 'DR',
-          description: paymentDesc,
-          leaseId: lease.id,
-          postedBy: 'tenant_portal'
+        await postDoubleEntry({
+          debitEntry: {
+            entryDate,
+            accountCode: cashAccountCode, // 1001 for ACH processing, 1000 for settled
+            amount: chargeAmount,
+            debitCredit: 'DR',
+            description: paymentDesc,
+            leaseId: lease.id,
+            postedBy: 'tenant_portal'
+          },
+          creditEntry: {
+            entryDate,
+            accountCode: '1200',
+            amount: chargeAmount,
+            debitCredit: 'CR',
+            description: paymentDesc,
+            leaseId: lease.id,
+            postedBy: 'tenant_portal'
+          }
         });
 
         // Update last payment info

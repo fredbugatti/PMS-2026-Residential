@@ -1,10 +1,25 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/accounting';
 
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
+
 export const dynamic = 'force-dynamic';
 
 // GET /api/admin/test-apis - Test all database tables and API functionality
-export async function GET() {
+export async function GET(request: Request) {
+  // CRITICAL: Verify admin secret in production
+  if (process.env.NODE_ENV === 'production') {
+    if (!ADMIN_SECRET) {
+      console.error('[ADMIN] FATAL: ADMIN_SECRET must be set in production');
+      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
+    }
+
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${ADMIN_SECRET}`) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  }
+
   const results: {
     name: string;
     path: string;
