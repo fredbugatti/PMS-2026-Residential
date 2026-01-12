@@ -130,6 +130,7 @@ model Lease {
   workOrders            WorkOrder[]
   libraryDocuments      DocumentLibrary[]
   scheduledCharges      ScheduledCharge[]
+  moveOutInspection     MoveOutInspection?
 
   @@index([propertyId])
   @@index([unitId])
@@ -511,30 +512,179 @@ model WebhookEvent {
 model AuditLog {
   id          String    @id @default(uuid())
   createdAt   DateTime  @default(now()) @map("created_at")
-  
+
   // Who performed the action
   source      String    @db.VarChar(50)
   userId      String?   @map("user_id") @db.VarChar(100)
   ipAddress   String?   @map("ip_address") @db.VarChar(45)
   userAgent   String?   @map("user_agent") @db.VarChar(500)
-  
+
   // What action was performed
   action      String    @db.VarChar(100)
   entityType  String    @map("entity_type") @db.VarChar(50)
   entityId    String    @map("entity_id") @db.VarChar(100)
-  
+
   // Financial details
   amount      Decimal?  @db.Decimal(12, 2)
   leaseId     String?   @map("lease_id") @db.VarChar(100)
-  
+
   // Context and metadata
   description String    @db.Text
   metadata    Json?
-  
+
   @@index([createdAt])
   @@index([action])
   @@index([source])
   @@index([leaseId])
   @@index([entityType, entityId])
   @@map("audit_logs")
+}
+
+// ==================== EMAIL NOTIFICATIONS ====================
+
+model EmailLog {
+  id            String      @id @default(uuid())
+  createdAt     DateTime    @default(now()) @map("created_at")
+  leaseId       String?     @map("lease_id")
+  toEmail       String      @map("to_email") @db.VarChar(200)
+  toName        String?     @map("to_name") @db.VarChar(200)
+  subject       String      @db.VarChar(500)
+  templateType  String      @map("template_type") @db.VarChar(50) // payment_receipt, late_reminder, lease_expiry, work_order_update
+  status        EmailStatus @default(SENT)
+  messageId     String?     @map("message_id") @db.VarChar(200) // Email provider message ID
+  openedAt      DateTime?   @map("opened_at")
+  errorMessage  String?     @map("error_message") @db.Text
+  metadata      Json?       // Additional data like amount, dates, etc.
+
+  @@index([leaseId])
+  @@index([toEmail])
+  @@index([templateType])
+  @@index([createdAt])
+  @@map("email_logs")
+}
+
+model NotificationSettings {
+  id                      String  @id @default(uuid())
+  // Payment notifications
+  paymentReceipts         Boolean @default(true) @map("payment_receipts")
+  latePaymentReminders    Boolean @default(true) @map("late_payment_reminders")
+  daysBeforeLateReminder  Int     @default(3) @map("days_before_late_reminder")
+  // Lease notifications
+  leaseExpiryWarnings     Boolean @default(true) @map("lease_expiry_warnings")
+  leaseExpiryDays         Int[]   @default([90, 60, 30]) @map("lease_expiry_days") // Days before expiry to send warnings
+  // Work order notifications
+  workOrderUpdates        Boolean @default(true) @map("work_order_updates")
+  workOrderCreated        Boolean @default(true) @map("work_order_created")
+  // Monthly notifications
+  monthlyStatements       Boolean @default(false) @map("monthly_statements")
+  // Email settings
+  fromName                String  @default("Property Management") @map("from_name") @db.VarChar(100)
+  replyToEmail            String? @map("reply_to_email") @db.VarChar(200)
+
+  @@map("notification_settings")
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  DELIVERED
+  OPENED
+  FAILED
+  BOUNCED
+}
+
+// ==================== MOVE-OUT & SECURITY DEPOSIT ====================
+
+model MoveOutInspection {
+  id                String              @id @default(uuid())
+  createdAt         DateTime            @default(now()) @map("created_at")
+  updatedAt         DateTime            @updatedAt @map("updated_at")
+  leaseId           String              @unique @map("lease_id")
+  lease             Lease               @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+
+  // Inspection details
+  inspectionDate    DateTime            @map("inspection_date") @db.Date
+  inspectedBy       String              @map("inspected_by") @db.VarChar(200)
+  tenantPresent     Boolean             @default(false) @map("tenant_present")
+  overallCondition  String              @map("overall_condition") @db.VarChar(20) // EXCELLENT, GOOD, FAIR, POOR
+  notes             String?             @db.Text
+
+  // Forwarding address for deposit return
+  forwardingAddress String?             @map("forwarding_address") @db.VarChar(500)
+
+  // Status tracking
+  status            MoveOutStatus       @default(IN_PROGRESS)
+
+  // Deposit calculation
+  depositHeld       Decimal             @map("deposit_held") @db.Decimal(12, 2)
+  totalDeductions   Decimal             @default(0) @map("total_deductions") @db.Decimal(12, 2)
+  amountToReturn    Decimal             @default(0) @map("amount_to_return") @db.Decimal(12, 2)
+
+  // Letter tracking
+  letterGeneratedAt DateTime?           @map("letter_generated_at")
+  letterSentAt      DateTime?           @map("letter_sent_at")
+  letterSentMethod  String?             @map("letter_sent_method") @db.VarChar(20) // EMAIL, MAIL, BOTH
+
+  // Completion
+  approvedAt        DateTime?           @map("approved_at")
+  approvedBy        String?             @map("approved_by") @db.VarChar(100)
+  completedAt       DateTime?           @map("completed_at")
+
+  // Relations
+  items             InspectionItem[]
+  deductions        DepositDeduction[]
+
+  @@index([leaseId])
+  @@index([status])
+  @@map("move_out_inspections")
+}
+
+model InspectionItem {
+  id              String            @id @default(uuid())
+  createdAt       DateTime          @default(now()) @map("created_at")
+  inspectionId    String            @map("inspection_id")
+  inspection      MoveOutInspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+
+  area            String            @db.VarChar(50)  // LIVING_ROOM, KITCHEN, BATHROOM, BEDROOM, etc.
+  item            String            @db.VarChar(100) // Walls, Floors, Appliances, Windows, etc.
+  moveInCondition String?           @map("move_in_condition") @db.VarChar(20)  // EXCELLENT, GOOD, FAIR, POOR
+  moveOutCondition String           @map("move_out_condition") @db.VarChar(20) // EXCELLENT, GOOD, FAIR, POOR, DAMAGED
+  notes           String?           @db.Text
+  photos          String[]          @default([]) // URLs to photos
+
+  @@index([inspectionId])
+  @@map("inspection_items")
+}
+
+model DepositDeduction {
+  id              String            @id @default(uuid())
+  createdAt       DateTime          @default(now()) @map("created_at")
+  inspectionId    String            @map("inspection_id")
+  inspection      MoveOutInspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+
+  description     String            @db.VarChar(500)
+  amount          Decimal           @db.Decimal(12, 2)
+  category        DeductionCategory
+  photoUrls       String[]          @default([]) @map("photo_urls")
+  notes           String?           @db.Text
+
+  @@index([inspectionId])
+  @@map("deposit_deductions")
+}
+
+enum MoveOutStatus {
+  IN_PROGRESS       // Inspection being conducted
+  PENDING_APPROVAL  // Waiting for manager approval
+  APPROVED          // Approved, ready to process
+  LETTER_SENT       // Disposition letter sent
+  COMPLETED         // Deposit returned/processed
+}
+
+enum DeductionCategory {
+  CLEANING          // Professional cleaning required
+  REPAIR            // Repairs needed
+  REPLACEMENT       // Items need replacement
+  UNPAID_RENT       // Outstanding rent balance
+  UNPAID_UTILITIES  // Utility charges
+  OTHER             // Other deductions
 }
