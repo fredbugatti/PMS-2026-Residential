@@ -191,14 +191,20 @@ export default function LeaseDetailPage() {
   // Scheduled charges state
   const [scheduledChargesExpanded, setScheduledChargesExpanded] = useState(false);
   const [showScheduledChargeModal, setShowScheduledChargeModal] = useState(false);
-  const [scheduledChargeForm, setScheduledChargeForm] = useState({
+  const [scheduledChargeRows, setScheduledChargeRows] = useState<Array<{
+    description: string;
+    amount: string;
+    chargeDay: string;
+    accountCode: string;
+  }>>([{ description: '', amount: '', chargeDay: '1', accountCode: '4000' }]);
+  const [savingScheduledCharge, setSavingScheduledCharge] = useState(false);
+  const [editingScheduledChargeId, setEditingScheduledChargeId] = useState<string | null>(null);
+  const [editingScheduledChargeForm, setEditingScheduledChargeForm] = useState({
     description: '',
     amount: '',
     chargeDay: '1',
     accountCode: '4000'
   });
-  const [savingScheduledCharge, setSavingScheduledCharge] = useState(false);
-  const [editingScheduledChargeId, setEditingScheduledChargeId] = useState<string | null>(null);
   const [postingScheduledCharges, setPostingScheduledCharges] = useState(false);
 
   // Ledger view toggle (simplified = AR only, full = all entries)
@@ -851,41 +857,63 @@ export default function LeaseDetailPage() {
   };
 
   // Scheduled charges functions
-  const handleAddScheduledCharge = async (e: React.FormEvent) => {
+  const handleAddScheduledCharges = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingScheduledCharge(true);
     setError('');
 
     try {
-      const url = editingScheduledChargeId
-        ? `/api/scheduled-charges/${editingScheduledChargeId}`
-        : '/api/scheduled-charges';
+      // If editing, use single charge endpoint
+      if (editingScheduledChargeId) {
+        const res = await fetch(`/api/scheduled-charges/${editingScheduledChargeId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            description: editingScheduledChargeForm.description,
+            amount: parseFloat(editingScheduledChargeForm.amount),
+            chargeDay: parseInt(editingScheduledChargeForm.chargeDay),
+            accountCode: editingScheduledChargeForm.accountCode
+          })
+        });
 
-      const res = await fetch(url, {
-        method: editingScheduledChargeId ? 'PATCH' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          leaseId: params.id,
-          description: scheduledChargeForm.description,
-          amount: parseFloat(scheduledChargeForm.amount),
-          chargeDay: parseInt(scheduledChargeForm.chargeDay),
-          accountCode: scheduledChargeForm.accountCode
-        })
-      });
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Failed to update scheduled charge');
+        }
+      } else {
+        // Filter out empty rows and create bulk
+        const validCharges = scheduledChargeRows.filter(
+          row => row.description.trim() && row.amount && parseFloat(row.amount) > 0
+        );
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to save scheduled charge');
+        if (validCharges.length === 0) {
+          throw new Error('Please add at least one charge');
+        }
+
+        const res = await fetch('/api/scheduled-charges', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            leaseId: params.id,
+            charges: validCharges.map(charge => ({
+              description: charge.description,
+              amount: parseFloat(charge.amount),
+              chargeDay: parseInt(charge.chargeDay),
+              accountCode: charge.accountCode
+            }))
+          })
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Failed to save scheduled charges');
+        }
       }
 
       // Reset form and close modal
-      setScheduledChargeForm({
-        description: '',
-        amount: '',
-        chargeDay: '1',
-        accountCode: '4000'
-      });
+      setScheduledChargeRows([{ description: '', amount: '', chargeDay: '1', accountCode: '4000' }]);
       setEditingScheduledChargeId(null);
+      setEditingScheduledChargeForm({ description: '', amount: '', chargeDay: '1', accountCode: '4000' });
       setShowScheduledChargeModal(false);
 
       // Refresh lease data
@@ -898,8 +926,24 @@ export default function LeaseDetailPage() {
     }
   };
 
+  const handleAddChargeRow = () => {
+    setScheduledChargeRows([...scheduledChargeRows, { description: '', amount: '', chargeDay: '1', accountCode: '4000' }]);
+  };
+
+  const handleRemoveChargeRow = (index: number) => {
+    if (scheduledChargeRows.length > 1) {
+      setScheduledChargeRows(scheduledChargeRows.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleChargeRowChange = (index: number, field: string, value: string) => {
+    const newRows = [...scheduledChargeRows];
+    newRows[index] = { ...newRows[index], [field]: value };
+    setScheduledChargeRows(newRows);
+  };
+
   const handleEditScheduledCharge = (charge: ScheduledCharge) => {
-    setScheduledChargeForm({
+    setEditingScheduledChargeForm({
       description: charge.description,
       amount: charge.amount.toString(),
       chargeDay: charge.chargeDay.toString(),
@@ -3436,16 +3480,17 @@ export default function LeaseDetailPage() {
       {/* Scheduled Charge Modal */}
       {showScheduledChargeModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-gray-900">
-                  {editingScheduledChargeId ? 'Edit Scheduled Charge' : 'Add Scheduled Charge'}
+                  {editingScheduledChargeId ? 'Edit Scheduled Charge' : 'Add Scheduled Charges'}
                 </h2>
                 <button
                   onClick={() => {
                     setShowScheduledChargeModal(false);
                     setEditingScheduledChargeId(null);
+                    setScheduledChargeRows([{ description: '', amount: '', chargeDay: '1', accountCode: '4000' }]);
                     setError('');
                   }}
                   className="text-gray-400 hover:text-gray-600"
@@ -3455,90 +3500,170 @@ export default function LeaseDetailPage() {
                   </svg>
                 </button>
               </div>
+              {!editingScheduledChargeId && (
+                <p className="text-sm text-gray-500 mt-1">Add one or more recurring charges for this lease</p>
+              )}
             </div>
 
-            <form onSubmit={handleAddScheduledCharge} className="p-6 space-y-4">
+            <form onSubmit={handleAddScheduledCharges} className="flex-1 overflow-y-auto p-6">
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
                   <p className="text-sm text-red-800">{error}</p>
                 </div>
               )}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description *
-                </label>
-                <input
-                  type="text"
-                  value={scheduledChargeForm.description}
-                  onChange={(e) => setScheduledChargeForm({ ...scheduledChargeForm, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="e.g., Monthly Rent, Water, Parking"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Amount *
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    value={scheduledChargeForm.amount}
-                    onChange={(e) => setScheduledChargeForm({ ...scheduledChargeForm, amount: e.target.value })}
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    placeholder="0.00"
-                    required
-                  />
+              {editingScheduledChargeId ? (
+                // Single charge edit form
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                    <input
+                      type="text"
+                      value={editingScheduledChargeForm.description}
+                      onChange={(e) => setEditingScheduledChargeForm({ ...editingScheduledChargeForm, description: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      placeholder="e.g., Monthly Rent, Water, Parking"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Amount *</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          value={editingScheduledChargeForm.amount}
+                          onChange={(e) => setEditingScheduledChargeForm({ ...editingScheduledChargeForm, amount: e.target.value })}
+                          className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Day (1-28) *</label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="28"
+                        value={editingScheduledChargeForm.chargeDay}
+                        onChange={(e) => setEditingScheduledChargeForm({ ...editingScheduledChargeForm, chargeDay: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Account</label>
+                      <select
+                        value={editingScheduledChargeForm.accountCode}
+                        onChange={(e) => setEditingScheduledChargeForm({ ...editingScheduledChargeForm, accountCode: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      >
+                        <option value="4000">Rental Income</option>
+                        <option value="4010">Late Fees</option>
+                        <option value="4020">Utility Reimb.</option>
+                        <option value="4030">Parking</option>
+                        <option value="4040">Pet Fees</option>
+                        <option value="4050">Storage</option>
+                        <option value="4100">Other Income</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                // Multiple charge rows
+                <div className="space-y-3">
+                  {scheduledChargeRows.map((row, index) => (
+                    <div key={index} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-medium text-gray-700">Charge {index + 1}</span>
+                        {scheduledChargeRows.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveChargeRow(index)}
+                            className="text-red-500 hover:text-red-700 text-sm"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-12 gap-3">
+                        <div className="col-span-4">
+                          <input
+                            type="text"
+                            value={row.description}
+                            onChange={(e) => handleChargeRowChange(index, 'description', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                            placeholder="Description"
+                          />
+                        </div>
+                        <div className="col-span-2">
+                          <div className="relative">
+                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0.01"
+                              value={row.amount}
+                              onChange={(e) => handleChargeRowChange(index, 'amount', e.target.value)}
+                              className="w-full pl-6 pr-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                              placeholder="0.00"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-span-2">
+                          <input
+                            type="number"
+                            min="1"
+                            max="28"
+                            value={row.chargeDay}
+                            onChange={(e) => handleChargeRowChange(index, 'chargeDay', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                            placeholder="Day"
+                          />
+                        </div>
+                        <div className="col-span-4">
+                          <select
+                            value={row.accountCode}
+                            onChange={(e) => handleChargeRowChange(index, 'accountCode', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                          >
+                            <option value="4000">Rental Income</option>
+                            <option value="4010">Late Fees</option>
+                            <option value="4020">Utility Reimb.</option>
+                            <option value="4030">Parking</option>
+                            <option value="4040">Pet Fees</option>
+                            <option value="4050">Storage</option>
+                            <option value="4100">Other Income</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Charge Day (1-28) *
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="28"
-                  value={scheduledChargeForm.chargeDay}
-                  onChange={(e) => setScheduledChargeForm({ ...scheduledChargeForm, chargeDay: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  required
-                />
-                <p className="text-xs text-gray-500 mt-1">Day of month to post this charge (max 28 for all months)</p>
-              </div>
+                  <button
+                    type="button"
+                    onClick={handleAddChargeRow}
+                    className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-indigo-500 hover:text-indigo-500 transition-colors text-sm font-medium"
+                  >
+                    + Add Another Charge
+                  </button>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Income Account
-                </label>
-                <select
-                  value={scheduledChargeForm.accountCode}
-                  onChange={(e) => setScheduledChargeForm({ ...scheduledChargeForm, accountCode: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                >
-                  <option value="4000">4000 - Rental Income</option>
-                  <option value="4010">4010 - Late Fees</option>
-                  <option value="4020">4020 - Utility Reimbursement</option>
-                  <option value="4030">4030 - Parking Income</option>
-                  <option value="4040">4040 - Pet Fees</option>
-                  <option value="4050">4050 - Storage Income</option>
-                  <option value="4060">4060 - Application Fees</option>
-                  <option value="4100">4100 - Other Income</option>
-                </select>
-              </div>
+                  <p className="text-xs text-gray-500">
+                    Charges will be posted automatically on the specified day each month (max day 28 for all months)
+                  </p>
+                </div>
+              )}
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-3 pt-6 mt-4 border-t border-gray-200">
                 <button
                   type="button"
                   onClick={() => {
                     setShowScheduledChargeModal(false);
                     setEditingScheduledChargeId(null);
+                    setScheduledChargeRows([{ description: '', amount: '', chargeDay: '1', accountCode: '4000' }]);
                     setError('');
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
@@ -3550,7 +3675,7 @@ export default function LeaseDetailPage() {
                   disabled={savingScheduledCharge}
                   className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {savingScheduledCharge ? 'Saving...' : (editingScheduledChargeId ? 'Update' : 'Add Charge')}
+                  {savingScheduledCharge ? 'Saving...' : (editingScheduledChargeId ? 'Update Charge' : `Add ${scheduledChargeRows.filter(r => r.description && r.amount).length || ''} Charge${scheduledChargeRows.filter(r => r.description && r.amount).length !== 1 ? 's' : ''}`)}
                 </button>
               </div>
             </form>

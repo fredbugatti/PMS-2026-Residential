@@ -68,11 +68,77 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/scheduled-charges - Create new scheduled charge
+// POST /api/scheduled-charges - Create new scheduled charge(s)
+// Supports single charge or array of charges (bulk creation)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
+    // Check if bulk creation (array of charges)
+    if (Array.isArray(body.charges)) {
+      const { leaseId, charges } = body;
+
+      if (!leaseId) {
+        return NextResponse.json(
+          { error: 'Lease ID is required' },
+          { status: 400 }
+        );
+      }
+
+      if (charges.length === 0) {
+        return NextResponse.json(
+          { error: 'At least one charge is required' },
+          { status: 400 }
+        );
+      }
+
+      // Validate all charges
+      for (let i = 0; i < charges.length; i++) {
+        const charge = charges[i];
+        if (!charge.description || !charge.description.trim()) {
+          return NextResponse.json(
+            { error: `Charge ${i + 1}: Description is required` },
+            { status: 400 }
+          );
+        }
+        if (!charge.amount || parseFloat(charge.amount) <= 0) {
+          return NextResponse.json(
+            { error: `Charge ${i + 1}: Amount must be greater than zero` },
+            { status: 400 }
+          );
+        }
+        if (!charge.chargeDay || charge.chargeDay < 1 || charge.chargeDay > 28) {
+          return NextResponse.json(
+            { error: `Charge ${i + 1}: Charge day must be between 1 and 28` },
+            { status: 400 }
+          );
+        }
+      }
+
+      // Create all charges in a transaction
+      const createdCharges = await prisma.$transaction(
+        charges.map((charge: any) =>
+          prisma.scheduledCharge.create({
+            data: {
+              leaseId,
+              description: charge.description.trim(),
+              amount: parseFloat(charge.amount),
+              chargeDay: parseInt(charge.chargeDay),
+              accountCode: charge.accountCode || '4000',
+              active: charge.active !== false
+            }
+          })
+        )
+      );
+
+      return NextResponse.json({
+        success: true,
+        count: createdCharges.length,
+        charges: createdCharges
+      }, { status: 201 });
+    }
+
+    // Single charge creation (backwards compatible)
     // Validate required fields
     if (!body.leaseId) {
       return NextResponse.json(
