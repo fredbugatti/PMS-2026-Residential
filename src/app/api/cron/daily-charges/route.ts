@@ -239,3 +239,6 @@ async function handleDailyCharges(request: NextRequest): Promise<NextResponse> {
 
 // GET /api/cron/daily-charges - Called by QStash daily at 6 AM
 export const GET = withQStashVerification(handleDailyCharges);
+
+// POST /api/cron/daily-charges - QStash sends POST by default
+export const POST = withQStashVerification(handleDailyCharges);
