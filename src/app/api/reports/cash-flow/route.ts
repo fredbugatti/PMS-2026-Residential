@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
         gte: start,
         lte: end
       },
-      status: 'POSTED'
+      status: 'POSTED' as const
     };
 
     // Property filter
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
       where: {
         entryDate: { lt: start },
         accountCode: { in: ['1000', '1001', '1050'] },
-        status: 'POSTED'
+        status: 'POSTED' as const
       },
       select: {
         amount: true,
@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
       where: {
         entryDate: { gte: prevStart, lte: prevEnd },
         accountCode: { in: ['1000', '1001', '1050'] },
-        status: 'POSTED'
+        status: 'POSTED' as const
       },
       select: { amount: true, debitCredit: true }
     });

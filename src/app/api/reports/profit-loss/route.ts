@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
         gte: start,
         lte: end
       },
-      status: 'POSTED'
+      status: 'POSTED' as const
     };
 
     // If propertyId filter, get leases for that property
@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
         gte: prevStart,
         lte: prevEnd
       },
-      status: 'POSTED'
+      status: 'POSTED' as const
     };
 
     // Previous period income

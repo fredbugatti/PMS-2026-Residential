@@ -17,7 +17,7 @@ export async function GET() {
         ledgerEntries: {
           where: {
             accountCode: '1200', // Only AR entries
-            status: 'POSTED'
+            status: 'POSTED' as const
           },
           select: {
             amount: true,

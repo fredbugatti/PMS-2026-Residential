@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     // Build filter for entries up to the as-of date
     const dateFilter = {
       entryDate: { lte: asOf },
-      status: 'POSTED'
+      status: 'POSTED' as const
     };
 
     // If propertyId filter, get leases for that property

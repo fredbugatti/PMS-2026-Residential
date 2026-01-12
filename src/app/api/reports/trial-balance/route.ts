@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const allEntries = await prisma.ledgerEntry.findMany({
       where: {
         entryDate: { lte: asOf },
-        status: 'POSTED'
+        status: 'POSTED' as const
       },
       select: {
         accountCode: true,

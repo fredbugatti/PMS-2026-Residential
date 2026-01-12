@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     // Build where clause for ledger entries
     const whereClause: any = {
-      status: 'POSTED',
+      status: 'POSTED' as const,
       debitCredit: 'CR', // Income is credited
       accountCode: {
         startsWith: '4'

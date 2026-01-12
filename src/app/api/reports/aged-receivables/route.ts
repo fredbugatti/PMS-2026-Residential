@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
         ledgerEntries: {
           where: {
             accountCode: '1200', // Accounts Receivable
-            status: 'POSTED',
+            status: 'POSTED' as const,
             entryDate: { lte: asOf }
           },
           select: {
