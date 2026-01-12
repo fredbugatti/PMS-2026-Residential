@@ -1460,17 +1460,17 @@ export default function LeaseDetailPage() {
                   </p>
                 </div>
                 <div className="hidden sm:block h-12 w-px bg-gray-200"></div>
-                <div className="grid grid-cols-3 sm:flex sm:gap-6 gap-2 text-xs sm:text-sm">
-                  <div>
-                    <span className="text-gray-500 block sm:inline">Charged</span>
-                    <span className="sm:ml-2 font-semibold text-gray-900 block sm:inline">{formatCurrency(getPaymentSummary().totalCharged)}</span>
+                <div className="grid grid-cols-2 sm:flex sm:gap-6 gap-x-4 gap-y-2 text-xs sm:text-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center">
+                    <span className="text-gray-500">Charged:</span>
+                    <span className="sm:ml-1 font-semibold text-gray-900">{formatCurrency(getPaymentSummary().totalCharged)}</span>
                   </div>
-                  <div>
-                    <span className="text-gray-500 block sm:inline">Paid</span>
-                    <span className="sm:ml-2 font-semibold text-green-600 block sm:inline">{formatCurrency(getPaymentSummary().totalPaid)}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center">
+                    <span className="text-gray-500">Paid:</span>
+                    <span className="sm:ml-1 font-semibold text-green-600">{formatCurrency(getPaymentSummary().totalPaid)}</span>
                   </div>
-                  <div>
-                    <span className="text-gray-500 block sm:inline">Rent</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center col-span-2 sm:col-span-1">
+                    <span className="text-gray-500">Rent:</span>
                     {editingRent ? (
                       <span className="sm:ml-2 inline-flex items-center gap-1 flex-wrap">
                         <span>$</span>
@@ -1542,30 +1542,31 @@ export default function LeaseDetailPage() {
             </div>
           </div>
           {/* Ledger View Toggle */}
-          <div className="px-4 sm:px-6 py-2.5 sm:py-3 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-gray-50">
+          <div className="px-4 sm:px-6 py-2.5 sm:py-3 border-b border-gray-200 flex items-center justify-between gap-2 bg-gray-50">
             <span className="text-xs sm:text-sm text-gray-600">
-              {ledgerViewMode === 'simplified' ? 'Charges & payments' : 'Full ledger'}
+              <span className="hidden sm:inline">{ledgerViewMode === 'simplified' ? 'Showing charges & payments only' : 'Showing full ledger'}</span>
+              <span className="sm:hidden">{ledgerViewMode === 'simplified' ? 'Charges & payments' : 'Full ledger'}</span>
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center">
               <button
                 onClick={() => setLedgerViewMode('simplified')}
-                className={`px-2.5 sm:px-3 py-1 text-xs font-medium rounded transition-colors ${
+                className={`px-2.5 sm:px-3 py-1 text-xs font-medium rounded-l border transition-colors ${
                   ledgerViewMode === 'simplified'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                Simple
+                Simplified
               </button>
               <button
                 onClick={() => setLedgerViewMode('full')}
-                className={`px-2.5 sm:px-3 py-1 text-xs font-medium rounded transition-colors ${
+                className={`px-2.5 sm:px-3 py-1 text-xs font-medium rounded-r border border-l-0 transition-colors ${
                   ledgerViewMode === 'full'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                Full
+                Full Ledger
               </button>
             </div>
           </div>
@@ -1761,22 +1762,22 @@ export default function LeaseDetailPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200">
             <button
               onClick={() => setDepositExpanded(!depositExpanded)}
-              className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+              className="w-full p-4 sm:p-6 flex items-center justify-between hover:bg-gray-50 transition-colors gap-3"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <svg
-                  className={`w-5 h-5 text-gray-500 transition-transform ${depositExpanded ? 'rotate-90' : ''}`}
+                  className={`w-4 h-4 sm:w-5 sm:h-5 text-gray-500 transition-transform flex-shrink-0 ${depositExpanded ? 'rotate-90' : ''}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-                <h2 className="text-lg font-semibold text-gray-900">Security Deposit</h2>
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">Security Deposit</h2>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600">Held: {formatCurrency(depositStatus.currentBalance)}</span>
-                <span className={`px-3 py-1 text-sm font-medium rounded-full ${
+              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                <span className="text-xs sm:text-sm text-gray-600">Held: {formatCurrency(depositStatus.currentBalance)}</span>
+                <span className={`px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm font-medium rounded-full ${
                   depositStatus.status === 'HELD' ? 'bg-blue-100 text-blue-800' :
                   depositStatus.status === 'RETURNED' ? 'bg-gray-100 text-gray-800' :
                   'bg-yellow-100 text-yellow-800'
@@ -1787,8 +1788,8 @@ export default function LeaseDetailPage() {
             </button>
 
             {depositExpanded && (
-              <div className="px-6 pb-6 border-t border-gray-200 pt-4">
-                <div className="grid grid-cols-4 gap-4 mb-6">
+              <div className="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-gray-200 pt-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Expected Amount</p>
                     <p className="text-lg font-semibold text-gray-900">
@@ -2050,30 +2051,30 @@ export default function LeaseDetailPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
           <button
             onClick={() => setScheduledChargesExpanded(!scheduledChargesExpanded)}
-            className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+            className="w-full p-4 sm:p-6 flex items-center justify-between hover:bg-gray-50 transition-colors gap-3"
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <svg
-                className={`w-5 h-5 text-gray-500 transition-transform ${scheduledChargesExpanded ? 'rotate-90' : ''}`}
+                className={`w-4 h-4 sm:w-5 sm:h-5 text-gray-500 transition-transform flex-shrink-0 ${scheduledChargesExpanded ? 'rotate-90' : ''}`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <div className="text-left">
-                <h2 className="text-lg font-semibold text-gray-900">Scheduled Charges</h2>
-                <p className="text-sm text-gray-600 mt-1">Recurring monthly charges (rent, utilities, parking, etc.)</p>
+              <div className="text-left min-w-0">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">Scheduled Charges</h2>
+                <p className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1 hidden sm:block">Recurring monthly charges (rent, utilities, parking, etc.)</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
               {lease.scheduledCharges && lease.scheduledCharges.filter(c => c.active).length > 0 && (
-                <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                <span className="px-2 sm:px-3 py-0.5 sm:py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
                   {lease.scheduledCharges.filter(c => c.active).length} active
                 </span>
               )}
               {lease.scheduledCharges && (
-                <span className="text-sm text-gray-500">
+                <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">
                   {formatCurrency(lease.scheduledCharges.filter(c => c.active).reduce((sum, c) => sum + Number(c.amount), 0))}/mo
                 </span>
               )}
@@ -2081,12 +2082,12 @@ export default function LeaseDetailPage() {
           </button>
 
           {scheduledChargesExpanded && (
-            <div className="px-6 pb-6 border-t border-gray-200">
-              <div className="flex justify-between items-center pt-4 mb-4">
+            <div className="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-gray-200">
+              <div className="flex flex-wrap gap-2 sm:gap-0 sm:justify-between items-center pt-4 mb-4">
                 <button
                   onClick={handlePostScheduledCharges}
                   disabled={postingScheduledCharges || !lease.scheduledCharges?.some(c => c.active)}
-                  className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 sm:px-4 py-2 bg-blue-600 text-white text-xs sm:text-sm rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {postingScheduledCharges ? 'Posting...' : 'Post Due Charges'}
                 </button>
@@ -2096,7 +2097,7 @@ export default function LeaseDetailPage() {
                     setEditingScheduledChargeId(null);
                     setShowScheduledChargeModal(true);
                   }}
-                  className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                  className="px-3 sm:px-4 py-2 bg-indigo-600 text-white text-xs sm:text-sm rounded-lg hover:bg-indigo-700 transition-colors font-medium"
                 >
                   + Add Charge
                 </button>
@@ -2112,94 +2113,170 @@ export default function LeaseDetailPage() {
                   {lease.scheduledCharges.map((charge) => (
                     <div
                       key={charge.id}
-                      className={`flex items-center justify-between p-4 rounded-lg border ${
+                      className={`p-3 sm:p-4 rounded-lg border ${
                         charge.active ? 'bg-white border-gray-200' : 'bg-gray-50 border-gray-100 opacity-60'
                       }`}
                     >
-                      <div className="flex items-center gap-4">
-                        <button
-                          onClick={() => handleToggleScheduledCharge(charge)}
-                          className={`w-10 h-6 rounded-full transition-colors relative ${
-                            charge.active ? 'bg-green-500' : 'bg-gray-300'
-                          }`}
-                        >
-                          <span
-                            className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                              charge.active ? 'left-5' : 'left-1'
-                            }`}
-                          />
-                        </button>
-                        <div>
-                          <p className="font-medium text-gray-900">{charge.description}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-sm text-gray-500">Day {charge.chargeDay} of each month</span>
+                      {/* Mobile Layout */}
+                      <div className="sm:hidden">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <button
+                              onClick={() => handleToggleScheduledCharge(charge)}
+                              className={`flex-shrink-0 w-10 h-6 rounded-full transition-colors relative ${
+                                charge.active ? 'bg-green-500' : 'bg-gray-300'
+                              }`}
+                            >
+                              <span
+                                className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
+                                  charge.active ? 'left-5' : 'left-1'
+                                }`}
+                              />
+                            </button>
+                            <p className="font-medium text-gray-900 text-sm truncate">{charge.description}</p>
+                          </div>
+                          <span className="text-base font-semibold text-gray-900 flex-shrink-0">
+                            {formatCurrency(Number(charge.amount))}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2 ml-12">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-xs text-gray-500">Day {charge.chargeDay}</span>
                             {charge.active && (() => {
                               const postInfo = getNextPostInfo(charge.chargeDay, charge.lastChargedDate);
                               return (
-                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full ${
+                                <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-medium rounded-full ${
                                   postInfo.status === 'posted'
                                     ? 'bg-green-100 text-green-700'
                                     : postInfo.status === 'due'
-                                    ? 'bg-amber-100 text-amber-700 animate-pulse'
+                                    ? 'bg-amber-100 text-amber-700'
                                     : 'bg-blue-100 text-blue-700'
                                 }`}>
-                                  {postInfo.status === 'posted' && (
-                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                  )}
-                                  {postInfo.status === 'due' && (
-                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                                    </svg>
-                                  )}
-                                  {postInfo.status === 'upcoming' && (
-                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                      <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                                    </svg>
-                                  )}
                                   {postInfo.message}
                                 </span>
                               );
                             })()}
                           </div>
+                          <div className="flex items-center gap-1">
+                            {charge.lastChargedDate && (
+                              <button
+                                onClick={() => handleResetScheduledCharge(charge.id)}
+                                className="p-1.5 text-orange-600 hover:bg-orange-100 rounded transition-colors"
+                                title="Reset"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleEditScheduledCharge(charge)}
+                              className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors"
+                              title="Edit"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteScheduledCharge(charge.id)}
+                              className="p-1.5 text-gray-400 hover:text-red-600 transition-colors"
+                              title="Delete"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <span className="text-lg font-semibold text-gray-900">
-                          {formatCurrency(Number(charge.amount))}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          {charge.lastChargedDate && (
+                      {/* Desktop Layout */}
+                      <div className="hidden sm:flex sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-4">
+                          <button
+                            onClick={() => handleToggleScheduledCharge(charge)}
+                            className={`w-10 h-6 rounded-full transition-colors relative ${
+                              charge.active ? 'bg-green-500' : 'bg-gray-300'
+                            }`}
+                          >
+                            <span
+                              className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
+                                charge.active ? 'left-5' : 'left-1'
+                              }`}
+                            />
+                          </button>
+                          <div>
+                            <p className="font-medium text-gray-900">{charge.description}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-sm text-gray-500">Day {charge.chargeDay} of each month</span>
+                              {charge.active && (() => {
+                                const postInfo = getNextPostInfo(charge.chargeDay, charge.lastChargedDate);
+                                return (
+                                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full ${
+                                    postInfo.status === 'posted'
+                                      ? 'bg-green-100 text-green-700'
+                                      : postInfo.status === 'due'
+                                      ? 'bg-amber-100 text-amber-700 animate-pulse'
+                                      : 'bg-blue-100 text-blue-700'
+                                  }`}>
+                                    {postInfo.status === 'posted' && (
+                                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                      </svg>
+                                    )}
+                                    {postInfo.status === 'due' && (
+                                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                                      </svg>
+                                    )}
+                                    {postInfo.status === 'upcoming' && (
+                                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                                      </svg>
+                                    )}
+                                    {postInfo.message}
+                                  </span>
+                                );
+                              })()}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="text-lg font-semibold text-gray-900">
+                            {formatCurrency(Number(charge.amount))}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            {charge.lastChargedDate && (
+                              <button
+                                onClick={() => handleResetScheduledCharge(charge.id)}
+                                className="px-2 py-1 text-xs font-medium text-orange-700 bg-orange-100 hover:bg-orange-200 rounded transition-colors flex items-center gap-1"
+                                title="Reset (allow re-posting this month)"
+                              >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                Reset
+                              </button>
+                            )}
                             <button
-                              onClick={() => handleResetScheduledCharge(charge.id)}
-                              className="px-2 py-1 text-xs font-medium text-orange-700 bg-orange-100 hover:bg-orange-200 rounded transition-colors flex items-center gap-1"
-                              title="Reset (allow re-posting this month)"
+                              onClick={() => handleEditScheduledCharge(charge)}
+                              className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                              title="Edit"
                             >
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                               </svg>
-                              Reset
                             </button>
-                          )}
-                          <button
-                            onClick={() => handleEditScheduledCharge(charge)}
-                            className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
-                            title="Edit"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => handleDeleteScheduledCharge(charge.id)}
-                            className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-                            title="Delete"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
+                            <button
+                              onClick={() => handleDeleteScheduledCharge(charge.id)}
+                              className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                              title="Delete"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -2223,21 +2300,21 @@ export default function LeaseDetailPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
           <button
             onClick={() => setLeaseInfoExpanded(!leaseInfoExpanded)}
-            className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+            className="w-full p-4 sm:p-6 flex items-center justify-between hover:bg-gray-50 transition-colors gap-3"
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <svg
-                className={`w-5 h-5 text-gray-500 transition-transform ${leaseInfoExpanded ? 'rotate-90' : ''}`}
+                className={`w-4 h-4 sm:w-5 sm:h-5 text-gray-500 transition-transform flex-shrink-0 ${leaseInfoExpanded ? 'rotate-90' : ''}`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <h2 className="text-lg font-semibold text-gray-900">Lease Information</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900">Lease Information</h2>
             </div>
-            <div className="flex items-center gap-4 text-sm text-gray-600">
-              <span>{lease.tenantName}</span>
+            <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 flex-shrink-0">
+              <span className="truncate max-w-[80px] sm:max-w-none">{lease.tenantName}</span>
               <span>•</span>
               <span>{lease.unitName}</span>
             </div>
