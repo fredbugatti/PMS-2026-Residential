@@ -192,6 +192,23 @@ export async function GET(request: NextRequest) {
 
     console.log(`[CRON] daily-charges completed: ${posted} posted, ${skipped} skipped, ${errors} errors in ${duration}ms`);
 
+    // Also trigger daily-expenses (combined into single cron to stay within Vercel limits)
+    let expensesResult = null;
+    try {
+      const baseUrl = process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : process.env.NEXTAUTH_URL || 'http://localhost:3000';
+
+      const expensesResponse = await fetch(`${baseUrl}/api/cron/daily-expenses`, {
+        method: 'GET',
+        headers: CRON_SECRET ? { 'Authorization': `Bearer ${CRON_SECRET}` } : {},
+      });
+      expensesResult = await expensesResponse.json();
+      console.log('[CRON] daily-expenses triggered:', expensesResult?.summary || expensesResult);
+    } catch (expError: any) {
+      console.error('[CRON] Failed to trigger daily-expenses:', expError.message);
+    }
+
     return NextResponse.json({
       success: true,
       status,
@@ -203,7 +220,8 @@ export async function GET(request: NextRequest) {
         totalAmountPosted,
         duration
       },
-      results
+      results,
+      expensesResult
     });
 
   } catch (error: any) {
