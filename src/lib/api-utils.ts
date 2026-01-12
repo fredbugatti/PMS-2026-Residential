@@ -1,6 +1,57 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { ValidationError } from './validation';
 import { Prisma } from '@prisma/client';
+
+// Admin authentication secret
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
+
+/**
+ * Wrapper to require admin authentication on routes
+ * Checks for ADMIN_SECRET in Authorization header or x-api-key header
+ *
+ * In development without ADMIN_SECRET set, allows requests but logs a warning
+ */
+export function withAdminAuth<T extends (...args: any[]) => Promise<NextResponse>>(
+  handler: T
+): T {
+  return (async (request: NextRequest, ...args: any[]) => {
+    // Check for ADMIN_SECRET in environment
+    if (!ADMIN_SECRET) {
+      if (process.env.NODE_ENV === 'production') {
+        console.error('[Auth] CRITICAL: ADMIN_SECRET not configured in production');
+        return NextResponse.json(
+          { error: 'Server misconfiguration' },
+          { status: 500 }
+        );
+      }
+      // Development warning - allow request but log
+      console.warn('[Auth] WARNING: ADMIN_SECRET not set. Allowing request in dev mode.');
+      return handler(request, ...args);
+    }
+
+    // Check Authorization header (Bearer token)
+    const authHeader = request.headers.get('authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.slice(7);
+      if (token === ADMIN_SECRET) {
+        return handler(request, ...args);
+      }
+    }
+
+    // Check x-api-key header
+    const apiKey = request.headers.get('x-api-key');
+    if (apiKey === ADMIN_SECRET) {
+      return handler(request, ...args);
+    }
+
+    // Unauthorized
+    console.warn('[Auth] Unauthorized admin access attempt');
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    );
+  }) as T;
+}
 
 // Standard API error response structure
 export interface ApiErrorResponse {

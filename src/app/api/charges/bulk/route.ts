@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma, postEntry } from '@/lib/accounting';
+import { prisma, withLedgerTransaction } from '@/lib/accounting';
 
 // POST /api/charges/bulk - Generate monthly rent charges for all active leases
 export async function POST(request: NextRequest) {
@@ -64,26 +64,32 @@ export async function POST(request: NextRequest) {
         const amount = Number(rentCharge.amount);
         const description = `Monthly rent - ${entryDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
 
-        // Post DR AR entry
-        const arEntry = await postEntry({
-          accountCode: '1200',
-          amount: amount,
-          debitCredit: 'DR',
-          description: description,
-          entryDate: entryDate,
-          leaseId: lease.id,
-          postedBy: 'system'
-        });
+        // ATOMIC: Post both entries in a single transaction
+        // If any part fails, everything rolls back - books stay balanced
+        const entries = await withLedgerTransaction(async (tx, postEntry) => {
+          // Post DR AR entry
+          const arEntry = await postEntry({
+            accountCode: '1200',
+            amount: amount,
+            debitCredit: 'DR',
+            description: description,
+            entryDate: entryDate,
+            leaseId: lease.id,
+            postedBy: 'system'
+          });
 
-        // Post CR Income entry
-        const incomeEntry = await postEntry({
-          accountCode: '4000',
-          amount: amount,
-          debitCredit: 'CR',
-          description: description,
-          entryDate: entryDate,
-          leaseId: lease.id,
-          postedBy: 'system'
+          // Post CR Income entry
+          const incomeEntry = await postEntry({
+            accountCode: '4000',
+            amount: amount,
+            debitCredit: 'CR',
+            description: description,
+            entryDate: entryDate,
+            leaseId: lease.id,
+            postedBy: 'system'
+          });
+
+          return { arEntry, incomeEntry };
         });
 
         results.push({
@@ -92,12 +98,12 @@ export async function POST(request: NextRequest) {
           unitName: lease.unitName,
           amount: amount,
           success: true,
-          entries: [arEntry.id, incomeEntry.id]
+          entries: [entries.arEntry.id, entries.incomeEntry.id]
         });
 
       } catch (error: any) {
         // Handle idempotency errors gracefully
-        if (error.message?.includes('Duplicate entry')) {
+        if (error.message?.includes('Duplicate entry') || error.code === 'P2002') {
           errors.push({
             leaseId: lease.id,
             tenantName: lease.tenantName,

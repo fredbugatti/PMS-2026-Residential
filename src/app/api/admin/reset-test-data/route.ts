@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/accounting';
 
 // POST /api/admin/reset-test-data - Reset database with fresh test data
-// Note: Protected by middleware (same-origin browser requests allowed)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => ({}));

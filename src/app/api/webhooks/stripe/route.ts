@@ -111,8 +111,12 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Return 200 to prevent Stripe from retrying (we've logged the error)
-    return NextResponse.json({ received: true, error: error.message });
+    // Return 500 so Stripe will retry the webhook
+    // This ensures we don't lose payments due to transient failures
+    return NextResponse.json(
+      { received: false, error: error.message },
+      { status: 500 }
+    );
   }
 }
 

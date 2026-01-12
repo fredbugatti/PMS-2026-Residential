@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma, postEntry } from '@/lib/accounting';
+import { prisma, withLedgerTransaction } from '@/lib/accounting';
 
 // POST /api/scheduled-charges/post-due - Post all due scheduled charges
 // Can optionally pass leaseId to only process charges for a specific lease
@@ -70,53 +70,70 @@ export async function POST(request: NextRequest) {
       try {
         // Create description with month (e.g., "Rent - January 2025")
         const entryDescription = `${charge.description} - ${monthName}`;
+        const chargeAmount = Number(charge.amount);
 
-        // Post entry 1: DR Accounts Receivable (increase what tenant owes)
-        await postEntry({
-          accountCode: '1200',
-          amount: Number(charge.amount),
-          debitCredit: 'DR',
-          description: entryDescription,
-          entryDate: today,
-          leaseId: charge.leaseId,
-          postedBy: 'scheduled'
-        });
+        // ATOMIC: Post both entries AND update lastChargedDate in a single transaction
+        // If any part fails, everything rolls back - books stay balanced
+        await withLedgerTransaction(async (tx, postEntry) => {
+          // Post entry 1: DR Accounts Receivable (increase what tenant owes)
+          await postEntry({
+            accountCode: '1200',
+            amount: chargeAmount,
+            debitCredit: 'DR',
+            description: entryDescription,
+            entryDate: today,
+            leaseId: charge.leaseId,
+            postedBy: 'scheduled'
+          });
 
-        // Post entry 2: CR Income (record revenue)
-        await postEntry({
-          accountCode: charge.accountCode,
-          amount: Number(charge.amount),
-          debitCredit: 'CR',
-          description: entryDescription,
-          entryDate: today,
-          leaseId: charge.leaseId,
-          postedBy: 'scheduled'
-        });
+          // Post entry 2: CR Income (record revenue)
+          await postEntry({
+            accountCode: charge.accountCode,
+            amount: chargeAmount,
+            debitCredit: 'CR',
+            description: entryDescription,
+            entryDate: today,
+            leaseId: charge.leaseId,
+            postedBy: 'scheduled'
+          });
 
-        // Update last charged date
-        await prisma.scheduledCharge.update({
-          where: { id: charge.id },
-          data: { lastChargedDate: today }
+          // Update last charged date (within same transaction)
+          await tx.scheduledCharge.update({
+            where: { id: charge.id },
+            data: { lastChargedDate: today }
+          });
         });
 
         results.push({
           chargeId: charge.id,
           leaseId: charge.leaseId,
           description: charge.description,
-          amount: Number(charge.amount),
+          amount: chargeAmount,
           status: 'posted',
-          message: `Posted ${charge.description} of $${Number(charge.amount).toFixed(2)}`
+          message: `Posted ${charge.description} of $${chargeAmount.toFixed(2)}`
         });
 
       } catch (error: any) {
-        results.push({
-          chargeId: charge.id,
-          leaseId: charge.leaseId,
-          description: charge.description,
-          amount: Number(charge.amount),
-          status: 'error',
-          message: error.message || 'Failed to post charge'
-        });
+        // Check if it's a duplicate (idempotency key conflict)
+        if (error.code === 'P2002') {
+          results.push({
+            chargeId: charge.id,
+            leaseId: charge.leaseId,
+            description: charge.description,
+            amount: Number(charge.amount),
+            status: 'skipped',
+            message: 'Already posted (duplicate prevented)'
+          });
+        } else {
+          results.push({
+            chargeId: charge.id,
+            leaseId: charge.leaseId,
+            description: charge.description,
+            amount: Number(charge.amount),
+            status: 'error',
+            message: error.message || 'Failed to post charge'
+          });
+        }
       }
     }
 
