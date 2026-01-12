@@ -5,10 +5,11 @@ import { z } from 'zod';
 
 // Schema for environment variables
 const envSchema = z.object({
-  // Database (always required)
+  // Database (only DATABASE_URL is required - Neon integration provides this)
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
-  POSTGRES_PRISMA_URL: z.string().min(1, 'POSTGRES_PRISMA_URL is required'),
-  POSTGRES_URL_NON_POOLING: z.string().min(1, 'POSTGRES_URL_NON_POOLING is required'),
+  // These are optional - Vercel Postgres provides them, but Neon doesn't
+  POSTGRES_PRISMA_URL: z.string().optional(),
+  POSTGRES_URL_NON_POOLING: z.string().optional(),
 
   // Node environment
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -55,8 +56,8 @@ function validateEnv(): Env {
     // Return partial env for development (with defaults)
     return {
       DATABASE_URL: process.env.DATABASE_URL || '',
-      POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL || '',
-      POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING || '',
+      POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL,
+      POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING,
       NODE_ENV: (process.env.NODE_ENV as 'development' | 'production' | 'test') || 'development',
       NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
       STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
