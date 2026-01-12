@@ -215,9 +215,10 @@ export async function GET(request: NextRequest) {
     const overallOccupancyRate = totalUnits > 0 ? ((occupiedUnits / totalUnits) * 100).toFixed(1) : '0';
 
     // ==================== LEASES SUMMARY ====================
+    // LeaseStatus: DRAFT, ACTIVE, ENDED, TERMINATED
     const activeLeases = leases.filter(l => l.status === 'ACTIVE');
     const endedLeases = leases.filter(l => l.status === 'ENDED');
-    const pendingLeases = leases.filter(l => l.status === 'PENDING');
+    const draftLeases = leases.filter(l => l.status === 'DRAFT');
 
     // Leases expiring in next 30/60/90 days
     const next30Days = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
@@ -231,7 +232,7 @@ export async function GET(request: NextRequest) {
     const leasesSummary = {
       total: leases.length,
       active: activeLeases.length,
-      pending: pendingLeases.length,
+      pending: draftLeases.length,
       ended: endedLeases.length,
       expiringIn30Days: expiringIn30.length,
       expiringIn60Days: expiringIn60.length,
@@ -379,7 +380,8 @@ export async function GET(request: NextRequest) {
     });
 
     // ==================== WORK ORDERS SUMMARY ====================
-    const openWorkOrders = workOrders.filter(wo => wo.status === 'OPEN' || wo.status === 'PENDING');
+    // WorkOrderStatus: OPEN, ASSIGNED, IN_PROGRESS, COMPLETED, CANCELLED
+    const openWorkOrders = workOrders.filter(wo => wo.status === 'OPEN' || wo.status === 'ASSIGNED');
     const inProgressWorkOrders = workOrders.filter(wo => wo.status === 'IN_PROGRESS');
     const completedWorkOrders = workOrders.filter(wo => wo.status === 'COMPLETED');
 
@@ -393,8 +395,8 @@ export async function GET(request: NextRequest) {
       workOrdersByCategory[cat] = (workOrdersByCategory[cat] || 0) + 1;
     }
 
-    // Work orders by priority
-    const highPriorityOpen = openWorkOrders.filter(wo => wo.priority === 'HIGH' || wo.priority === 'URGENT').length;
+    // Work orders by priority (WorkOrderPriority: LOW, MEDIUM, HIGH, EMERGENCY)
+    const highPriorityOpen = openWorkOrders.filter(wo => wo.priority === 'HIGH' || wo.priority === 'EMERGENCY').length;
 
     const workOrdersSummary = {
       total: workOrders.length,

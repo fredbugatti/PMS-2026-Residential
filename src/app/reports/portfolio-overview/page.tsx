@@ -766,7 +766,7 @@ export default function PortfolioOverviewPage() {
                           </td>
                           <td className="p-3">
                             <span className={`px-2 py-1 rounded-full text-xs ${
-                              wo.priority === 'URGENT' || wo.priority === 'HIGH'
+                              wo.priority === 'EMERGENCY' || wo.priority === 'HIGH'
                                 ? 'bg-red-100 text-red-800'
                                 : 'bg-gray-100 text-gray-800'
                             }`}>
