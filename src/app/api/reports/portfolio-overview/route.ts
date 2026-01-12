@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
           estimatedCost: true,
           actualCost: true,
           createdAt: true,
-          completedAt: true,
+          completedDate: true,
           vendorId: true,
           propertyId: true,
           category: true
