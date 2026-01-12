@@ -670,13 +670,25 @@ export default function Dashboard() {
       return;
     }
 
+    // Find the selected property and unit to get their names
+    const selectedProperty = properties.find(p => p.id === leaseForm.propertyId);
+    const selectedUnit = selectedProperty?.units.find(u => u.id === leaseForm.unitId);
+
+    if (!selectedUnit) {
+      showWarning('Please select a valid unit');
+      return;
+    }
+
     setSubmittingQuickCreate(true);
     try {
       const res = await fetch('/api/leases', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          propertyId: leaseForm.propertyId,
           unitId: leaseForm.unitId,
+          unitName: selectedUnit.unitNumber,
+          propertyName: selectedProperty?.name || null,
           tenantName: leaseForm.tenantName,
           tenantEmail: leaseForm.tenantEmail || undefined,
           tenantPhone: leaseForm.tenantPhone || undefined,
