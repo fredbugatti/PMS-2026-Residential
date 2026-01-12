@@ -135,6 +135,141 @@ interface DrillDownData {
   count: number;
 }
 
+interface BalanceSheetData {
+  asOfDate: string;
+  assets: {
+    current: { items: Array<{ code: string; name: string; balance: number }>; total: number };
+    fixed: { items: Array<{ code: string; name: string; balance: number }>; total: number };
+    total: number;
+  };
+  liabilities: {
+    current: { items: Array<{ code: string; name: string; balance: number }>; total: number };
+    longTerm: { items: Array<{ code: string; name: string; balance: number }>; total: number };
+    total: number;
+  };
+  equity: {
+    items: Array<{ code: string; name: string; balance: number }>;
+    total: number;
+  };
+  summary: {
+    totalAssets: number;
+    totalLiabilities: number;
+    totalEquity: number;
+    liabilitiesPlusEquity: number;
+    balanceCheck: boolean;
+    workingCapital: number;
+    debtToEquityRatio: number | null;
+  };
+}
+
+interface CashFlowData {
+  period: { start: string; end: string };
+  cashPosition: {
+    beginning: number;
+    ending: number;
+    netChange: number;
+    previousPeriodChange: number;
+  };
+  operatingActivities: {
+    items: Array<{ description: string; amount: number; date: string }>;
+    total: number;
+    summary: {
+      rentCollected: number;
+      depositsReceived: number;
+      depositsReturned: number;
+      maintenancePaid: number;
+      utilitiesPaid: number;
+      otherOperating: number;
+    };
+  };
+  investingActivities: {
+    items: Array<{ description: string; amount: number; date: string }>;
+    total: number;
+  };
+  financingActivities: {
+    items: Array<{ description: string; amount: number; date: string }>;
+    total: number;
+  };
+  summary: {
+    operatingCashFlow: number;
+    investingCashFlow: number;
+    financingCashFlow: number;
+    netCashFlow: number;
+    freeCashFlow: number;
+    cashFlowMargin: number;
+  };
+}
+
+interface AgedReceivablesData {
+  asOfDate: string;
+  summary: {
+    totalReceivables: number;
+    tenantsWithBalance: number;
+    averageBalance: number;
+    highRiskCount: number;
+    criticalCount: number;
+  };
+  agingBuckets: {
+    current: { amount: number; percent: number; label: string };
+    over30: { amount: number; percent: number; label: string };
+    over60: { amount: number; percent: number; label: string };
+    over90: { amount: number; percent: number; label: string };
+  };
+  receivables: Array<{
+    leaseId: string;
+    tenantName: string;
+    tenantEmail: string | null;
+    tenantPhone: string | null;
+    propertyName: string;
+    unitName: string;
+    totalBalance: number;
+    aging: { current: number; over30: number; over60: number; over90: number };
+    oldestUnpaidDate: string | null;
+    daysOutstanding: number;
+  }>;
+  riskAssessment: {
+    highRisk: Array<{ tenantName: string; totalBalance: number; over60: number }>;
+    critical: Array<{ tenantName: string; totalBalance: number; over90: number; daysOutstanding: number }>;
+  };
+}
+
+interface TrialBalanceData {
+  asOfDate: string;
+  summary: {
+    totalDebits: number;
+    totalCredits: number;
+    difference: number;
+    isBalanced: boolean;
+    accountCount: number;
+    accountsWithActivity: number;
+  };
+  verification: {
+    totalEntries: number;
+    debitEntries: number;
+    creditEntries: number;
+    entryBalance: string;
+  };
+  typeTotals: {
+    assets: number;
+    liabilities: number;
+    equity: number;
+    income: number;
+    expenses: number;
+    netIncome: number;
+    equationCheck: boolean;
+  };
+  accounts: Array<{
+    code: string;
+    name: string;
+    type: string;
+    normalBalance: string;
+    debitTotal: number;
+    creditTotal: number;
+    balance: number;
+    balanceSide: 'DR' | 'CR' | 'ZERO';
+  }>;
+}
+
 export default function ReportsPage() {
   const router = useRouter();
   const [data, setData] = useState<ReportData | null>(null);
@@ -148,7 +283,7 @@ export default function ReportsPage() {
   const [chargeDate, setChargeDate] = useState(new Date().toISOString().split('T')[0]);
   const [bulkResults, setBulkResults] = useState<{ results: BulkChargeResult[], errors: any[] } | null>(null);
   const [incomeData, setIncomeData] = useState<IncomeBreakdown | null>(null);
-  const [activeTab, setActiveTab] = useState<'balances' | 'income' | 'pnl' | 'expenses'>('balances');
+  const [activeTab, setActiveTab] = useState<'balances' | 'income' | 'pnl' | 'expenses' | 'balance-sheet' | 'cash-flow' | 'aged-ar' | 'trial-balance'>('balances');
   const [pnlData, setPnlData] = useState<ProfitLossData | null>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [expenseAccounts, setExpenseAccounts] = useState<ExpenseAccount[]>([]);
@@ -167,6 +302,10 @@ export default function ReportsPage() {
   const [showDrillDown, setShowDrillDown] = useState(false);
   const [drillDownData, setDrillDownData] = useState<DrillDownData | null>(null);
   const [drillDownLoading, setDrillDownLoading] = useState(false);
+  const [balanceSheetData, setBalanceSheetData] = useState<BalanceSheetData | null>(null);
+  const [cashFlowData, setCashFlowData] = useState<CashFlowData | null>(null);
+  const [agedARData, setAgedARData] = useState<AgedReceivablesData | null>(null);
+  const [trialBalanceData, setTrialBalanceData] = useState<TrialBalanceData | null>(null);
 
   useEffect(() => {
     document.title = 'Reports | Sanprinon';
@@ -281,6 +420,72 @@ export default function ReportsPage() {
     }
   };
 
+  const fetchBalanceSheet = async () => {
+    try {
+      const params = new URLSearchParams();
+      params.set('asOfDate', dateRange.end);
+      if (selectedProperty !== 'all') {
+        params.set('propertyId', selectedProperty);
+      }
+      const res = await fetch(`/api/reports/balance-sheet?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setBalanceSheetData(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch balance sheet:', error);
+    }
+  };
+
+  const fetchCashFlow = async () => {
+    try {
+      const params = new URLSearchParams();
+      params.set('startDate', dateRange.start);
+      params.set('endDate', dateRange.end);
+      if (selectedProperty !== 'all') {
+        params.set('propertyId', selectedProperty);
+      }
+      const res = await fetch(`/api/reports/cash-flow?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setCashFlowData(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch cash flow:', error);
+    }
+  };
+
+  const fetchAgedReceivables = async () => {
+    try {
+      const params = new URLSearchParams();
+      params.set('asOfDate', dateRange.end);
+      if (selectedProperty !== 'all') {
+        params.set('propertyId', selectedProperty);
+      }
+      const res = await fetch(`/api/reports/aged-receivables?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setAgedARData(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch aged receivables:', error);
+    }
+  };
+
+  const fetchTrialBalance = async () => {
+    try {
+      const params = new URLSearchParams();
+      params.set('asOfDate', dateRange.end);
+      const res = await fetch(`/api/reports/trial-balance?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setTrialBalanceData(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch trial balance:', error);
+    }
+  };
+
   const handleTransactionClick = (txn: DrillDownTransaction) => {
     // Navigate to the source of the transaction
     if (txn.workOrderId) {
@@ -334,6 +539,10 @@ export default function ReportsPage() {
     fetchIncomeBreakdown();
     fetchProfitLoss();
     fetchExpenses();
+    fetchBalanceSheet();
+    fetchCashFlow();
+    fetchAgedReceivables();
+    fetchTrialBalance();
   }, [selectedProperty, dateRange]);
 
   const formatCurrency = (amount: number) => {
@@ -600,6 +809,46 @@ export default function ReportsPage() {
             }`}
           >
             P&L
+          </button>
+          <button
+            onClick={() => setActiveTab('balance-sheet')}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
+              activeTab === 'balance-sheet'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            Balance Sheet
+          </button>
+          <button
+            onClick={() => setActiveTab('cash-flow')}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
+              activeTab === 'cash-flow'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            Cash Flow
+          </button>
+          <button
+            onClick={() => setActiveTab('aged-ar')}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
+              activeTab === 'aged-ar'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            Aged A/R
+          </button>
+          <button
+            onClick={() => setActiveTab('trial-balance')}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
+              activeTab === 'trial-balance'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            Trial Balance
           </button>
           <button
             onClick={() => setActiveTab('expenses')}
@@ -1222,6 +1471,548 @@ export default function ReportsPage() {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Balance Sheet Tab */}
+        {activeTab === 'balance-sheet' && (
+          <div className="space-y-4 sm:space-y-6">
+            {balanceSheetData ? (
+              <>
+                {/* Balance Sheet Header */}
+                <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900">Balance Sheet</h2>
+                      <p className="text-sm text-gray-600">As of {balanceSheetData.asOfDate}</p>
+                    </div>
+                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      balanceSheetData.summary.balanceCheck
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {balanceSheetData.summary.balanceCheck ? 'Balanced' : 'Out of Balance'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">Total Assets</p>
+                    <p className="text-xl font-bold text-blue-600">{formatCurrency(balanceSheetData.summary.totalAssets)}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">Total Liabilities</p>
+                    <p className="text-xl font-bold text-red-600">{formatCurrency(balanceSheetData.summary.totalLiabilities)}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">Total Equity</p>
+                    <p className="text-xl font-bold text-green-600">{formatCurrency(balanceSheetData.summary.totalEquity)}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">Working Capital</p>
+                    <p className={`text-xl font-bold ${balanceSheetData.summary.workingCapital >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatCurrency(balanceSheetData.summary.workingCapital)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Balance Sheet Table */}
+                <div className="grid lg:grid-cols-2 gap-4">
+                  {/* Assets */}
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="px-6 py-4 bg-blue-50 border-b border-blue-200">
+                      <h3 className="font-semibold text-blue-900">Assets</h3>
+                    </div>
+                    <div className="divide-y divide-gray-100">
+                      {balanceSheetData.assets.current.items.length > 0 && (
+                        <div className="p-4">
+                          <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Current Assets</h4>
+                          {balanceSheetData.assets.current.items.map((item) => (
+                            <div key={item.code} className="flex justify-between py-1">
+                              <span className="text-sm text-gray-700">{item.name}</span>
+                              <span className="text-sm font-medium">{formatCurrency(item.balance)}</span>
+                            </div>
+                          ))}
+                          <div className="flex justify-between py-1 mt-2 border-t border-gray-100">
+                            <span className="text-sm font-medium text-gray-700">Total Current</span>
+                            <span className="text-sm font-bold">{formatCurrency(balanceSheetData.assets.current.total)}</span>
+                          </div>
+                        </div>
+                      )}
+                      {balanceSheetData.assets.fixed.items.length > 0 && (
+                        <div className="p-4">
+                          <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Fixed Assets</h4>
+                          {balanceSheetData.assets.fixed.items.map((item) => (
+                            <div key={item.code} className="flex justify-between py-1">
+                              <span className="text-sm text-gray-700">{item.name}</span>
+                              <span className="text-sm font-medium">{formatCurrency(item.balance)}</span>
+                            </div>
+                          ))}
+                          <div className="flex justify-between py-1 mt-2 border-t border-gray-100">
+                            <span className="text-sm font-medium text-gray-700">Total Fixed</span>
+                            <span className="text-sm font-bold">{formatCurrency(balanceSheetData.assets.fixed.total)}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="px-6 py-4 bg-blue-50 border-t border-blue-200">
+                      <div className="flex justify-between">
+                        <span className="font-bold text-blue-900">Total Assets</span>
+                        <span className="font-bold text-blue-900">{formatCurrency(balanceSheetData.assets.total)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Liabilities & Equity */}
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                      <h3 className="font-semibold text-gray-900">Liabilities & Equity</h3>
+                    </div>
+                    <div className="divide-y divide-gray-100">
+                      {balanceSheetData.liabilities.current.items.length > 0 && (
+                        <div className="p-4">
+                          <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Current Liabilities</h4>
+                          {balanceSheetData.liabilities.current.items.map((item) => (
+                            <div key={item.code} className="flex justify-between py-1">
+                              <span className="text-sm text-gray-700">{item.name}</span>
+                              <span className="text-sm font-medium">{formatCurrency(item.balance)}</span>
+                            </div>
+                          ))}
+                          <div className="flex justify-between py-1 mt-2 border-t border-gray-100">
+                            <span className="text-sm font-medium text-gray-700">Total Current</span>
+                            <span className="text-sm font-bold">{formatCurrency(balanceSheetData.liabilities.current.total)}</span>
+                          </div>
+                        </div>
+                      )}
+                      {balanceSheetData.liabilities.longTerm.items.length > 0 && (
+                        <div className="p-4">
+                          <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Long-Term Liabilities</h4>
+                          {balanceSheetData.liabilities.longTerm.items.map((item) => (
+                            <div key={item.code} className="flex justify-between py-1">
+                              <span className="text-sm text-gray-700">{item.name}</span>
+                              <span className="text-sm font-medium">{formatCurrency(item.balance)}</span>
+                            </div>
+                          ))}
+                          <div className="flex justify-between py-1 mt-2 border-t border-gray-100">
+                            <span className="text-sm font-medium text-gray-700">Total Long-Term</span>
+                            <span className="text-sm font-bold">{formatCurrency(balanceSheetData.liabilities.longTerm.total)}</span>
+                          </div>
+                        </div>
+                      )}
+                      <div className="p-4 bg-red-50">
+                        <div className="flex justify-between">
+                          <span className="font-bold text-red-900">Total Liabilities</span>
+                          <span className="font-bold text-red-900">{formatCurrency(balanceSheetData.liabilities.total)}</span>
+                        </div>
+                      </div>
+                      {balanceSheetData.equity.items.length > 0 && (
+                        <div className="p-4">
+                          <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Equity</h4>
+                          {balanceSheetData.equity.items.map((item) => (
+                            <div key={item.code} className="flex justify-between py-1">
+                              <span className="text-sm text-gray-700">{item.name}</span>
+                              <span className="text-sm font-medium">{formatCurrency(item.balance)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <div className="p-4 bg-green-50">
+                        <div className="flex justify-between">
+                          <span className="font-bold text-green-900">Total Equity</span>
+                          <span className="font-bold text-green-900">{formatCurrency(balanceSheetData.equity.total)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="px-6 py-4 bg-gray-100 border-t border-gray-200">
+                      <div className="flex justify-between">
+                        <span className="font-bold text-gray-900">Liabilities + Equity</span>
+                        <span className="font-bold text-gray-900">{formatCurrency(balanceSheetData.summary.liabilitiesPlusEquity)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="bg-white rounded-xl p-12 shadow-sm border border-gray-200 text-center">
+                <p className="text-gray-500">Loading balance sheet...</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Cash Flow Tab */}
+        {activeTab === 'cash-flow' && (
+          <div className="space-y-4 sm:space-y-6">
+            {cashFlowData ? (
+              <>
+                {/* Cash Flow Header */}
+                <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                  <h2 className="text-lg font-semibold text-gray-900">Cash Flow Statement</h2>
+                  <p className="text-sm text-gray-600">{cashFlowData.period.start} to {cashFlowData.period.end}</p>
+                </div>
+
+                {/* Cash Position Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">Beginning Cash</p>
+                    <p className="text-xl font-bold text-gray-900">{formatCurrency(cashFlowData.cashPosition.beginning)}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">Net Change</p>
+                    <p className={`text-xl font-bold ${cashFlowData.cashPosition.netChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {cashFlowData.cashPosition.netChange >= 0 ? '+' : ''}{formatCurrency(cashFlowData.cashPosition.netChange)}
+                    </p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">Ending Cash</p>
+                    <p className="text-xl font-bold text-blue-600">{formatCurrency(cashFlowData.cashPosition.ending)}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">Cash Flow Margin</p>
+                    <p className={`text-xl font-bold ${cashFlowData.summary.cashFlowMargin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {cashFlowData.summary.cashFlowMargin}%
+                    </p>
+                  </div>
+                </div>
+
+                {/* Cash Flow Breakdown */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="divide-y divide-gray-200">
+                    {/* Operating Activities */}
+                    <div className="p-4 sm:p-6">
+                      <h3 className="font-semibold text-gray-900 mb-4">Operating Activities</h3>
+                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+                        <div className="bg-green-50 rounded-lg p-3">
+                          <p className="text-xs text-gray-600">Rent Collected</p>
+                          <p className="text-lg font-bold text-green-600">{formatCurrency(cashFlowData.operatingActivities.summary.rentCollected)}</p>
+                        </div>
+                        <div className="bg-green-50 rounded-lg p-3">
+                          <p className="text-xs text-gray-600">Deposits Received</p>
+                          <p className="text-lg font-bold text-green-600">{formatCurrency(cashFlowData.operatingActivities.summary.depositsReceived)}</p>
+                        </div>
+                        <div className="bg-red-50 rounded-lg p-3">
+                          <p className="text-xs text-gray-600">Maintenance Paid</p>
+                          <p className="text-lg font-bold text-red-600">{formatCurrency(cashFlowData.operatingActivities.summary.maintenancePaid)}</p>
+                        </div>
+                      </div>
+                      <div className="flex justify-between pt-3 border-t border-gray-200">
+                        <span className="font-medium text-gray-700">Net Operating Cash Flow</span>
+                        <span className={`font-bold ${cashFlowData.operatingActivities.total >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {formatCurrency(cashFlowData.operatingActivities.total)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Investing Activities */}
+                    <div className="p-4 sm:p-6">
+                      <h3 className="font-semibold text-gray-900 mb-4">Investing Activities</h3>
+                      {cashFlowData.investingActivities.items.length === 0 ? (
+                        <p className="text-sm text-gray-500 italic">No investing activities</p>
+                      ) : (
+                        <div className="space-y-2 mb-4">
+                          {cashFlowData.investingActivities.items.slice(0, 5).map((item, idx) => (
+                            <div key={idx} className="flex justify-between text-sm">
+                              <span className="text-gray-700">{item.description}</span>
+                              <span className={item.amount >= 0 ? 'text-green-600' : 'text-red-600'}>{formatCurrency(item.amount)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex justify-between pt-3 border-t border-gray-200">
+                        <span className="font-medium text-gray-700">Net Investing Cash Flow</span>
+                        <span className={`font-bold ${cashFlowData.investingActivities.total >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {formatCurrency(cashFlowData.investingActivities.total)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Financing Activities */}
+                    <div className="p-4 sm:p-6">
+                      <h3 className="font-semibold text-gray-900 mb-4">Financing Activities</h3>
+                      {cashFlowData.financingActivities.items.length === 0 ? (
+                        <p className="text-sm text-gray-500 italic">No financing activities</p>
+                      ) : (
+                        <div className="space-y-2 mb-4">
+                          {cashFlowData.financingActivities.items.slice(0, 5).map((item, idx) => (
+                            <div key={idx} className="flex justify-between text-sm">
+                              <span className="text-gray-700">{item.description}</span>
+                              <span className={item.amount >= 0 ? 'text-green-600' : 'text-red-600'}>{formatCurrency(item.amount)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex justify-between pt-3 border-t border-gray-200">
+                        <span className="font-medium text-gray-700">Net Financing Cash Flow</span>
+                        <span className={`font-bold ${cashFlowData.financingActivities.total >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {formatCurrency(cashFlowData.financingActivities.total)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Total */}
+                  <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    <div className="flex justify-between">
+                      <span className="font-bold text-gray-900">Net Cash Flow</span>
+                      <span className={`font-bold text-lg ${cashFlowData.summary.netCashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {formatCurrency(cashFlowData.summary.netCashFlow)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="bg-white rounded-xl p-12 shadow-sm border border-gray-200 text-center">
+                <p className="text-gray-500">Loading cash flow statement...</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Aged Receivables Tab */}
+        {activeTab === 'aged-ar' && (
+          <div className="space-y-4 sm:space-y-6">
+            {agedARData ? (
+              <>
+                {/* Aged AR Header */}
+                <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                  <h2 className="text-lg font-semibold text-gray-900">Aged Accounts Receivable</h2>
+                  <p className="text-sm text-gray-600">As of {agedARData.asOfDate}</p>
+                </div>
+
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">Total Receivables</p>
+                    <p className="text-xl font-bold text-blue-600">{formatCurrency(agedARData.summary.totalReceivables)}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">Tenants w/ Balance</p>
+                    <p className="text-xl font-bold text-gray-900">{agedARData.summary.tenantsWithBalance}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">Average Balance</p>
+                    <p className="text-xl font-bold text-gray-900">{formatCurrency(agedARData.summary.averageBalance)}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">High Risk (60+ days)</p>
+                    <p className="text-xl font-bold text-yellow-600">{agedARData.summary.highRiskCount}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">Critical (90+ days)</p>
+                    <p className="text-xl font-bold text-red-600">{agedARData.summary.criticalCount}</p>
+                  </div>
+                </div>
+
+                {/* Aging Buckets */}
+                <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                  <h3 className="text-sm font-semibold text-gray-700 uppercase mb-4">Aging Summary</h3>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-green-50 rounded-lg p-4">
+                      <p className="text-xs text-gray-600">{agedARData.agingBuckets.current.label}</p>
+                      <p className="text-xl font-bold text-green-600">{formatCurrency(agedARData.agingBuckets.current.amount)}</p>
+                      <p className="text-sm text-gray-500">{agedARData.agingBuckets.current.percent}%</p>
+                    </div>
+                    <div className="bg-yellow-50 rounded-lg p-4">
+                      <p className="text-xs text-gray-600">{agedARData.agingBuckets.over30.label}</p>
+                      <p className="text-xl font-bold text-yellow-600">{formatCurrency(agedARData.agingBuckets.over30.amount)}</p>
+                      <p className="text-sm text-gray-500">{agedARData.agingBuckets.over30.percent}%</p>
+                    </div>
+                    <div className="bg-orange-50 rounded-lg p-4">
+                      <p className="text-xs text-gray-600">{agedARData.agingBuckets.over60.label}</p>
+                      <p className="text-xl font-bold text-orange-600">{formatCurrency(agedARData.agingBuckets.over60.amount)}</p>
+                      <p className="text-sm text-gray-500">{agedARData.agingBuckets.over60.percent}%</p>
+                    </div>
+                    <div className="bg-red-50 rounded-lg p-4">
+                      <p className="text-xs text-gray-600">{agedARData.agingBuckets.over90.label}</p>
+                      <p className="text-xl font-bold text-red-600">{formatCurrency(agedARData.agingBuckets.over90.amount)}</p>
+                      <p className="text-sm text-gray-500">{agedARData.agingBuckets.over90.percent}%</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Receivables Table */}
+                {agedARData.receivables.length > 0 && (
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="px-6 py-4 border-b border-gray-200">
+                      <h3 className="font-semibold text-gray-900">Outstanding Balances by Tenant</h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Tenant</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Property</th>
+                            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Current</th>
+                            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">31-60</th>
+                            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">61-90</th>
+                            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">90+</th>
+                            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {agedARData.receivables.map((ar) => (
+                            <tr
+                              key={ar.leaseId}
+                              className="hover:bg-gray-50 cursor-pointer"
+                              onClick={() => router.push(`/leases/${ar.leaseId}`)}
+                            >
+                              <td className="px-4 py-3">
+                                <div className="font-medium text-gray-900">{ar.tenantName}</div>
+                                <div className="text-xs text-gray-500">{ar.unitName}</div>
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-700">{ar.propertyName}</td>
+                              <td className="px-4 py-3 text-right text-sm">{ar.aging.current > 0 ? formatCurrency(ar.aging.current) : '-'}</td>
+                              <td className="px-4 py-3 text-right text-sm text-yellow-600">{ar.aging.over30 > 0 ? formatCurrency(ar.aging.over30) : '-'}</td>
+                              <td className="px-4 py-3 text-right text-sm text-orange-600">{ar.aging.over60 > 0 ? formatCurrency(ar.aging.over60) : '-'}</td>
+                              <td className="px-4 py-3 text-right text-sm text-red-600">{ar.aging.over90 > 0 ? formatCurrency(ar.aging.over90) : '-'}</td>
+                              <td className="px-4 py-3 text-right font-bold text-gray-900">{formatCurrency(ar.totalBalance)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="bg-white rounded-xl p-12 shadow-sm border border-gray-200 text-center">
+                <p className="text-gray-500">Loading aged receivables...</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Trial Balance Tab */}
+        {activeTab === 'trial-balance' && (
+          <div className="space-y-4 sm:space-y-6">
+            {trialBalanceData ? (
+              <>
+                {/* Trial Balance Header */}
+                <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900">Trial Balance</h2>
+                      <p className="text-sm text-gray-600">As of {trialBalanceData.asOfDate}</p>
+                    </div>
+                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      trialBalanceData.summary.isBalanced
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {trialBalanceData.summary.isBalanced ? 'Balanced' : `Out of Balance: ${formatCurrency(trialBalanceData.summary.difference)}`}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">Total Debits</p>
+                    <p className="text-xl font-bold text-blue-600">{formatCurrency(trialBalanceData.summary.totalDebits)}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">Total Credits</p>
+                    <p className="text-xl font-bold text-green-600">{formatCurrency(trialBalanceData.summary.totalCredits)}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">Active Accounts</p>
+                    <p className="text-xl font-bold text-gray-900">{trialBalanceData.summary.accountsWithActivity}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-600">Net Income</p>
+                    <p className={`text-xl font-bold ${trialBalanceData.typeTotals.netIncome >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatCurrency(trialBalanceData.typeTotals.netIncome)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Type Totals */}
+                <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+                  <h3 className="text-sm font-semibold text-gray-700 uppercase mb-4">Account Type Totals</h3>
+                  <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div className="bg-blue-50 rounded-lg p-3">
+                      <p className="text-xs text-gray-600">Assets</p>
+                      <p className="text-lg font-bold text-blue-600">{formatCurrency(trialBalanceData.typeTotals.assets)}</p>
+                    </div>
+                    <div className="bg-red-50 rounded-lg p-3">
+                      <p className="text-xs text-gray-600">Liabilities</p>
+                      <p className="text-lg font-bold text-red-600">{formatCurrency(trialBalanceData.typeTotals.liabilities)}</p>
+                    </div>
+                    <div className="bg-green-50 rounded-lg p-3">
+                      <p className="text-xs text-gray-600">Equity</p>
+                      <p className="text-lg font-bold text-green-600">{formatCurrency(trialBalanceData.typeTotals.equity)}</p>
+                    </div>
+                    <div className="bg-purple-50 rounded-lg p-3">
+                      <p className="text-xs text-gray-600">Income</p>
+                      <p className="text-lg font-bold text-purple-600">{formatCurrency(trialBalanceData.typeTotals.income)}</p>
+                    </div>
+                    <div className="bg-orange-50 rounded-lg p-3">
+                      <p className="text-xs text-gray-600">Expenses</p>
+                      <p className="text-lg font-bold text-orange-600">{formatCurrency(trialBalanceData.typeTotals.expenses)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Trial Balance Table */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h3 className="font-semibold text-gray-900">Account Balances</h3>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Code</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Account Name</th>
+                          <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Type</th>
+                          <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Debit</th>
+                          <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Credit</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {trialBalanceData.accounts.map((account) => (
+                          <tr key={account.code} className="hover:bg-gray-50">
+                            <td className="px-4 py-3 text-sm font-mono text-gray-600">{account.code}</td>
+                            <td className="px-4 py-3 text-sm text-gray-900">{account.name}</td>
+                            <td className="px-4 py-3 text-center">
+                              <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                                account.type === 'ASSET' ? 'bg-blue-100 text-blue-800' :
+                                account.type === 'LIABILITY' ? 'bg-red-100 text-red-800' :
+                                account.type === 'EQUITY' ? 'bg-green-100 text-green-800' :
+                                account.type === 'INCOME' ? 'bg-purple-100 text-purple-800' :
+                                'bg-orange-100 text-orange-800'
+                              }`}>
+                                {account.type}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-right text-sm font-medium">
+                              {account.balanceSide === 'DR' ? formatCurrency(account.balance) : '-'}
+                            </td>
+                            <td className="px-4 py-3 text-right text-sm font-medium">
+                              {account.balanceSide === 'CR' ? formatCurrency(account.balance) : '-'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot className="bg-gray-50">
+                        <tr>
+                          <td colSpan={3} className="px-4 py-3 text-sm font-bold text-gray-900">Totals</td>
+                          <td className="px-4 py-3 text-right text-sm font-bold text-blue-600">{formatCurrency(trialBalanceData.summary.totalDebits)}</td>
+                          <td className="px-4 py-3 text-right text-sm font-bold text-green-600">{formatCurrency(trialBalanceData.summary.totalCredits)}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="bg-white rounded-xl p-12 shadow-sm border border-gray-200 text-center">
+                <p className="text-gray-500">Loading trial balance...</p>
+              </div>
+            )}
           </div>
         )}
       </div>
