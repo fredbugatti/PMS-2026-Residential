@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
         select: {
           id: true,
           name: true,
-          specialty: true,
+          specialties: true,
           email: true,
           phone: true
         }
@@ -422,7 +422,7 @@ export async function GET(request: NextRequest) {
       list: vendors.map(v => ({
         id: v.id,
         name: v.name,
-        specialty: v.specialty,
+        specialties: v.specialties,
         email: v.email,
         phone: v.phone,
         workOrderCount: workOrders.filter(wo => wo.vendorId === v.id).length

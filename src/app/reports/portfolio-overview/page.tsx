@@ -110,7 +110,7 @@ interface PortfolioReport {
     list: Array<{
       id: string;
       name: string;
-      specialty: string | null;
+      specialties: string[];
       email: string | null;
       phone: string | null;
       workOrderCount: number;
@@ -809,7 +809,7 @@ export default function PortfolioOverviewPage() {
                   {report.vendors.list.map(v => (
                     <tr key={v.id} className="hover:bg-gray-50">
                       <td className="p-3 font-medium">{v.name}</td>
-                      <td className="p-3">{v.specialty || '-'}</td>
+                      <td className="p-3">{v.specialties.length > 0 ? v.specialties.join(', ') : '-'}</td>
                       <td className="p-3 text-gray-600">{v.email || '-'}</td>
                       <td className="p-3 text-gray-600">{v.phone || '-'}</td>
                       <td className="p-3 text-right">{v.workOrderCount}</td>
