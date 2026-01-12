@@ -574,6 +574,17 @@ export default function ReportsPage() {
               >
                 This Year
               </button>
+              <button
+                onClick={() => {
+                  setDateRange({
+                    start: '2000-01-01',
+                    end: new Date().toISOString().split('T')[0]
+                  });
+                }}
+                className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap"
+              >
+                All Time
+              </button>
             </div>
           </div>
         </div>

@@ -1235,6 +1235,59 @@ export default function LeaseDetailPage() {
     }).format(amount);
   };
 
+  // Calculate next post date for a scheduled charge
+  const getNextPostInfo = (chargeDay: number, lastChargedDate: string | null) => {
+    const today = new Date();
+    const currentDay = today.getDate();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+
+    // Check if already posted this month
+    if (lastChargedDate) {
+      const lastCharged = new Date(lastChargedDate);
+      if (lastCharged.getMonth() === currentMonth && lastCharged.getFullYear() === currentYear) {
+        // Already posted this month - next post is next month
+        const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+        const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+        const nextPostDate = new Date(nextYear, nextMonth, chargeDay);
+        const daysUntil = Math.ceil((nextPostDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        return {
+          status: 'posted' as const,
+          postedDate: lastCharged,
+          nextPostDate,
+          daysUntil,
+          message: `Posted ${lastCharged.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+        };
+      }
+    }
+
+    // Not posted this month yet
+    let nextPostDate: Date;
+    let daysUntil: number;
+
+    if (chargeDay <= currentDay) {
+      // Charge day has passed but not posted - will post on next cron run
+      nextPostDate = today;
+      daysUntil = 0;
+      return {
+        status: 'due' as const,
+        nextPostDate,
+        daysUntil,
+        message: 'Due now (next cron run)'
+      };
+    } else {
+      // Charge day is later this month
+      nextPostDate = new Date(currentYear, currentMonth, chargeDay);
+      daysUntil = Math.ceil((nextPostDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      return {
+        status: 'upcoming' as const,
+        nextPostDate,
+        daysUntil,
+        message: `Posts ${nextPostDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} (${daysUntil} day${daysUntil !== 1 ? 's' : ''})`
+      };
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
@@ -2065,14 +2118,38 @@ export default function LeaseDetailPage() {
                         </button>
                         <div>
                           <p className="font-medium text-gray-900">{charge.description}</p>
-                          <p className="text-sm text-gray-500">
-                            Day {charge.chargeDay} of each month
-                            {charge.lastChargedDate && (
-                              <span className="ml-2 text-xs">
-                                (Last: {formatDate(charge.lastChargedDate)})
-                              </span>
-                            )}
-                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-sm text-gray-500">Day {charge.chargeDay} of each month</span>
+                            {charge.active && (() => {
+                              const postInfo = getNextPostInfo(charge.chargeDay, charge.lastChargedDate);
+                              return (
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full ${
+                                  postInfo.status === 'posted'
+                                    ? 'bg-green-100 text-green-700'
+                                    : postInfo.status === 'due'
+                                    ? 'bg-amber-100 text-amber-700 animate-pulse'
+                                    : 'bg-blue-100 text-blue-700'
+                                }`}>
+                                  {postInfo.status === 'posted' && (
+                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                  )}
+                                  {postInfo.status === 'due' && (
+                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                                    </svg>
+                                  )}
+                                  {postInfo.status === 'upcoming' && (
+                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                                    </svg>
+                                  )}
+                                  {postInfo.message}
+                                </span>
+                              );
+                            })()}
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">

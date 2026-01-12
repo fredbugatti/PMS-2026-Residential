@@ -198,6 +198,18 @@ export default function LeasesPage() {
     }
   };
 
+  const getSummaryStats = () => {
+    const filtered = getFilteredLeases();
+    const activeLeases = filtered.filter(l => l.status === 'ACTIVE');
+
+    return {
+      totalLeases: filtered.length,
+      activeLeases: activeLeases.length,
+      totalMonthlyRent: activeLeases.reduce((sum, l) => sum + (Number(l.totalScheduledCharges) || 0), 0),
+      totalSecurityDeposits: filtered.reduce((sum, l) => sum + (Number(l.securityDepositAmount) || 0), 0),
+    };
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -305,6 +317,35 @@ export default function LeasesPage() {
                   </div>
                 </div>
               ))}
+              {/* Mobile Summary Card */}
+              {(() => {
+                const stats = getSummaryStats();
+                return (
+                  <div className="bg-gray-100 rounded-xl border-2 border-gray-300 p-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <div className="text-xs text-gray-500 uppercase">Total Leases</div>
+                        <div className="text-lg font-bold text-gray-900">{stats.totalLeases}</div>
+                        <div className="text-xs text-gray-600">{stats.activeLeases} active</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-gray-500 uppercase">Monthly Total</div>
+                        <div className="text-lg font-bold text-gray-900">
+                          ${stats.totalMonthlyRent.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                        </div>
+                      </div>
+                      <div className="col-span-2 pt-2 border-t border-gray-300">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-gray-500 uppercase">Security Deposits</span>
+                          <span className="font-bold text-gray-900">
+                            ${stats.totalSecurityDeposits.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Desktop Table View */}
@@ -393,6 +434,38 @@ export default function LeasesPage() {
                       </tr>
                     ))}
                   </tbody>
+                  <tfoot className="bg-gray-100 border-t-2 border-gray-300">
+                    {(() => {
+                      const stats = getSummaryStats();
+                      return (
+                        <tr>
+                          <td className="px-6 py-4">
+                            <div className="font-semibold text-gray-900">
+                              Total: {stats.totalLeases} lease{stats.totalLeases !== 1 ? 's' : ''}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {stats.activeLeases} active
+                            </div>
+                          </td>
+                          <td className="px-6 py-4"></td>
+                          <td className="px-6 py-4"></td>
+                          <td className="px-6 py-4"></td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="font-semibold text-gray-900">
+                              ${stats.totalMonthlyRent.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
+                            <div className="text-xs text-gray-600">monthly total</div>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="font-semibold text-gray-900">
+                              ${stats.totalSecurityDeposits.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
+                            <div className="text-xs text-gray-600">total deposits</div>
+                          </td>
+                        </tr>
+                      );
+                    })()}
+                  </tfoot>
                 </table>
               </div>
             </div>
