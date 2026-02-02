@@ -1,7 +1,3 @@
-# PMS 2026 - Property Management System
-
-Deployed Sun Jan 11 08:27:41 EST 2026
-
 # PMS 2026 - Residential Property Management System
 
 A property management tool for managing 1-5 summer rental properties with SMS-based inquiry handling.
