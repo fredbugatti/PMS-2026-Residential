@@ -929,16 +929,16 @@ async function main() {
       id: 'warehouse-lease-1',
       propertyId: warehouse.id,
       unitId: bay1.id,
+      unitName: 'Bay 1',
+      propertyName: warehouse.name,
       companyName: 'MAMROUT PAPER GROUP',
       tenantName: 'Mohamed Mamrout',
       tenantEmail: 'contact@mamroutpaper.com',
       tenantPhone: '(555) 123-4567',
       startDate: new Date('2024-01-01'),
       endDate: new Date('2026-12-31'),
-      rentAmount: 4500,
-      securityDeposit: 9000,
-      status: 'ACTIVE',
-      leaseType: 'COMMERCIAL'
+      securityDepositAmount: 9000,
+      status: 'ACTIVE'
     }
   });
   console.log(`✅ Created lease for ${lease1.companyName}`);
@@ -951,16 +951,16 @@ async function main() {
       id: 'warehouse-lease-2',
       propertyId: warehouse.id,
       unitId: bay2.id,
+      unitName: 'Bay 2',
+      propertyName: warehouse.name,
       companyName: 'Elite Warehouse Solutions',
       tenantName: 'Sarah Johnson',
       tenantEmail: 'sarah@elitewarehouse.com',
       tenantPhone: '(555) 987-6543',
       startDate: new Date('2024-03-01'),
       endDate: new Date('2027-02-28'),
-      rentAmount: 6200,
-      securityDeposit: 12400,
-      status: 'ACTIVE',
-      leaseType: 'COMMERCIAL'
+      securityDepositAmount: 12400,
+      status: 'ACTIVE'
     }
   });
   console.log(`✅ Created lease for ${lease2.companyName}`);
