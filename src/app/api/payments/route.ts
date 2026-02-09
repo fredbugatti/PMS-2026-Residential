@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
           leaseId,
           invoiceId: invoiceId || null,
           paymentDate: entryDate,
-          amount: parseFloat(amount),
+          amount: amount, // Keep as string for Prisma Decimal type
           paymentMethod: paymentMethod || 'OTHER',
           referenceNumber,
           accountCode: accountCode || '1000',
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
         const totalPayments = invoice.payments.reduce(
           (sum, p) => sum + Number(p.amount),
           0
-        ) + parseFloat(amount);
+        ) + Number(amount);
 
         const newTotalDue = Number(invoice.subtotal) - totalPayments;
 
