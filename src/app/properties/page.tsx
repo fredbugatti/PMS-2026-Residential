@@ -233,19 +233,33 @@ export default function PropertiesPage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {properties.map((property) => (
               <div
                 key={property.id}
                 onClick={() => window.location.href = `/properties/${property.id}`}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl border border-gray-100 overflow-hidden transition-all duration-300 cursor-pointer"
               >
-                <div className="p-4 sm:p-6">
-                  <div className="flex items-start justify-between mb-3 sm:mb-4">
+                {/* Gradient Overlay */}
+                <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-full blur-3xl group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-500"></div>
+
+                <div className="relative p-6">
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 truncate">{property.name}</h3>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-2xl">🏭</span>
+                        <span className="text-xs font-semibold px-2 py-1 bg-blue-100 text-blue-700 rounded-full uppercase tracking-wide">
+                          Warehouse
+                        </span>
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-900 mb-1 truncate group-hover:text-blue-600 transition-colors">{property.name}</h3>
                       {property.address && (
-                        <p className="text-xs sm:text-sm text-gray-600 truncate">
+                        <p className="text-sm text-gray-500 truncate flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
                           {property.address}
                           {property.city && `, ${property.city}`}
                           {property.state && `, ${property.state}`}
@@ -254,40 +268,62 @@ export default function PropertiesPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-3">
+                  {/* Stats */}
+                  <div className="space-y-4">
+                    {/* Occupancy */}
                     <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-600 text-xs sm:text-sm">Occupancy</span>
-                        <span className="font-semibold text-gray-900 text-xs sm:text-sm">{property.occupancyRate}%</span>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-gray-700">Occupancy Rate</span>
+                        <span className={`text-sm font-bold ${
+                          property.occupancyRate >= 90 ? 'text-green-600' :
+                          property.occupancyRate >= 70 ? 'text-blue-600' :
+                          property.occupancyRate >= 50 ? 'text-yellow-600' :
+                          'text-red-600'
+                        }`}>{property.occupancyRate}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="relative w-full bg-gray-100 rounded-full h-2 overflow-hidden">
                         <div
-                          className={`h-2 rounded-full ${
-                            property.occupancyRate >= 90 ? 'bg-green-500' :
-                            property.occupancyRate >= 70 ? 'bg-blue-500' :
-                            property.occupancyRate >= 50 ? 'bg-yellow-500' :
-                            'bg-red-500'
+                          className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ${
+                            property.occupancyRate >= 90 ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
+                            property.occupancyRate >= 70 ? 'bg-gradient-to-r from-blue-500 to-cyan-500' :
+                            property.occupancyRate >= 50 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
+                            'bg-gradient-to-r from-red-500 to-pink-500'
                           }`}
                           style={{ width: `${property.occupancyRate}%` }}
                         ></div>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {property.occupiedUnits} / {property.totalUnits} spaces occupied
+                      <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+                        </svg>
+                        {property.occupiedUnits} of {property.totalUnits} spaces occupied
                       </p>
                     </div>
 
-                    <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-                      <span className="text-xs sm:text-sm text-gray-600">Monthly Revenue</span>
-                      <span className="text-base sm:text-lg font-bold text-green-600">
-                        {formatCurrency(property.monthlyRevenue)}
-                      </span>
+                    {/* Revenue */}
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                      <div>
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Monthly Revenue</p>
+                        <p className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                          {formatCurrency(property.monthlyRevenue)}
+                        </p>
+                      </div>
+                      <div className="p-3 bg-green-50 rounded-xl">
+                        <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="border-t border-gray-200 bg-gray-50 px-4 sm:px-6 py-3">
-                  <span className="text-sm font-medium text-blue-600">
-                    View Details →
+                {/* Footer */}
+                <div className="border-t border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50 px-6 py-4 group-hover:from-blue-100 group-hover:to-purple-100 transition-all duration-300">
+                  <span className="text-sm font-semibold text-blue-600 flex items-center gap-2">
+                    View Details
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </span>
                 </div>
               </div>
