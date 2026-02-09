@@ -35,9 +35,10 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       name: 'Money',
       icon: '💰',
       id: 'money',
-      paths: ['/accounting', '/ledger', '/reports', '/expenses', '/bills-due'],
+      paths: ['/accounting', '/ledger', '/invoices', '/reports', '/expenses', '/bills-due'],
       items: [
         { name: 'Balances', path: '/accounting', icon: '💵' },
+        { name: 'Invoices', path: '/invoices', icon: '📄' },
         { name: 'Ledger', path: '/ledger', icon: '📒' },
         { name: 'Reports', path: '/reports', icon: '📈' },
         { name: 'Expenses', path: '/expenses', icon: '💸' },
