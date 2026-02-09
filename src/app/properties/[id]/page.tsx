@@ -477,29 +477,35 @@ export default function PropertyDetailPage() {
           </div>
         </div>
 
-        {/* Units Section */}
+        {/* Spaces Section */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
           <div className="p-6 border-b border-gray-200 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Units</h2>
-              <p className="text-sm text-gray-600 mt-1">{property.units.length} units in this property</p>
+              <h2 className="text-xl font-bold text-gray-900">
+                {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Warehouse Spaces' : 'Units'}
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">
+                {property.units.length} {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'spaces' : 'units'} in this property
+              </p>
             </div>
             <button
               onClick={handleCreateUnit}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
-              Add Unit
+              {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Add Space' : 'Add Unit'}
             </button>
           </div>
 
           {property.units.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 mb-4">No units yet</p>
+              <p className="text-gray-500 mb-4">
+                No {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'spaces' : 'units'} yet
+              </p>
               <button
                 onClick={handleCreateUnit}
                 className="text-blue-600 hover:text-blue-700 font-medium"
               >
-                Add your first unit
+                Add your first {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'space' : 'unit'}
               </button>
             </div>
           ) : (
