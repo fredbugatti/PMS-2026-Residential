@@ -38,7 +38,8 @@ export default function PropertiesPage() {
     address: '',
     city: '',
     state: '',
-    zipCode: ''
+    zipCode: '',
+    propertyType: 'RESIDENTIAL'
   });
 
   // Created property ID (after step 1)
@@ -74,7 +75,8 @@ export default function PropertiesPage() {
       address: '',
       city: '',
       state: '',
-      zipCode: ''
+      zipCode: '',
+      propertyType: 'RESIDENTIAL'
     });
     setUnits([{ unitNumber: '1', bedrooms: '', bathrooms: '', squareFeet: '', rent: '' }]);
     setCreatedPropertyId(null);
@@ -375,6 +377,26 @@ export default function PropertiesPage() {
                       placeholder="Sunset Apartments"
                       autoFocus
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Property Type *
+                    </label>
+                    <select
+                      required
+                      value={propertyForm.propertyType}
+                      onChange={(e) => setPropertyForm({ ...propertyForm, propertyType: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                    >
+                      <option value="RESIDENTIAL">Residential</option>
+                      <option value="SINGLE_FAMILY">Single Family</option>
+                      <option value="MULTI_FAMILY">Multi Family</option>
+                      <option value="COMMERCIAL">Commercial</option>
+                      <option value="INDUSTRIAL">Industrial</option>
+                      <option value="WAREHOUSE">Warehouse</option>
+                      <option value="MIXED_USE">Mixed Use</option>
+                    </select>
                   </div>
 
                   <div>

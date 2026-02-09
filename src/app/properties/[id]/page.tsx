@@ -271,9 +271,11 @@ export default function PropertyDetailPage() {
 
     try {
       // Create lease with tenant info embedded
-      // For commercial: companyName is primary, contact name is tenantName
+      // For commercial/industrial/warehouse: companyName is primary, contact name is tenantName
       // For residential: just tenantName (first + last)
-      const isCommercial = property.propertyType === 'COMMERCIAL';
+      const isCommercial = property.propertyType === 'COMMERCIAL' ||
+                          property.propertyType === 'INDUSTRIAL' ||
+                          property.propertyType === 'WAREHOUSE';
       const tenantName = isCommercial
         ? `${tenantForm.firstName} ${tenantForm.lastName}`.trim() || tenantForm.companyName
         : `${tenantForm.firstName} ${tenantForm.lastName}`.trim();
@@ -440,7 +442,13 @@ export default function PropertyDetailPage() {
               )}
               {property.propertyType && (
                 <p className="text-sm text-gray-500 mt-1">
-                  Type: {property.propertyType}
+                  Type: {property.propertyType === 'SINGLE_FAMILY' ? 'Single Family' :
+                         property.propertyType === 'MULTI_FAMILY' ? 'Multi Family' :
+                         property.propertyType === 'COMMERCIAL' ? 'Commercial' :
+                         property.propertyType === 'INDUSTRIAL' ? 'Industrial' :
+                         property.propertyType === 'WAREHOUSE' ? 'Warehouse' :
+                         property.propertyType === 'MIXED_USE' ? 'Mixed Use' :
+                         property.propertyType}
                 </p>
               )}
             </div>
@@ -500,16 +508,16 @@ export default function PropertyDetailPage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      {property.propertyType === 'COMMERCIAL' ? 'Space' : 'Unit Number'}
+                      {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Space' : 'Unit Number'}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      {property.propertyType === 'COMMERCIAL' ? 'Size' : 'Details'}
+                      {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Size' : 'Details'}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      {property.propertyType === 'COMMERCIAL' ? 'Company' : 'Tenant'}
+                      {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Company' : 'Tenant'}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      {property.propertyType === 'COMMERCIAL' ? 'Monthly' : 'Rent'}
+                      {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Monthly' : 'Rent'}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Status
@@ -526,8 +534,8 @@ export default function PropertyDetailPage() {
                         <div className="font-medium text-gray-900">{unit.unitNumber}</div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        {property.propertyType === 'COMMERCIAL' ? (
-                          /* Commercial: Just show square feet */
+                        {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? (
+                          /* Commercial/Industrial/Warehouse: Just show square feet */
                           unit.squareFeet ? (
                             <div>{unit.squareFeet.toLocaleString()} sq ft</div>
                           ) : (
@@ -576,7 +584,7 @@ export default function PropertyDetailPage() {
                               onClick={() => openLeaseWizard(unit)}
                               className="text-green-600 hover:text-green-800 text-sm font-medium"
                             >
-                              {property.propertyType === 'COMMERCIAL' ? 'Add Company' : 'Add Tenant'}
+                              {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Add Company' : 'Add Tenant'}
                             </button>
                           )}
                           <button
@@ -767,9 +775,9 @@ export default function PropertyDetailPage() {
             <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-lg font-bold text-gray-900">
-                  {leaseWizardStep === 1 && (property.propertyType === 'COMMERCIAL' ? 'Company Information' : 'Tenant Information')}
+                  {leaseWizardStep === 1 && ((property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Company Information' : 'Tenant Information')}
                   {leaseWizardStep === 2 && 'Lease Details'}
-                  {leaseWizardStep === 3 && (property.propertyType === 'COMMERCIAL' ? 'Company Added!' : 'Tenant Added!')}
+                  {leaseWizardStep === 3 && ((property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Company Added!' : 'Tenant Added!')}
                 </h2>
                 <button
                   onClick={resetLeaseWizard}
@@ -783,7 +791,7 @@ export default function PropertyDetailPage() {
 
               {/* Unit info */}
               <div className="text-sm text-gray-600 mb-3">
-                Adding {property.propertyType === 'COMMERCIAL' ? 'company' : 'tenant'} to <span className="font-medium text-gray-900">{selectedUnit.unitNumber}</span>
+                Adding {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'company' : 'tenant'} to <span className="font-medium text-gray-900">{selectedUnit.unitNumber}</span>
               </div>
 
               {/* Step Indicator */}
@@ -812,7 +820,7 @@ export default function PropertyDetailPage() {
                 ))}
               </div>
               <div className="flex justify-between mt-2 text-xs text-gray-500">
-                <span>{property.propertyType === 'COMMERCIAL' ? 'Company' : 'Tenant'}</span>
+                <span>{(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Company' : 'Tenant'}</span>
                 <span>Lease</span>
                 <span>Done</span>
               </div>
@@ -829,8 +837,8 @@ export default function PropertyDetailPage() {
               {/* Step 1: Tenant Info */}
               {leaseWizardStep === 1 && (
                 <div className="space-y-4">
-                  {property.propertyType === 'COMMERCIAL' ? (
-                    /* Commercial: Company Name + Contact Name */
+                  {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? (
+                    /* Commercial/Industrial/Warehouse: Company Name + Contact Name */
                     <>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -915,7 +923,7 @@ export default function PropertyDetailPage() {
                       value={tenantForm.email}
                       onChange={(e) => setTenantForm({ ...tenantForm, email: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder={property.propertyType === 'COMMERCIAL' ? 'contact@company.com' : 'john.smith@email.com'}
+                      placeholder={(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'contact@company.com' : 'john.smith@email.com'}
                     />
                   </div>
 
@@ -1012,11 +1020,11 @@ export default function PropertyDetailPage() {
                     </svg>
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                    {property.propertyType === 'COMMERCIAL' ? 'Company Added!' : 'Tenant Added!'}
+                    {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Company Added!' : 'Tenant Added!'}
                   </h3>
                   <p className="text-gray-600 mb-2">
                     <strong>
-                      {property.propertyType === 'COMMERCIAL'
+                      {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE')
                         ? tenantForm.companyName
                         : `${tenantForm.firstName} ${tenantForm.lastName}`}
                     </strong> has been added to <strong>{selectedUnit.unitNumber}</strong>.
@@ -1041,7 +1049,7 @@ export default function PropertyDetailPage() {
                   </button>
                   <button
                     onClick={() => setLeaseWizardStep(2)}
-                    disabled={property.propertyType === 'COMMERCIAL'
+                    disabled={(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE')
                       ? !tenantForm.companyName.trim()
                       : !tenantForm.firstName.trim() || !tenantForm.lastName.trim()}
                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
@@ -1173,15 +1181,15 @@ export default function PropertyDetailPage() {
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900">
                 {editingUnit
-                  ? (property.propertyType === 'COMMERCIAL' ? 'Edit Space' : 'Edit Unit')
-                  : (property.propertyType === 'COMMERCIAL' ? 'Add New Space' : 'Add New Unit')}
+                  ? ((property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Edit Space' : 'Edit Unit')
+                  : ((property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Add New Space' : 'Add New Unit')}
               </h2>
             </div>
 
             <form onSubmit={handleUnitSubmit} className="p-6 space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {property.propertyType === 'COMMERCIAL' ? 'Space Name/Description *' : 'Unit Number *'}
+                  {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Space Name/Description *' : 'Unit Number *'}
                 </label>
                 <input
                   type="text"
@@ -1189,12 +1197,12 @@ export default function PropertyDetailPage() {
                   value={unitForm.unitNumber}
                   onChange={(e) => setUnitForm({ ...unitForm, unitNumber: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={property.propertyType === 'COMMERCIAL' ? '1st Floor - 5,000 SF' : '101'}
+                  placeholder={(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? '1st Floor - 5,000 SF' : '101'}
                 />
               </div>
 
-              {/* Residential: Beds, Baths, Sq Ft | Commercial: Just Sq Ft */}
-              {property.propertyType === 'COMMERCIAL' ? (
+              {/* Residential: Beds, Baths, Sq Ft | Commercial/Industrial/Warehouse: Just Sq Ft */}
+              {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Square Feet

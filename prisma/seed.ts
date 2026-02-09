@@ -270,6 +270,54 @@ async function main() {
       active: true
     },
     {
+      code: '4200',
+      name: 'CAM Charges',
+      description: 'Common Area Maintenance charges for commercial/industrial tenants.',
+      type: 'INCOME' as AccountType,
+      normalBalance: 'CR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '4210',
+      name: 'Equipment Rental Income',
+      description: 'Forklift, pallet jack, and other equipment rental fees.',
+      type: 'INCOME' as AccountType,
+      normalBalance: 'CR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '4220',
+      name: 'Loading Dock Fee',
+      description: 'Fees for loading dock access and usage.',
+      type: 'INCOME' as AccountType,
+      normalBalance: 'CR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '4230',
+      name: 'Pallet Storage Fee',
+      description: 'Fees for pallet storage services.',
+      type: 'INCOME' as AccountType,
+      normalBalance: 'CR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '4240',
+      name: 'Property Tax Reimbursement',
+      description: 'Tenant\'s share of property taxes (commercial/industrial).',
+      type: 'INCOME' as AccountType,
+      normalBalance: 'CR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '4250',
+      name: 'Real Estate Tax Pass-Through',
+      description: 'Real estate tax charges passed to commercial/industrial tenants.',
+      type: 'INCOME' as AccountType,
+      normalBalance: 'CR' as DebitCredit,
+      active: true
+    },
+    {
       code: '4900',
       name: 'Other Income',
       description: 'Miscellaneous income that doesn\'t fit other categories.',
@@ -737,6 +785,56 @@ async function main() {
       code: '5930',
       name: 'Emergency Repairs',
       description: 'Unexpected urgent repairs (burst pipes, storm damage).',
+      type: 'EXPENSE' as AccountType,
+      normalBalance: 'DR' as DebitCredit,
+      active: true
+    },
+
+    // --- Industrial/Warehouse Operations (5940-5999) ---
+    {
+      code: '5940',
+      name: 'Loading Dock Maintenance',
+      description: 'Repairs and maintenance of loading docks and equipment.',
+      type: 'EXPENSE' as AccountType,
+      normalBalance: 'DR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '5950',
+      name: 'Forklift & Equipment Maint',
+      description: 'Maintenance for forklifts, pallet jacks, and warehouse equipment.',
+      type: 'EXPENSE' as AccountType,
+      normalBalance: 'DR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '5960',
+      name: 'Floor Coating & Repairs',
+      description: 'Industrial floor coating, epoxy repairs, line painting.',
+      type: 'EXPENSE' as AccountType,
+      normalBalance: 'DR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '5970',
+      name: 'Bay Door Repairs',
+      description: 'Overhead doors, roll-up doors, dock seals maintenance.',
+      type: 'EXPENSE' as AccountType,
+      normalBalance: 'DR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '5980',
+      name: 'Fire Suppression System',
+      description: 'Sprinkler system inspections, repairs, and compliance.',
+      type: 'EXPENSE' as AccountType,
+      normalBalance: 'DR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '5990',
+      name: 'Industrial HVAC',
+      description: 'Large-scale HVAC for warehouse and industrial spaces.',
       type: 'EXPENSE' as AccountType,
       normalBalance: 'DR' as DebitCredit,
       active: true
