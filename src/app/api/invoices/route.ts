@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/accounting';
+import { Prisma } from '@prisma/client';
 
 // GET /api/invoices - Get all invoices with filters
 export async function GET(request: NextRequest) {
@@ -124,7 +125,7 @@ export async function POST(request: NextRequest) {
     const totalDue = subtotal;
 
     // Prepare invoice data
-    const invoiceData = {
+    const invoiceData: Prisma.InvoiceUncheckedCreateInput = {
       invoiceNumber,
       invoiceDate: invoiceDate ? new Date(invoiceDate) : new Date(),
       dueDate: dueDate ? new Date(dueDate) : new Date(),
