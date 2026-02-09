@@ -46,13 +46,13 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       ]
     },
     {
-      name: 'Tenants',
-      icon: '👥',
-      id: 'tenants',
+      name: 'Warehouse',
+      icon: '🏭',
+      id: 'warehouse',
       paths: ['/properties', '/leases'],
       items: [
-        { name: 'Properties', path: '/properties', icon: '🏠' },
-        { name: 'Leases', path: '/leases', icon: '📄' },
+        { name: 'Properties', path: '/properties', icon: '🏭' },
+        { name: 'Leases', path: '/leases', icon: '📋' },
       ]
     },
     {
@@ -117,7 +117,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
               </div>
               <div>
                 <div className="font-bold text-lg">Sanprinon</div>
-                <div className="text-xs text-gray-400">Property Management</div>
+                <div className="text-xs text-gray-400">Warehouse Management</div>
               </div>
             </Link>
             {/* Close button for mobile */}

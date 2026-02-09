@@ -8,8 +8,8 @@ import { useToast } from '@/components/Toast';
 
 interface Stats {
   totalProperties: number;
-  totalUnits: number;
-  occupiedUnits: number;
+  totalSpaces: number;
+  occupiedSpaces: number;
   activeLeases: number;
   totalOwed: number;
   tenantsOwing: number;
@@ -70,8 +70,8 @@ export default function Dashboard() {
   const { showSuccess, showError, showWarning } = useToast();
   const [stats, setStats] = useState<Stats>({
     totalProperties: 0,
-    totalUnits: 0,
-    occupiedUnits: 0,
+    totalSpaces: 0,
+    occupiedSpaces: 0,
     activeLeases: 0,
     totalOwed: 0,
     tenantsOwing: 0,
@@ -225,7 +225,7 @@ export default function Dashboard() {
       setVendors(vendorsData);
 
       const totalUnits = propertiesData.reduce((sum: number, p: any) => sum + (p.units?.length || 0), 0);
-      const occupiedUnits = activeLeases.length;
+      const occupiedSpaces = activeLeases.length;
       const tenantsWithBalance = balancesData.tenants?.filter((t: any) => t.balance > 0) || [];
       const totalOwed = tenantsWithBalance.reduce((sum: number, t: any) => sum + t.balance, 0);
       const tenantsOwing = tenantsWithBalance.length;
@@ -235,8 +235,8 @@ export default function Dashboard() {
 
       setStats({
         totalProperties: propertiesData.length,
-        totalUnits,
-        occupiedUnits,
+        totalSpaces,
+        occupiedSpaces,
         activeLeases: activeLeases.length,
         totalOwed,
         tenantsOwing,
@@ -846,7 +846,7 @@ export default function Dashboard() {
   };
 
   const occupancyRate = stats.totalUnits > 0
-    ? Math.round((stats.occupiedUnits / stats.totalUnits) * 100)
+    ? Math.round((stats.occupiedSpaces / stats.totalUnits) * 100)
     : 0;
 
   const selectedProperty = properties.find(p => p.id === workOrderForm.propertyId);
@@ -904,15 +904,15 @@ export default function Dashboard() {
         {/* Key Metrics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Link href="/properties" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer">
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Units</p>
-            <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.totalUnits}</p>
-            <p className="text-xs text-blue-500 dark:text-blue-400 mt-1">{stats.totalProperties} properties →</p>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Warehouse Spaces</p>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.totalSpaces}</p>
+            <p className="text-xs text-blue-500 dark:text-blue-400 mt-1">{stats.totalProperties} warehouses →</p>
           </Link>
 
           <Link href="/leases" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-green-300 dark:hover:border-green-600 transition-all cursor-pointer">
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Occupied</p>
-            <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400 mt-1">{stats.occupiedUnits}</p>
-            <p className="text-xs text-green-500 dark:text-green-400 mt-1">{occupancyRate}% full →</p>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Occupied Spaces</p>
+            <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400 mt-1">{stats.occupiedSpaces}</p>
+            <p className="text-xs text-green-500 dark:text-green-400 mt-1">{occupancyRate}% occupancy →</p>
           </Link>
 
           <Link href="/reports?tab=pnl" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-green-300 dark:hover:border-green-600 transition-all cursor-pointer">
