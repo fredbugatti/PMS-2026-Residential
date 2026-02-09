@@ -22,6 +22,11 @@ export async function GET(
           orderBy: {
             sortOrder: 'asc'
           }
+        },
+        payments: {
+          orderBy: {
+            paymentDate: 'desc'
+          }
         }
       }
     });

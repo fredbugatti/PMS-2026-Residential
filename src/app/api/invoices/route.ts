@@ -102,18 +102,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate invoice number (sequential)
-    const latestInvoice = await prisma.invoice.findFirst({
-      orderBy: {
-        invoiceNumber: 'desc'
-      }
-    });
+    // Generate invoice number atomically (prevents race conditions)
+    // Use a transaction to atomically increment and retrieve the next invoice number
+    const nextNumber = await prisma.$transaction(async (tx) => {
+      // Ensure the sequence row exists
+      await tx.$executeRaw`
+        INSERT INTO invoice_sequence (id, last_number, updated_at)
+        VALUES ('singleton', 5526, NOW())
+        ON CONFLICT (id) DO NOTHING
+      `;
 
-    let nextNumber = 5527; // Starting number
-    if (latestInvoice) {
-      const currentNumber = parseInt(latestInvoice.invoiceNumber);
-      nextNumber = isNaN(currentNumber) ? 5527 : currentNumber + 1;
-    }
+      // Atomically increment and return the new number
+      const result = await tx.$queryRaw<[{ last_number: number }]>`
+        UPDATE invoice_sequence
+        SET last_number = last_number + 1,
+            updated_at = NOW()
+        WHERE id = 'singleton'
+        RETURNING last_number
+      `;
+
+      return result[0].last_number;
+    });
 
     const invoiceNumber = nextNumber.toString();
 

@@ -12,6 +12,15 @@ interface InvoiceLineItem {
   amount: number;
 }
 
+interface Payment {
+  id: string;
+  paymentDate: string;
+  amount: number;
+  paymentMethod: string;
+  referenceNumber: string | null;
+  notes: string | null;
+}
+
 interface Invoice {
   id: string;
   invoiceNumber: string;
@@ -30,6 +39,7 @@ interface Invoice {
   status: string;
   notes: string | null;
   lease: {
+    id: string;
     tenantName: string;
     property: {
       name: string;
@@ -40,6 +50,7 @@ interface Invoice {
     };
   };
   lineItems: InvoiceLineItem[];
+  payments?: Payment[];
 }
 
 export default function InvoiceDetailPage() {
@@ -49,6 +60,15 @@ export default function InvoiceDetailPage() {
 
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentForm, setPaymentForm] = useState({
+    amount: '',
+    paymentMethod: 'CHECK',
+    paymentDate: new Date().toISOString().split('T')[0],
+    referenceNumber: '',
+    notes: ''
+  });
+  const [submittingPayment, setSubmittingPayment] = useState(false);
 
   useEffect(() => {
     if (invoiceId) {
@@ -104,6 +124,63 @@ export default function InvoiceDetailPage() {
     } catch (error) {
       console.error('Failed to mark as paid:', error);
     }
+  };
+
+  const handleRecordPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!invoice) return;
+
+    setSubmittingPayment(true);
+    try {
+      const res = await fetch('/api/payments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          leaseId: invoice.lease.id,
+          invoiceId: invoice.id,
+          amount: parseFloat(paymentForm.amount),
+          paymentMethod: paymentForm.paymentMethod,
+          paymentDate: paymentForm.paymentDate,
+          referenceNumber: paymentForm.referenceNumber || null,
+          notes: paymentForm.notes || null,
+          description: `Payment for Invoice #${invoice.invoiceNumber}`
+        })
+      });
+
+      if (res.ok) {
+        // Reset form and close modal
+        setPaymentForm({
+          amount: '',
+          paymentMethod: 'CHECK',
+          paymentDate: new Date().toISOString().split('T')[0],
+          referenceNumber: '',
+          notes: ''
+        });
+        setShowPaymentModal(false);
+
+        // Refresh invoice data
+        fetchInvoice();
+      } else {
+        const error = await res.json();
+        alert(`Failed to record payment: ${error.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Failed to record payment:', error);
+      alert('Failed to record payment. Please try again.');
+    } finally {
+      setSubmittingPayment(false);
+    }
+  };
+
+  const openPaymentModal = () => {
+    if (invoice) {
+      setPaymentForm({
+        ...paymentForm,
+        amount: invoice.totalDue.toString()
+      });
+    }
+    setShowPaymentModal(true);
   };
 
   const formatCurrency = (amount: number) => {
@@ -167,22 +244,25 @@ export default function InvoiceDetailPage() {
             {invoice.status === 'DRAFT' && (
               <button
                 onClick={handleMarkAsSent}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-all hover:scale-105"
               >
                 Mark as Sent
               </button>
             )}
-            {(invoice.status === 'SENT' || invoice.status === 'OVERDUE') && (
+            {(invoice.status === 'SENT' || invoice.status === 'OVERDUE') && invoice.totalDue > 0 && (
               <button
-                onClick={handleMarkAsPaid}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
+                onClick={openPaymentModal}
+                className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 font-medium transition-all hover:scale-105 shadow-lg flex items-center gap-2"
               >
-                Mark as Paid
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Record Payment
               </button>
             )}
             <button
               onClick={handlePrint}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium flex items-center gap-2"
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium flex items-center gap-2 transition-all hover:scale-105"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -341,7 +421,163 @@ export default function InvoiceDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Payment History (if any payments exist) */}
+        {invoice.payments && invoice.payments.length > 0 && (
+          <div className="mt-6 print:hidden">
+            <div className="bg-white shadow-lg rounded-xl p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Payment History
+              </h3>
+              <div className="space-y-3">
+                {invoice.payments.map((payment) => (
+                  <div key={payment.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="font-semibold text-gray-900">{formatCurrency(Number(payment.amount))}</div>
+                        <div className="text-sm text-gray-600">
+                          {formatDate(payment.paymentDate)} • {payment.paymentMethod}
+                          {payment.referenceNumber && ` • ${payment.referenceNumber}`}
+                        </div>
+                        {payment.notes && (
+                          <div className="text-xs text-gray-500 mt-1">{payment.notes}</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Payment Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all animate-in">
+            <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-6 rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-white">Record Payment</h2>
+                  <p className="text-green-100 text-sm mt-1">Invoice #{invoice.invoiceNumber}</p>
+                </div>
+                <button
+                  onClick={() => setShowPaymentModal(false)}
+                  className="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <form onSubmit={handleRecordPayment} className="p-6 space-y-5">
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-xl border border-gray-200">
+                <div className="text-sm text-gray-600 mb-1">Balance Due</div>
+                <div className="text-3xl font-bold text-gray-900">{formatCurrency(invoice.totalDue)}</div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Payment Amount *</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-lg">$</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    max={invoice.totalDue}
+                    required
+                    value={paymentForm.amount}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
+                    className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all text-lg font-semibold"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Payment Method *</label>
+                <select
+                  value={paymentForm.paymentMethod}
+                  onChange={(e) => setPaymentForm({ ...paymentForm, paymentMethod: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all"
+                >
+                  <option value="CHECK">Check</option>
+                  <option value="ACH">ACH Transfer</option>
+                  <option value="CREDIT_CARD">Credit Card</option>
+                  <option value="CASH">Cash</option>
+                  <option value="ZELLE">Zelle</option>
+                  <option value="VENMO">Venmo</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Payment Date *</label>
+                <input
+                  type="date"
+                  required
+                  value={paymentForm.paymentDate}
+                  onChange={(e) => setPaymentForm({ ...paymentForm, paymentDate: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Reference Number
+                  <span className="text-gray-400 font-normal ml-1">(Check #, Transaction ID, etc.)</span>
+                </label>
+                <input
+                  type="text"
+                  value={paymentForm.referenceNumber}
+                  onChange={(e) => setPaymentForm({ ...paymentForm, referenceNumber: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all"
+                  placeholder="Optional"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Notes</label>
+                <textarea
+                  value={paymentForm.notes}
+                  onChange={(e) => setPaymentForm({ ...paymentForm, notes: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all resize-none"
+                  rows={3}
+                  placeholder="Optional notes about this payment"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowPaymentModal(false)}
+                  className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-semibold transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingPayment || !paymentForm.amount}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:scale-105"
+                >
+                  {submittingPayment ? 'Recording...' : 'Record Payment'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

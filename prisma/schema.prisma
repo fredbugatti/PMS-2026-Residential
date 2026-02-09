@@ -131,6 +131,7 @@ model Lease {
   libraryDocuments      DocumentLibrary[]
   scheduledCharges      ScheduledCharge[]
   invoices              Invoice[]
+  payments              Payment[]
 
   @@index([propertyId])
   @@index([unitId])
@@ -581,6 +582,7 @@ model Invoice {
   // Relations
   lease           Lease             @relation(fields: [leaseId], references: [id], onDelete: Cascade)
   lineItems       InvoiceLineItem[]
+  payments        Payment[]
 
   @@index([leaseId])
   @@index([invoiceNumber])
@@ -617,4 +619,48 @@ enum InvoiceStatus {
   PAID
   OVERDUE
   CANCELLED
+}
+
+// Invoice number sequencing (single row table for atomic increments)
+model InvoiceSequence {
+  id          String   @id @default("singleton") // Only one row
+  lastNumber  Int      @default(5526) @map("last_number") // Starts at 5526, first invoice will be 5527
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("invoice_sequence")
+}
+
+// Payment tracking with invoice linking
+model Payment {
+  id              String        @id @default(uuid())
+  createdAt       DateTime      @default(now()) @map("created_at")
+
+  // Payment details
+  paymentDate     DateTime      @map("payment_date") @db.Date
+  amount          Decimal       @db.Decimal(12, 2)
+  paymentMethod   PaymentMethod @map("payment_method")
+  referenceNumber String?       @map("reference_number") @db.VarChar(100) // Check number, transaction ID, etc.
+
+  // Lease association
+  leaseId         String        @map("lease_id")
+
+  // Invoice association (multiple payments can apply to one invoice)
+  invoiceId       String?       @map("invoice_id")
+
+  // Accounting integration
+  ledgerEntryId   String?       @unique @map("ledger_entry_id") // Links to the corresponding ledger entry
+  accountCode     String        @default("1000") @map("account_code") @db.VarChar(10) // Default to Cash account
+
+  // Metadata
+  notes           String?       @db.Text
+  recordedBy      String        @map("recorded_by") @db.VarChar(100)
+
+  // Relations
+  lease           Lease         @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  invoice         Invoice?      @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+
+  @@index([leaseId])
+  @@index([invoiceId])
+  @@index([paymentDate])
+  @@map("payments")
 }
