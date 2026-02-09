@@ -87,8 +87,31 @@ export default function InvoicesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="text-gray-600">Loading invoices...</div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+          {/* Stats Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-3"></div>
+                <div className="h-8 w-32 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            ))}
+          </div>
+          {/* Table Skeleton */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map(i => (
+                <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -105,9 +128,12 @@ export default function InvoicesPage() {
             </div>
             <button
               onClick={() => router.push('/invoices/new')}
-              className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base"
+              className="px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all hover:scale-105 shadow-lg font-medium text-sm sm:text-base flex items-center gap-2"
             >
-              + Create Invoice
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Create Invoice
             </button>
           </div>
         </div>
@@ -116,17 +142,38 @@ export default function InvoicesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8 space-y-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-600 mb-1">Total Invoiced</p>
-            <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalAmount)}</p>
+          <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-6 shadow-lg border border-gray-200 hover:shadow-xl transition-all hover:scale-105">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-semibold text-gray-600">Total Invoiced</p>
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">{formatCurrency(totalAmount)}</p>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-600 mb-1">Paid</p>
-            <p className="text-2xl font-bold text-green-600">{formatCurrency(paidAmount)}</p>
+          <div className="bg-gradient-to-br from-white to-green-50 rounded-xl p-6 shadow-lg border border-green-200 hover:shadow-xl transition-all hover:scale-105">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-semibold text-gray-600">Paid</p>
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-green-600">{formatCurrency(paidAmount)}</p>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-600 mb-1">Unpaid</p>
-            <p className="text-2xl font-bold text-red-600">{formatCurrency(unpaidAmount)}</p>
+          <div className="bg-gradient-to-br from-white to-red-50 rounded-xl p-6 shadow-lg border border-red-200 hover:shadow-xl transition-all hover:scale-105">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-semibold text-gray-600">Unpaid</p>
+              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-red-600">{formatCurrency(unpaidAmount)}</p>
           </div>
         </div>
 
@@ -158,15 +205,34 @@ export default function InvoicesPage() {
           </div>
 
           {filteredInvoices.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="text-4xl mb-3">📄</div>
-              <p className="text-gray-500 mb-4">No invoices yet</p>
-              <button
-                onClick={() => router.push('/invoices/new')}
-                className="text-blue-600 hover:text-blue-700 font-medium"
-              >
-                Create your first invoice
-              </button>
+            <div className="text-center py-16">
+              <div className="mb-6 flex justify-center">
+                <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
+                  <svg className="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                {filter === 'all' ? 'No invoices yet' : `No ${filter} invoices`}
+              </h3>
+              <p className="text-gray-500 mb-6 max-w-sm mx-auto">
+                {filter === 'all'
+                  ? 'Start billing your warehouse tenants by creating your first invoice'
+                  : `No invoices with status "${filter.toUpperCase()}" found`
+                }
+              </p>
+              {filter === 'all' && (
+                <button
+                  onClick={() => router.push('/invoices/new')}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 font-medium transition-all hover:scale-105 shadow-lg"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Create Your First Invoice
+                </button>
+              )}
             </div>
           ) : (
             <div className="overflow-x-auto">
