@@ -44,6 +44,7 @@ export async function GET(
 }
 
 // PATCH /api/invoices/[id] - Update an invoice
+// Force rebuild for Vercel deployment
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
