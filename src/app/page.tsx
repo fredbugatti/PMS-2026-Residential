@@ -224,7 +224,7 @@ export default function Dashboard() {
       setLeases(activeLeases);
       setVendors(vendorsData);
 
-      const totalUnits = propertiesData.reduce((sum: number, p: any) => sum + (p.units?.length || 0), 0);
+      const totalSpaces = propertiesData.reduce((sum: number, p: any) => sum + (p.units?.length || 0), 0);
       const occupiedSpaces = activeLeases.length;
       const tenantsWithBalance = balancesData.tenants?.filter((t: any) => t.balance > 0) || [];
       const totalOwed = tenantsWithBalance.reduce((sum: number, t: any) => sum + t.balance, 0);
