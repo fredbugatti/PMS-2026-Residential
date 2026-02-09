@@ -870,8 +870,6 @@ async function main() {
       city: 'Los Angeles',
       state: 'CA',
       zipCode: '90001',
-      purchasePrice: 2500000,
-      purchaseDate: new Date('2024-01-15'),
       notes: 'Modern warehouse facility with loading docks and office space'
     }
   });
