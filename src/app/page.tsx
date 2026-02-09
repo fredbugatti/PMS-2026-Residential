@@ -263,8 +263,9 @@ export default function Dashboard() {
       }));
       setRecentActivity(activities);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch data:', error);
+      showError('Failed to load dashboard data. Please refresh the page.');
     } finally {
       setLoading(false);
     }
@@ -287,8 +288,9 @@ export default function Dashboard() {
         const data = await res.json();
         setPendingCharges(data);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch pending charges:', error);
+      // Silent fail for non-critical data
     }
   };
 

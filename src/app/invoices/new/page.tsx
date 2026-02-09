@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/Toast';
 
 interface Lease {
   id: string;
@@ -34,6 +35,7 @@ interface LineItem {
 
 export default function NewInvoicePage() {
   const router = useRouter();
+  const { showSuccess, showError } = useToast();
   const [leases, setLeases] = useState<Lease[]>([]);
   const [selectedLeaseId, setSelectedLeaseId] = useState('');
   const [selectedLease, setSelectedLease] = useState<Lease | null>(null);
@@ -182,10 +184,16 @@ export default function NewInvoicePage() {
         throw new Error(data.error || 'Failed to create invoice');
       }
 
-      // Redirect to invoice detail
-      router.push(`/invoices/${data.invoice.id}`);
+      // Show success message
+      showSuccess(`Invoice #${data.invoice.invoiceNumber} created successfully!`);
+
+      // Redirect to invoice detail after a brief delay to show the toast
+      setTimeout(() => {
+        router.push(`/invoices/${data.invoice.id}`);
+      }, 1000);
     } catch (error: any) {
       setError(error.message);
+      showError(error.message);
     } finally {
       setSubmitting(false);
     }
@@ -197,8 +205,22 @@ export default function NewInvoicePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
+      <div className="min-h-screen bg-gray-50">
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-5xl mx-auto px-4 py-4">
+            <div className="h-8 w-64 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+        <div className="max-w-5xl mx-auto px-4 py-8">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
+            <div className="h-12 w-full bg-gray-100 rounded animate-pulse"></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="h-12 bg-gray-100 rounded animate-pulse"></div>
+              <div className="h-12 bg-gray-100 rounded animate-pulse"></div>
+            </div>
+            <div className="h-32 bg-gray-100 rounded animate-pulse"></div>
+          </div>
+        </div>
       </div>
     );
   }
