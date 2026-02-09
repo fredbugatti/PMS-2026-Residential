@@ -886,7 +886,6 @@ async function main() {
       bedrooms: 0,
       bathrooms: 0,
       squareFeet: 5000,
-      rent: 4500,
       status: 'OCCUPIED'
     }
   });
@@ -902,7 +901,6 @@ async function main() {
       bedrooms: 0,
       bathrooms: 0,
       squareFeet: 7500,
-      rent: 6200,
       status: 'OCCUPIED'
     }
   });
@@ -918,7 +916,6 @@ async function main() {
       bedrooms: 0,
       bathrooms: 2,
       squareFeet: 3500,
-      rent: 3200,
       status: 'VACANT'
     }
   });
