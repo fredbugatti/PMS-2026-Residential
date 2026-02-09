@@ -847,8 +847,8 @@ export default function Dashboard() {
     return diff;
   };
 
-  const occupancyRate = stats.totalUnits > 0
-    ? Math.round((stats.occupiedSpaces / stats.totalUnits) * 100)
+  const occupancyRate = stats.totalSpaces > 0
+    ? Math.round((stats.occupiedSpaces / stats.totalSpaces) * 100)
     : 0;
 
   const selectedProperty = properties.find(p => p.id === workOrderForm.propertyId);
