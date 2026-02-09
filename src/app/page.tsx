@@ -198,7 +198,8 @@ export default function Dashboard() {
       const balancesData = balancesRes.ok ? await balancesRes.json() : { tenants: [] };
       const workOrdersData = workOrdersRes.ok ? await workOrdersRes.json() : [];
       const vendorsData = vendorsRes.ok ? await vendorsRes.json() : [];
-      const ledgerData = ledgerRes.ok ? await ledgerRes.json() : [];
+      const ledgerDataRaw = ledgerRes.ok ? await ledgerRes.json() : [];
+      const ledgerData = Array.isArray(ledgerDataRaw) ? ledgerDataRaw : [];
       const monthlyChargesData = monthlyChargesRes.ok ? await monthlyChargesRes.json() : { totalMonthly: 0 };
       const pnlData = pnlRes.ok ? await pnlRes.json() : null;
 
