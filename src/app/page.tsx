@@ -901,34 +901,86 @@ export default function Dashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-        {/* Key Metrics */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <Link href="/properties" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer">
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Warehouse Spaces</p>
-            <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.totalSpaces}</p>
-            <p className="text-xs text-blue-500 dark:text-blue-400 mt-1">{stats.totalProperties} warehouses →</p>
+        {/* Key Metrics - Modern Premium Design */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-10">
+          {/* Warehouse Spaces Card */}
+          <Link href="/properties" className="group relative bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-gray-750 rounded-2xl p-6 shadow-lg hover:shadow-2xl border border-blue-100 dark:border-blue-900/50 transition-all duration-300 cursor-pointer overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all duration-500"></div>
+            <div className="relative">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-3xl">🏭</span>
+                <span className="text-xs font-medium px-2 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full">Total</span>
+              </div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Warehouse Spaces</p>
+              <p className="text-4xl font-bold text-gray-900 dark:text-white mb-2">{stats.totalSpaces}</p>
+              <p className="text-xs text-blue-600 dark:text-blue-400 font-medium flex items-center gap-1">
+                {stats.totalProperties} warehouses
+                <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </p>
+            </div>
           </Link>
 
-          <Link href="/leases" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-green-300 dark:hover:border-green-600 transition-all cursor-pointer">
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Occupied Spaces</p>
-            <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400 mt-1">{stats.occupiedSpaces}</p>
-            <p className="text-xs text-green-500 dark:text-green-400 mt-1">{occupancyRate}% occupancy →</p>
+          {/* Occupied Spaces Card */}
+          <Link href="/leases" className="group relative bg-gradient-to-br from-white to-green-50 dark:from-gray-800 dark:to-gray-750 rounded-2xl p-6 shadow-lg hover:shadow-2xl border border-green-100 dark:border-green-900/50 transition-all duration-300 cursor-pointer overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-3xl group-hover:bg-green-500/20 transition-all duration-500"></div>
+            <div className="relative">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-3xl">✅</span>
+                <span className="text-xs font-medium px-2 py-1 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 rounded-full">{occupancyRate}%</span>
+              </div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Occupied Spaces</p>
+              <p className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent mb-2">{stats.occupiedSpaces}</p>
+              <p className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
+                {occupancyRate}% occupancy
+                <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </p>
+            </div>
           </Link>
 
-          <Link href="/reports?tab=pnl" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-green-300 dark:hover:border-green-600 transition-all cursor-pointer">
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Rent/Month</p>
-            <p className="text-xl sm:text-3xl font-bold text-green-600 dark:text-green-400 mt-1">{formatCurrency(stats.monthlyRevenue)}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">expected income →</p>
+          {/* Monthly Revenue Card */}
+          <Link href="/reports?tab=pnl" className="group relative bg-gradient-to-br from-white to-emerald-50 dark:from-gray-800 dark:to-gray-750 rounded-2xl p-6 shadow-lg hover:shadow-2xl border border-emerald-100 dark:border-emerald-900/50 transition-all duration-300 cursor-pointer overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-500"></div>
+            <div className="relative">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-3xl">💰</span>
+                <span className="text-xs font-medium px-2 py-1 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 rounded-full">Monthly</span>
+              </div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Expected Revenue</p>
+              <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 dark:from-emerald-400 dark:to-green-400 bg-clip-text text-transparent mb-2">{formatCurrency(stats.monthlyRevenue)}</p>
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                Per month
+                <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </p>
+            </div>
           </Link>
 
-          <Link href="/reports?tab=aging" className={`bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border hover:shadow-md transition-all cursor-pointer ${stats.totalOwed > 0 ? 'border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-600' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}`}>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Owed</p>
-            <p className={`text-xl sm:text-3xl font-bold mt-1 ${stats.totalOwed > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
-              {formatCurrency(stats.totalOwed)}
-            </p>
-            <p className={`text-xs mt-1 ${stats.tenantsOwing > 0 ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400'}`}>
-              {stats.tenantsOwing > 0 ? `${stats.tenantsOwing} unpaid →` : 'all paid ✓'}
-            </p>
+          {/* Amount Owed Card */}
+          <Link href="/reports?tab=aging" className={`group relative rounded-2xl p-6 shadow-lg hover:shadow-2xl border transition-all duration-300 cursor-pointer overflow-hidden ${stats.totalOwed > 0 ? 'bg-gradient-to-br from-white to-red-50 dark:from-gray-800 dark:to-gray-750 border-red-100 dark:border-red-900/50' : 'bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-750 border-gray-100 dark:border-gray-700'}`}>
+            <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl transition-all duration-500 ${stats.totalOwed > 0 ? 'bg-red-500/10 group-hover:bg-red-500/20' : 'bg-gray-500/10 group-hover:bg-gray-500/20'}`}></div>
+            <div className="relative">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-3xl">{stats.totalOwed > 0 ? '⚠️' : '✨'}</span>
+                <span className={`text-xs font-medium px-2 py-1 rounded-full ${stats.totalOwed > 0 ? 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300' : 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300'}`}>
+                  {stats.tenantsOwing > 0 ? `${stats.tenantsOwing} Unpaid` : 'Paid'}
+                </span>
+              </div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Amount Owed</p>
+              <p className={`text-3xl font-bold mb-2 ${stats.totalOwed > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
+                {formatCurrency(stats.totalOwed)}
+              </p>
+              <p className={`text-xs font-medium flex items-center gap-1 ${stats.tenantsOwing > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+                {stats.tenantsOwing > 0 ? `${stats.tenantsOwing} accounts need attention` : 'All accounts paid ✓'}
+                <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </p>
+            </div>
           </Link>
         </div>
 
