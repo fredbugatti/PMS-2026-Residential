@@ -1,0 +1,189 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/accounting';
+
+// GET /api/invoices - Get all invoices with filters
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const leaseId = searchParams.get('leaseId');
+    const status = searchParams.get('status');
+    const propertyId = searchParams.get('propertyId');
+
+    const where: any = {};
+
+    if (leaseId) {
+      where.leaseId = leaseId;
+    }
+
+    if (status) {
+      where.status = status;
+    }
+
+    if (propertyId) {
+      where.lease = {
+        propertyId: propertyId
+      };
+    }
+
+    const invoices = await prisma.invoice.findMany({
+      where,
+      include: {
+        lease: {
+          include: {
+            property: true,
+            unit: true
+          }
+        },
+        lineItems: {
+          orderBy: {
+            sortOrder: 'asc'
+          }
+        }
+      },
+      orderBy: {
+        invoiceDate: 'desc'
+      }
+    });
+
+    return NextResponse.json(invoices);
+  } catch (error: any) {
+    console.error('GET /api/invoices error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to fetch invoices' },
+      { status: 500 }
+    );
+  }
+}
+
+// POST /api/invoices - Create a new invoice
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const {
+      leaseId,
+      invoiceDate,
+      dueDate,
+      terms,
+      poNumber,
+      project,
+      notes,
+      lineItems
+    } = body;
+
+    // Validate required fields
+    if (!leaseId) {
+      return NextResponse.json(
+        { error: 'Lease ID is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!lineItems || lineItems.length === 0) {
+      return NextResponse.json(
+        { error: 'At least one line item is required' },
+        { status: 400 }
+      );
+    }
+
+    // Get lease details
+    const lease = await prisma.lease.findUnique({
+      where: { id: leaseId },
+      include: {
+        property: true,
+        unit: true
+      }
+    });
+
+    if (!lease) {
+      return NextResponse.json(
+        { error: 'Lease not found' },
+        { status: 404 }
+      );
+    }
+
+    // Generate invoice number (sequential)
+    const latestInvoice = await prisma.invoice.findFirst({
+      orderBy: {
+        invoiceNumber: 'desc'
+      }
+    });
+
+    let nextNumber = 5527; // Starting number
+    if (latestInvoice) {
+      const currentNumber = parseInt(latestInvoice.invoiceNumber);
+      nextNumber = isNaN(currentNumber) ? 5527 : currentNumber + 1;
+    }
+
+    const invoiceNumber = nextNumber.toString();
+
+    // Calculate totals
+    const subtotal = lineItems.reduce((sum: number, item: any) => {
+      return sum + parseFloat(item.amount || 0);
+    }, 0);
+
+    const totalDue = subtotal;
+
+    // Prepare invoice data
+    const invoiceData = {
+      invoiceNumber,
+      invoiceDate: invoiceDate ? new Date(invoiceDate) : new Date(),
+      dueDate: dueDate ? new Date(dueDate) : new Date(),
+      leaseId,
+      companyName: lease.companyName || lease.tenantName,
+      contactName: lease.tenantName,
+      billToAddress: lease.property
+        ? `${lease.property.address || ''}\n${lease.property.city || ''}, ${lease.property.state || ''} ${lease.property.zipCode || ''}`.trim()
+        : null,
+      terms: terms || 'Due on receipt',
+      poNumber,
+      project,
+      subtotal,
+      paymentsCredits: 0,
+      totalDue,
+      status: 'DRAFT',
+      notes,
+      createdBy: 'System',
+      lineItems: {
+        create: lineItems.map((item: any, index: number) => ({
+          quantity: item.quantity || 1,
+          itemCode: item.itemCode,
+          description: item.description,
+          priceEach: parseFloat(item.priceEach || 0),
+          amount: parseFloat(item.amount || 0),
+          sortOrder: index
+        }))
+      }
+    };
+
+    // Create invoice with line items
+    const invoice = await prisma.invoice.create({
+      data: invoiceData,
+      include: {
+        lineItems: {
+          orderBy: {
+            sortOrder: 'asc'
+          }
+        },
+        lease: {
+          include: {
+            property: true,
+            unit: true
+          }
+        }
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `Invoice #${invoiceNumber} created successfully`,
+      invoice
+    }, { status: 201 });
+
+  } catch (error: any) {
+    console.error('POST /api/invoices error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to create invoice' },
+      { status: 500 }
+    );
+  }
+}
