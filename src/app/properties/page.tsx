@@ -39,7 +39,7 @@ export default function PropertiesPage() {
     city: '',
     state: '',
     zipCode: '',
-    propertyType: 'RESIDENTIAL'
+    propertyType: 'WAREHOUSE'
   });
 
   // Created property ID (after step 1)
@@ -76,9 +76,9 @@ export default function PropertiesPage() {
       city: '',
       state: '',
       zipCode: '',
-      propertyType: 'RESIDENTIAL'
+      propertyType: 'WAREHOUSE'
     });
-    setUnits([{ unitNumber: '1', bedrooms: '', bathrooms: '', squareFeet: '', rent: '' }]);
+    setUnits([{ unitNumber: 'Bay 1', bedrooms: '0', bathrooms: '0', squareFeet: '', rent: '' }]);
     setCreatedPropertyId(null);
     setError('');
   };
@@ -201,7 +201,7 @@ export default function PropertiesPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Properties</h1>
-              <p className="text-sm text-gray-600 mt-1">Manage your rental properties and units</p>
+              <p className="text-sm text-gray-600 mt-1">Manage your warehouse properties and spaces</p>
             </div>
             <button
               onClick={() => setShowWizard(true)}
@@ -217,13 +217,13 @@ export default function PropertiesPage() {
         {properties.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 sm:p-12 text-center">
             <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl sm:text-3xl">🏠</span>
+              <span className="text-2xl sm:text-3xl">🏭</span>
             </div>
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
               No properties yet
             </h3>
             <p className="text-gray-500 mb-6 text-sm sm:text-base">
-              Get started by adding your first property
+              Get started by adding your first warehouse property
             </p>
             <button
               onClick={() => setShowWizard(true)}
@@ -272,7 +272,7 @@ export default function PropertiesPage() {
                         ></div>
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
-                        {property.occupiedUnits} / {property.totalUnits} units occupied
+                        {property.occupiedUnits} / {property.totalUnits} spaces occupied
                       </p>
                     </div>
 
@@ -305,7 +305,7 @@ export default function PropertiesPage() {
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-base sm:text-lg font-bold text-gray-900">
                   {wizardStep === 1 && 'Property Details'}
-                  {wizardStep === 2 && 'Add Units'}
+                  {wizardStep === 2 && 'Add Spaces'}
                   {wizardStep === 3 && 'Setup Complete'}
                 </h2>
                 <button
@@ -348,7 +348,7 @@ export default function PropertiesPage() {
               </div>
               <div className="flex justify-between mt-2 text-xs text-gray-500">
                 <span>Property</span>
-                <span>Units</span>
+                <span>Spaces</span>
                 <span>Done</span>
               </div>
             </div>
@@ -454,18 +454,18 @@ export default function PropertiesPage() {
                 </div>
               )}
 
-              {/* Step 2: Add Units */}
+              {/* Step 2: Add Spaces */}
               {wizardStep === 2 && (
                 <div className="space-y-4">
                   <p className="text-gray-600 mb-4 text-sm sm:text-base">
-                    Add units to your property. You can add more later.
+                    Add warehouse spaces to your property. You can add more later.
                   </p>
 
                   {units.map((unit, index) => (
                     <div key={index} className="p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200">
                       <div className="flex items-center justify-between mb-3">
                         <span className="font-medium text-gray-900 text-sm sm:text-base">
-                          Unit {index + 1}
+                          Space {index + 1}
                         </span>
                         {units.length > 1 && (
                           <button
@@ -480,28 +480,28 @@ export default function PropertiesPage() {
 
                       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
                         <div className="col-span-3 sm:col-span-1">
-                          <label className="block text-xs text-gray-500 mb-1">Unit #</label>
+                          <label className="block text-xs text-gray-500 mb-1">Space/Bay #</label>
                           <input
                             type="text"
                             value={unit.unitNumber}
                             onChange={(e) => updateUnit(index, 'unitNumber', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                            placeholder="1A"
+                            placeholder="Bay 1"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-gray-500 mb-1">Beds</label>
+                          <label className="block text-xs text-gray-500 mb-1">Docks</label>
                           <input
                             type="number"
                             min="0"
                             value={unit.bedrooms}
                             onChange={(e) => updateUnit(index, 'bedrooms', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                            placeholder="2"
+                            placeholder="0"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-gray-500 mb-1">Baths</label>
+                          <label className="block text-xs text-gray-500 mb-1">Offices</label>
                           <input
                             type="number"
                             min="0"
@@ -509,7 +509,7 @@ export default function PropertiesPage() {
                             value={unit.bathrooms}
                             onChange={(e) => updateUnit(index, 'bathrooms', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                            placeholder="1"
+                            placeholder="0"
                           />
                         </div>
                         <div className="hidden sm:block">
@@ -520,7 +520,7 @@ export default function PropertiesPage() {
                             value={unit.squareFeet}
                             onChange={(e) => updateUnit(index, 'squareFeet', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                            placeholder="850"
+                            placeholder="5000"
                           />
                         </div>
                         <div>
@@ -531,7 +531,7 @@ export default function PropertiesPage() {
                             value={unit.rent}
                             onChange={(e) => updateUnit(index, 'rent', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                            placeholder="1500"
+                            placeholder="4500"
                           />
                         </div>
                       </div>
@@ -543,7 +543,7 @@ export default function PropertiesPage() {
                     onClick={addUnit}
                     className="w-full py-3 border-2 border-dashed border-gray-300 text-gray-600 hover:border-blue-400 hover:text-blue-600 rounded-xl transition-colors font-medium text-sm sm:text-base"
                   >
-                    + Add Another Unit
+                    + Add Another Space
                   </button>
                 </div>
               )}
@@ -588,7 +588,7 @@ export default function PropertiesPage() {
                     disabled={!propertyForm.name.trim() || submitting}
                     className="px-6 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {submitting ? 'Creating...' : 'Next: Add Units'}
+                    {submitting ? 'Creating...' : 'Next: Add Spaces'}
                   </button>
                 </>
               )}
@@ -608,7 +608,7 @@ export default function PropertiesPage() {
                     disabled={submitting || !units.some(u => u.unitNumber.trim())}
                     className="px-6 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {submitting ? 'Creating Units...' : `Create ${units.length} ${units.length !== 1 ? 'Units' : 'Unit'}`}
+                    {submitting ? 'Creating Spaces...' : `Create ${units.length} ${units.length !== 1 ? 'Spaces' : 'Space'}`}
                   </button>
                 </>
               )}
