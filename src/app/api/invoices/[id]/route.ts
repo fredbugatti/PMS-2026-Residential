@@ -116,7 +116,7 @@ export async function PATCH(
       };
     } else if (paymentsCredits !== undefined) {
       // Recalculate total due if payments/credits changed
-      updateData.totalDue = existingInvoice.subtotal - paymentsCredits;
+      updateData.totalDue = Number(existingInvoice.subtotal) - paymentsCredits;
     }
 
     // Update sent/paid timestamps
