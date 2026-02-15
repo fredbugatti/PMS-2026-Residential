@@ -5,6 +5,7 @@ import Sidebar from './Sidebar';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { GlobalSearch, useGlobalSearch } from './GlobalSearch';
+import { Menu, Search, User, ChevronRight } from 'lucide-react';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -30,7 +31,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     const breadcrumbs = [{ name: 'Dashboard', path: '/' }];
 
     let currentPath = '';
-    paths.forEach((segment, index) => {
+    paths.forEach((segment) => {
       currentPath += `/${segment}`;
 
       // Skip IDs in breadcrumbs
@@ -54,71 +55,69 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const breadcrumbs = getBreadcrumbs();
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar - hidden on mobile by default */}
-      <div className="hidden lg:block">
+    <div className="h-screen w-full flex overflow-hidden bg-slate-50 dark:bg-gray-900">
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex w-64 shrink-0 border-r bg-slate-900 border-slate-800">
         <Sidebar isOpen={true} />
-      </div>
-      {/* Mobile sidebar */}
+      </aside>
+
+      {/* Mobile Sidebar */}
       <div className="lg:hidden">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden w-full">
-        {/* Mobile Header with Hamburger */}
-        <div className="lg:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between">
+      {/* Main Wrapper */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Header - Sticky & On Top */}
+        <header className="sticky top-0 z-30 border-b border-slate-200 dark:border-gray-700 bg-white/95 dark:bg-gray-800/95 backdrop-blur px-4 h-16 flex items-center gap-4 shrink-0">
+          {/* Mobile hamburger */}
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 -ml-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+            className="lg:hidden p-2 -ml-2 text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-gray-700 rounded-lg"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Open menu</span>
           </button>
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white">
-              S
-            </div>
-            <span className="font-bold text-gray-900 dark:text-white">Sanprinon</span>
-          </Link>
-          <button
-            onClick={search.open}
-            className="p-2 -mr-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>
-        </div>
 
-        {/* Breadcrumb Header - hidden on very small screens, shown on tablet+ */}
+          {/* Search Bar */}
+          <div className="flex-1 max-w-md">
+            <button
+              onClick={search.open}
+              className="w-full flex items-center gap-2 px-3 h-9 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg text-sm text-slate-400 dark:text-gray-400 hover:border-slate-300 dark:hover:border-gray-500 transition-colors"
+            >
+              <Search className="h-4 w-4" />
+              <span>Search tenants, properties...</span>
+              <kbd className="hidden sm:inline-flex ml-auto text-xs bg-slate-100 dark:bg-gray-600 px-1.5 py-0.5 rounded text-slate-400 dark:text-gray-400">⌘K</kbd>
+            </button>
+          </div>
+
+          {/* User Profile */}
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:block text-right">
+              <p className="text-sm font-medium text-slate-900 dark:text-white">Property Manager</p>
+              <p className="text-xs text-slate-500 dark:text-gray-400">Admin</p>
+            </div>
+            <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-sm">
+              <User className="h-5 w-5 text-white" />
+            </div>
+          </div>
+        </header>
+
+        {/* Breadcrumb Header */}
         {pathname !== '/' && (
-          <div className="hidden sm:block bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-3">
-            <nav className="flex items-center space-x-2 text-sm overflow-x-auto">
+          <div className="bg-white dark:bg-gray-800 border-b border-slate-200 dark:border-gray-700 px-4 sm:px-6 py-2.5">
+            <nav className="flex items-center space-x-1 text-sm overflow-x-auto">
               {breadcrumbs.map((crumb, index) => (
                 <div key={crumb.path} className="flex items-center flex-shrink-0">
                   {index > 0 && (
-                    <svg
-                      className="w-4 h-4 mx-2 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
+                    <ChevronRight className="w-4 h-4 mx-1 text-slate-400 dark:text-gray-500" />
                   )}
                   {index === breadcrumbs.length - 1 ? (
-                    <span className="text-gray-900 dark:text-white font-medium">{crumb.name}</span>
+                    <span className="text-slate-900 dark:text-white font-medium">{crumb.name}</span>
                   ) : (
                     <Link
                       href={crumb.path}
-                      className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                      className="text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                     >
                       {crumb.name}
                     </Link>
@@ -130,8 +129,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
         )}
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto">
-          {children}
+        <main className="flex-1 overflow-y-auto min-h-0 bg-slate-50 dark:bg-gray-900">
+          <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+            {children}
+          </div>
         </main>
       </div>
 
