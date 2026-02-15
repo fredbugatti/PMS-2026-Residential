@@ -162,6 +162,8 @@ export default function Dashboard() {
     specialty: ''
   });
   const [submittingQuickCreate, setSubmittingQuickCreate] = useState(false);
+  const [showQuickCreate, setShowQuickCreate] = useState(false);
+  const [quickCreateType, setQuickCreateType] = useState<'property' | 'unit' | 'lease' | 'expense' | 'vendor' | null>(null);
 
   // Cron status
   const [cronStatus, setCronStatus] = useState<{
