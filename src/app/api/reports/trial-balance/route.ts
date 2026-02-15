@@ -3,16 +3,25 @@ import { prisma } from '@/lib/accounting';
 
 export const dynamic = 'force-dynamic';
 
-// GET /api/reports/trial-balance - Trial Balance as of a given date
+// GET /api/reports/trial-balance - Get Trial Balance report
+// Verifies that total debits equal total credits across all accounts
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const asOfDate = searchParams.get('asOfDate');
     const propertyId = searchParams.get('propertyId');
 
-    // Default to today
-    const endDate = asOfDate ? new Date(asOfDate) : new Date();
-    endDate.setHours(23, 59, 59, 999);
+    // Default to today if no date provided
+    const asOf = asOfDate ? new Date(asOfDate) : new Date();
+    asOf.setHours(23, 59, 59, 999); // Include full day
+
+    // Build base where clause for date range (all entries up to asOfDate)
+    const dateFilter = {
+      entryDate: {
+        lte: asOf
+      },
+      status: 'POSTED'
+    };
 
     // If propertyId filter, get leases for that property
     let leaseFilter: any = {};
@@ -23,7 +32,7 @@ export async function GET(request: NextRequest) {
       });
       leaseFilter = {
         leaseId: {
-          in: [...propertyLeases.map(l => l.id), null]
+          in: propertyLeases.map(l => l.id)
         }
       };
     }
@@ -34,11 +43,10 @@ export async function GET(request: NextRequest) {
       orderBy: { code: 'asc' }
     });
 
-    // Get all posted entries up to date
-    const entries = await prisma.ledgerEntry.findMany({
+    // Get all ledger entries up to the asOfDate
+    const allEntries = await prisma.ledgerEntry.findMany({
       where: {
-        entryDate: { lte: endDate },
-        status: 'POSTED',
+        ...dateFilter,
         ...leaseFilter
       },
       select: {
@@ -48,67 +56,107 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Aggregate debits and credits per account
-    const accountTotals: Record<string, { totalDR: number; totalCR: number }> = {};
-    for (const entry of entries) {
-      if (!accountTotals[entry.accountCode]) {
-        accountTotals[entry.accountCode] = { totalDR: 0, totalCR: 0 };
+    // Calculate balance for each account
+    const accountBalances: { [key: string]: { debits: number; credits: number } } = {};
+
+    for (const entry of allEntries) {
+      if (!accountBalances[entry.accountCode]) {
+        accountBalances[entry.accountCode] = { debits: 0, credits: 0 };
       }
+
+      const amount = Number(entry.amount);
       if (entry.debitCredit === 'DR') {
-        accountTotals[entry.accountCode].totalDR += Number(entry.amount);
+        accountBalances[entry.accountCode].debits += amount;
       } else {
-        accountTotals[entry.accountCode].totalCR += Number(entry.amount);
+        accountBalances[entry.accountCode].credits += amount;
       }
     }
 
-    // Build trial balance rows - include accounts with activity
-    const rows = allAccounts
-      .map(account => {
-        const totals = accountTotals[account.code] || { totalDR: 0, totalCR: 0 };
-        const netDR = totals.totalDR - totals.totalCR;
-        return {
-          code: account.code,
-          name: account.name,
-          type: account.type,
-          normalBalance: account.normalBalance,
-          totalDebits: Math.round(totals.totalDR * 100) / 100,
-          totalCredits: Math.round(totals.totalCR * 100) / 100,
-          // Show net balance in the appropriate column
-          debitBalance: netDR > 0 ? Math.round(netDR * 100) / 100 : 0,
-          creditBalance: netDR < 0 ? Math.round(Math.abs(netDR) * 100) / 100 : 0
-        };
-      })
-      .filter(row => row.totalDebits > 0 || row.totalCredits > 0);
+    // Build trial balance entries
+    let totalDebits = 0;
+    let totalCredits = 0;
 
-    // Group by account type
-    const grouped = {
-      ASSET: rows.filter(r => r.type === 'ASSET'),
-      LIABILITY: rows.filter(r => r.type === 'LIABILITY'),
-      EQUITY: rows.filter(r => r.type === 'EQUITY'),
-      INCOME: rows.filter(r => r.type === 'INCOME'),
-      EXPENSE: rows.filter(r => r.type === 'EXPENSE')
+    const trialBalanceEntries = allAccounts.map(account => {
+      const balance = accountBalances[account.code] || { debits: 0, credits: 0 };
+
+      // Calculate net balance based on account's normal balance
+      // Assets (DR normal) and Expenses (DR normal): debit balance = debits - credits
+      // Liabilities (CR normal), Income (CR normal), Equity (CR normal): credit balance = credits - debits
+      let debitBalance = 0;
+      let creditBalance = 0;
+
+      const netAmount = balance.debits - balance.credits;
+
+      if (account.normalBalance === 'DR') {
+        // Debit-normal accounts (Assets, Expenses)
+        if (netAmount >= 0) {
+          debitBalance = netAmount;
+        } else {
+          creditBalance = Math.abs(netAmount);
+        }
+      } else {
+        // Credit-normal accounts (Liabilities, Income, Equity)
+        if (netAmount <= 0) {
+          creditBalance = Math.abs(netAmount);
+        } else {
+          debitBalance = netAmount;
+        }
+      }
+
+      totalDebits += debitBalance;
+      totalCredits += creditBalance;
+
+      return {
+        code: account.code,
+        name: account.name,
+        type: account.type,
+        normalBalance: account.normalBalance,
+        debitBalance: Math.round(debitBalance * 100) / 100,
+        creditBalance: Math.round(creditBalance * 100) / 100,
+        totalDebits: Math.round(balance.debits * 100) / 100,
+        totalCredits: Math.round(balance.credits * 100) / 100
+      };
+    }).filter(entry => entry.debitBalance > 0 || entry.creditBalance > 0);
+
+    // Round totals
+    totalDebits = Math.round(totalDebits * 100) / 100;
+    totalCredits = Math.round(totalCredits * 100) / 100;
+
+    // Calculate difference (should be 0 for a balanced trial balance)
+    const difference = Math.round((totalDebits - totalCredits) * 100) / 100;
+    const isBalanced = Math.abs(difference) < 0.01; // Allow for minor floating point errors
+
+    // Group by account type for better organization
+    const byType = {
+      ASSET: trialBalanceEntries.filter(e => e.type === 'ASSET'),
+      LIABILITY: trialBalanceEntries.filter(e => e.type === 'LIABILITY'),
+      EQUITY: trialBalanceEntries.filter(e => e.type === 'EQUITY'),
+      INCOME: trialBalanceEntries.filter(e => e.type === 'INCOME'),
+      EXPENSE: trialBalanceEntries.filter(e => e.type === 'EXPENSE')
     };
 
-    // Compute totals
-    const totalDebits = rows.reduce((s, r) => s + r.debitBalance, 0);
-    const totalCredits = rows.reduce((s, r) => s + r.creditBalance, 0);
-
     return NextResponse.json({
-      asOfDate: endDate.toISOString().split('T')[0],
-      accounts: rows,
-      grouped,
-      totals: {
-        totalDebits: Math.round(totalDebits * 100) / 100,
-        totalCredits: Math.round(totalCredits * 100) / 100,
-        difference: Math.round((totalDebits - totalCredits) * 100) / 100,
-        isBalanced: Math.abs(totalDebits - totalCredits) < 0.01
+      asOfDate: asOf.toISOString().split('T')[0],
+      summary: {
+        totalDebits,
+        totalCredits,
+        difference,
+        isBalanced,
+        totalAccounts: trialBalanceEntries.length,
+        totalTransactions: allEntries.length
+      },
+      entries: trialBalanceEntries,
+      byType,
+      metadata: {
+        generatedAt: new Date().toISOString(),
+        propertyFilter: propertyId || null
       }
     });
 
   } catch (error: any) {
     console.error('GET /api/reports/trial-balance error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to generate trial balance' },
+      { error: error.message || 'Failed to generate trial balance report' },
       { status: 500 }
     );
   }

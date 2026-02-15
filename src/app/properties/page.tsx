@@ -40,7 +40,7 @@ export default function PropertiesPage() {
     city: '',
     state: '',
     zipCode: '',
-    totalSquareFeet: ''
+    propertyType: 'WAREHOUSE'
   });
 
   // Created property ID (after step 1)
@@ -77,9 +77,9 @@ export default function PropertiesPage() {
       city: '',
       state: '',
       zipCode: '',
-      totalSquareFeet: ''
+      propertyType: 'WAREHOUSE'
     });
-    setUnits([{ unitNumber: '1', bedrooms: '', bathrooms: '', squareFeet: '', rent: '' }]);
+    setUnits([{ unitNumber: 'Bay 1', bedrooms: '0', bathrooms: '0', squareFeet: '', rent: '' }]);
     setCreatedPropertyId(null);
     setError('');
   };
@@ -201,8 +201,8 @@ export default function PropertiesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Properties</h1>
-              <p className="text-sm text-slate-600 mt-1">Manage your rental properties and units</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Properties</h1>
+              <p className="text-sm text-gray-600 mt-1">Manage your warehouse properties and spaces</p>
             </div>
             <button
               onClick={() => setShowWizard(true)}
@@ -218,13 +218,13 @@ export default function PropertiesPage() {
         {properties.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 sm:p-12 text-center">
             <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Building2 className="h-8 w-8 text-blue-600" />
+              <span className="text-2xl sm:text-3xl">🏭</span>
             </div>
             <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-2">
               No properties yet
             </h3>
-            <p className="text-slate-500 mb-6 text-sm sm:text-base">
-              Get started by adding your first property
+            <p className="text-gray-500 mb-6 text-sm sm:text-base">
+              Get started by adding your first warehouse property
             </p>
             <button
               onClick={() => setShowWizard(true)}
@@ -234,19 +234,33 @@ export default function PropertiesPage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {properties.map((property) => (
               <div
                 key={property.id}
                 onClick={() => window.location.href = `/properties/${property.id}`}
-                className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl border border-gray-100 overflow-hidden transition-all duration-300 cursor-pointer"
               >
-                <div className="p-4 sm:p-6">
-                  <div className="flex items-start justify-between mb-3 sm:mb-4">
+                {/* Gradient Overlay */}
+                <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-full blur-3xl group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-500"></div>
+
+                <div className="relative p-6">
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-1 truncate">{property.name}</h3>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-2xl">🏭</span>
+                        <span className="text-xs font-semibold px-2 py-1 bg-blue-100 text-blue-700 rounded-full uppercase tracking-wide">
+                          Warehouse
+                        </span>
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-900 mb-1 truncate group-hover:text-blue-600 transition-colors">{property.name}</h3>
                       {property.address && (
-                        <p className="text-xs sm:text-sm text-slate-600 truncate">
+                        <p className="text-sm text-gray-500 truncate flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
                           {property.address}
                           {property.city && `, ${property.city}`}
                           {property.state && `, ${property.state}`}
@@ -255,40 +269,62 @@ export default function PropertiesPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-3">
+                  {/* Stats */}
+                  <div className="space-y-4">
+                    {/* Occupancy */}
                     <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-slate-600 text-xs sm:text-sm">Occupancy</span>
-                        <span className="font-semibold text-slate-900 text-xs sm:text-sm">{property.occupancyRate}%</span>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-gray-700">Occupancy Rate</span>
+                        <span className={`text-sm font-bold ${
+                          property.occupancyRate >= 90 ? 'text-green-600' :
+                          property.occupancyRate >= 70 ? 'text-blue-600' :
+                          property.occupancyRate >= 50 ? 'text-yellow-600' :
+                          'text-red-600'
+                        }`}>{property.occupancyRate}%</span>
                       </div>
-                      <div className="w-full bg-slate-200 rounded-full h-2">
+                      <div className="relative w-full bg-gray-100 rounded-full h-2 overflow-hidden">
                         <div
-                          className={`h-2 rounded-full ${
-                            property.occupancyRate >= 90 ? 'bg-green-500' :
-                            property.occupancyRate >= 70 ? 'bg-blue-500' :
-                            property.occupancyRate >= 50 ? 'bg-yellow-500' :
-                            'bg-red-500'
+                          className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ${
+                            property.occupancyRate >= 90 ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
+                            property.occupancyRate >= 70 ? 'bg-gradient-to-r from-blue-500 to-cyan-500' :
+                            property.occupancyRate >= 50 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
+                            'bg-gradient-to-r from-red-500 to-pink-500'
                           }`}
                           style={{ width: `${property.occupancyRate}%` }}
                         ></div>
                       </div>
-                      <p className="text-xs text-slate-500 mt-1">
-                        {property.occupiedUnits} / {property.totalUnits} units occupied
+                      <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+                        </svg>
+                        {property.occupiedUnits} of {property.totalUnits} spaces occupied
                       </p>
                     </div>
 
-                    <div className="flex justify-between items-center pt-3 border-t border-slate-200">
-                      <span className="text-xs sm:text-sm text-slate-600">Monthly Revenue</span>
-                      <span className="text-base sm:text-lg font-bold text-green-600">
-                        {formatCurrency(property.monthlyRevenue)}
-                      </span>
+                    {/* Revenue */}
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                      <div>
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Monthly Revenue</p>
+                        <p className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                          {formatCurrency(property.monthlyRevenue)}
+                        </p>
+                      </div>
+                      <div className="p-3 bg-green-50 rounded-xl">
+                        <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="border-t border-slate-200 bg-slate-50 px-4 sm:px-6 py-3">
-                  <span className="text-sm font-medium text-blue-600">
-                    View Details →
+                {/* Footer */}
+                <div className="border-t border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50 px-6 py-4 group-hover:from-blue-100 group-hover:to-purple-100 transition-all duration-300">
+                  <span className="text-sm font-semibold text-blue-600 flex items-center gap-2">
+                    View Details
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </span>
                 </div>
               </div>
@@ -306,7 +342,7 @@ export default function PropertiesPage() {
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-base sm:text-lg font-bold text-slate-900">
                   {wizardStep === 1 && 'Property Details'}
-                  {wizardStep === 2 && 'Add Units'}
+                  {wizardStep === 2 && 'Add Spaces'}
                   {wizardStep === 3 && 'Setup Complete'}
                 </h2>
                 <button
@@ -349,7 +385,7 @@ export default function PropertiesPage() {
               </div>
               <div className="flex justify-between mt-2 text-xs text-slate-500">
                 <span>Property</span>
-                <span>Units</span>
+                <span>Spaces</span>
                 <span>Done</span>
               </div>
             </div>
@@ -374,14 +410,34 @@ export default function PropertiesPage() {
                       required
                       value={propertyForm.name}
                       onChange={(e) => setPropertyForm({ ...propertyForm, name: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-lg"
-                      placeholder="Sunset Apartments"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-lg"
+                      placeholder="Industrial Park West"
                       autoFocus
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Property Type *
+                    </label>
+                    <select
+                      required
+                      value={propertyForm.propertyType}
+                      onChange={(e) => setPropertyForm({ ...propertyForm, propertyType: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                    >
+                      <option value="RESIDENTIAL">Residential</option>
+                      <option value="SINGLE_FAMILY">Single Family</option>
+                      <option value="MULTI_FAMILY">Multi Family</option>
+                      <option value="COMMERCIAL">Commercial</option>
+                      <option value="INDUSTRIAL">Industrial</option>
+                      <option value="WAREHOUSE">Warehouse</option>
+                      <option value="MIXED_USE">Mixed Use</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Address
                     </label>
                     <input
@@ -452,7 +508,7 @@ export default function PropertiesPage() {
                 </div>
               )}
 
-              {/* Step 2: Add Units */}
+              {/* Step 2: Add Spaces */}
               {wizardStep === 2 && (() => {
                 const totalSF = propertyForm.totalSquareFeet ? parseInt(propertyForm.totalSquareFeet) : 0;
                 const allocatedSF = units.reduce((sum, u) => sum + (u.squareFeet ? parseInt(u.squareFeet) : 0), 0);
@@ -460,8 +516,8 @@ export default function PropertiesPage() {
                 const allocationPct = totalSF > 0 ? Math.min((allocatedSF / totalSF) * 100, 100) : 0;
                 return (
                 <div className="space-y-4">
-                  <p className="text-slate-600 mb-4 text-sm sm:text-base">
-                    Add units to your property. You can add more later.
+                  <p className="text-gray-600 mb-4 text-sm sm:text-base">
+                    Add warehouse spaces to your property. You can add more later.
                   </p>
 
                   {totalSF > 0 && (
@@ -490,8 +546,8 @@ export default function PropertiesPage() {
                   {units.map((unit, index) => (
                     <div key={index} className="p-3 sm:p-4 bg-slate-50 rounded-xl border border-slate-200">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="font-medium text-slate-900 text-sm sm:text-base">
-                          Unit {index + 1}
+                        <span className="font-medium text-gray-900 text-sm sm:text-base">
+                          Space {index + 1}
                         </span>
                         {units.length > 1 && (
                           <button
@@ -506,36 +562,36 @@ export default function PropertiesPage() {
 
                       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
                         <div className="col-span-3 sm:col-span-1">
-                          <label className="block text-xs text-slate-500 mb-1">Unit #</label>
+                          <label className="block text-xs text-gray-500 mb-1">Space/Bay #</label>
                           <input
                             type="text"
                             value={unit.unitNumber}
                             onChange={(e) => updateUnit(index, 'unitNumber', e.target.value)}
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                            placeholder="1A"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            placeholder="Bay 1"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-slate-500 mb-1">Beds</label>
+                          <label className="block text-xs text-gray-500 mb-1">Docks</label>
                           <input
                             type="number"
                             min="0"
                             value={unit.bedrooms}
                             onChange={(e) => updateUnit(index, 'bedrooms', e.target.value)}
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                            placeholder="2"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            placeholder="0"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-slate-500 mb-1">Baths</label>
+                          <label className="block text-xs text-gray-500 mb-1">Offices</label>
                           <input
                             type="number"
                             min="0"
                             step="0.5"
                             value={unit.bathrooms}
                             onChange={(e) => updateUnit(index, 'bathrooms', e.target.value)}
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                            placeholder="1"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            placeholder="0"
                           />
                         </div>
                         <div className="hidden sm:block">
@@ -545,8 +601,8 @@ export default function PropertiesPage() {
                             min="0"
                             value={unit.squareFeet}
                             onChange={(e) => updateUnit(index, 'squareFeet', e.target.value)}
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                            placeholder="850"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            placeholder="5000"
                           />
                         </div>
                         <div>
@@ -556,8 +612,8 @@ export default function PropertiesPage() {
                             min="0"
                             value={unit.rent}
                             onChange={(e) => updateUnit(index, 'rent', e.target.value)}
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                            placeholder="1500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            placeholder="4500"
                           />
                         </div>
                       </div>
@@ -569,7 +625,7 @@ export default function PropertiesPage() {
                     onClick={addUnit}
                     className="w-full py-3 border-2 border-dashed border-slate-300 text-slate-600 hover:border-blue-400 hover:text-blue-600 rounded-xl transition-colors font-medium text-sm sm:text-base"
                   >
-                    + Add Another Unit
+                    + Add Another Space
                   </button>
                 </div>
                 );
@@ -615,7 +671,7 @@ export default function PropertiesPage() {
                     disabled={!propertyForm.name.trim() || submitting}
                     className="px-6 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {submitting ? 'Creating...' : 'Next: Add Units'}
+                    {submitting ? 'Creating...' : 'Next: Add Spaces'}
                   </button>
                 </>
               )}
@@ -635,7 +691,7 @@ export default function PropertiesPage() {
                     disabled={submitting || !units.some(u => u.unitNumber.trim())}
                     className="px-6 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {submitting ? 'Creating Units...' : `Create ${units.length} ${units.length !== 1 ? 'Units' : 'Unit'}`}
+                    {submitting ? 'Creating Spaces...' : `Create ${units.length} ${units.length !== 1 ? 'Spaces' : 'Space'}`}
                   </button>
                 </>
               )}

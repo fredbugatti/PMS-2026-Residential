@@ -270,6 +270,54 @@ async function main() {
       active: true
     },
     {
+      code: '4200',
+      name: 'CAM Charges',
+      description: 'Common Area Maintenance charges for commercial/industrial tenants.',
+      type: 'INCOME' as AccountType,
+      normalBalance: 'CR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '4210',
+      name: 'Equipment Rental Income',
+      description: 'Forklift, pallet jack, and other equipment rental fees.',
+      type: 'INCOME' as AccountType,
+      normalBalance: 'CR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '4220',
+      name: 'Loading Dock Fee',
+      description: 'Fees for loading dock access and usage.',
+      type: 'INCOME' as AccountType,
+      normalBalance: 'CR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '4230',
+      name: 'Pallet Storage Fee',
+      description: 'Fees for pallet storage services.',
+      type: 'INCOME' as AccountType,
+      normalBalance: 'CR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '4240',
+      name: 'Property Tax Reimbursement',
+      description: 'Tenant\'s share of property taxes (commercial/industrial).',
+      type: 'INCOME' as AccountType,
+      normalBalance: 'CR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '4250',
+      name: 'Real Estate Tax Pass-Through',
+      description: 'Real estate tax charges passed to commercial/industrial tenants.',
+      type: 'INCOME' as AccountType,
+      normalBalance: 'CR' as DebitCredit,
+      active: true
+    },
+    {
       code: '4900',
       name: 'Other Income',
       description: 'Miscellaneous income that doesn\'t fit other categories.',
@@ -741,6 +789,56 @@ async function main() {
       normalBalance: 'DR' as DebitCredit,
       active: true
     },
+
+    // --- Industrial/Warehouse Operations (5940-5999) ---
+    {
+      code: '5940',
+      name: 'Loading Dock Maintenance',
+      description: 'Repairs and maintenance of loading docks and equipment.',
+      type: 'EXPENSE' as AccountType,
+      normalBalance: 'DR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '5950',
+      name: 'Forklift & Equipment Maint',
+      description: 'Maintenance for forklifts, pallet jacks, and warehouse equipment.',
+      type: 'EXPENSE' as AccountType,
+      normalBalance: 'DR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '5960',
+      name: 'Floor Coating & Repairs',
+      description: 'Industrial floor coating, epoxy repairs, line painting.',
+      type: 'EXPENSE' as AccountType,
+      normalBalance: 'DR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '5970',
+      name: 'Bay Door Repairs',
+      description: 'Overhead doors, roll-up doors, dock seals maintenance.',
+      type: 'EXPENSE' as AccountType,
+      normalBalance: 'DR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '5980',
+      name: 'Fire Suppression System',
+      description: 'Sprinkler system inspections, repairs, and compliance.',
+      type: 'EXPENSE' as AccountType,
+      normalBalance: 'DR' as DebitCredit,
+      active: true
+    },
+    {
+      code: '5990',
+      name: 'Industrial HVAC',
+      description: 'Large-scale HVAC for warehouse and industrial spaces.',
+      type: 'EXPENSE' as AccountType,
+      normalBalance: 'DR' as DebitCredit,
+      active: true
+    },
   ];
 
   for (const account of accounts) {
@@ -758,7 +856,293 @@ async function main() {
     console.log(`✅ Created account: ${account.code} - ${account.name}`);
   }
 
-  console.log('✨ Seeding complete!');
+  console.log('\n🏭 Creating sample warehouse property...');
+
+  // Create warehouse property
+  const warehouse = await prisma.property.upsert({
+    where: { id: 'sample-warehouse-1' },
+    update: {},
+    create: {
+      id: 'sample-warehouse-1',
+      name: 'Industrial Park West Distribution Center',
+      propertyType: 'WAREHOUSE',
+      address: '1250 Industrial Boulevard',
+      city: 'Los Angeles',
+      state: 'CA',
+      zipCode: '90001',
+      notes: 'Modern warehouse facility with loading docks and office space'
+    }
+  });
+  console.log(`✅ Created warehouse property: ${warehouse.name}`);
+
+  // Create warehouse spaces (bays)
+  const bay1 = await prisma.unit.upsert({
+    where: { id: 'warehouse-bay-1' },
+    update: {},
+    create: {
+      id: 'warehouse-bay-1',
+      propertyId: warehouse.id,
+      unitNumber: 'Bay 1',
+      bedrooms: 0,
+      bathrooms: 0,
+      squareFeet: 5000,
+      status: 'OCCUPIED'
+    }
+  });
+  console.log(`✅ Created warehouse space: ${bay1.unitNumber} - ${bay1.squareFeet} sq ft`);
+
+  const bay2 = await prisma.unit.upsert({
+    where: { id: 'warehouse-bay-2' },
+    update: {},
+    create: {
+      id: 'warehouse-bay-2',
+      propertyId: warehouse.id,
+      unitNumber: 'Bay 2',
+      bedrooms: 0,
+      bathrooms: 0,
+      squareFeet: 7500,
+      status: 'OCCUPIED'
+    }
+  });
+  console.log(`✅ Created warehouse space: ${bay2.unitNumber} - ${bay2.squareFeet} sq ft`);
+
+  const bay3 = await prisma.unit.upsert({
+    where: { id: 'warehouse-bay-3' },
+    update: {},
+    create: {
+      id: 'warehouse-bay-3',
+      propertyId: warehouse.id,
+      unitNumber: 'Suite A',
+      bedrooms: 0,
+      bathrooms: 2,
+      squareFeet: 3500,
+      status: 'VACANT'
+    }
+  });
+  console.log(`✅ Created warehouse space: ${bay3.unitNumber} - ${bay3.squareFeet} sq ft`);
+
+  // Create lease for Bay 1
+  const lease1 = await prisma.lease.upsert({
+    where: { id: 'warehouse-lease-1' },
+    update: {},
+    create: {
+      id: 'warehouse-lease-1',
+      propertyId: warehouse.id,
+      unitId: bay1.id,
+      unitName: 'Bay 1',
+      propertyName: warehouse.name,
+      companyName: 'MAMROUT PAPER GROUP',
+      tenantName: 'Mohamed Mamrout',
+      tenantEmail: 'contact@mamroutpaper.com',
+      tenantPhone: '(555) 123-4567',
+      startDate: new Date('2024-01-01'),
+      endDate: new Date('2026-12-31'),
+      securityDepositAmount: 9000,
+      status: 'ACTIVE'
+    }
+  });
+  console.log(`✅ Created lease for ${lease1.companyName}`);
+
+  // Create lease for Bay 2
+  const lease2 = await prisma.lease.upsert({
+    where: { id: 'warehouse-lease-2' },
+    update: {},
+    create: {
+      id: 'warehouse-lease-2',
+      propertyId: warehouse.id,
+      unitId: bay2.id,
+      unitName: 'Bay 2',
+      propertyName: warehouse.name,
+      companyName: 'Elite Warehouse Solutions',
+      tenantName: 'Sarah Johnson',
+      tenantEmail: 'sarah@elitewarehouse.com',
+      tenantPhone: '(555) 987-6543',
+      startDate: new Date('2024-03-01'),
+      endDate: new Date('2027-02-28'),
+      securityDepositAmount: 12400,
+      status: 'ACTIVE'
+    }
+  });
+  console.log(`✅ Created lease for ${lease2.companyName}`);
+
+  // Create invoice for MAMROUT PAPER GROUP
+  const invoice1 = await prisma.invoice.upsert({
+    where: { id: 'sample-invoice-1' },
+    update: {},
+    create: {
+      id: 'sample-invoice-1',
+      invoiceNumber: '5527',
+      invoiceDate: new Date('2024-02-01'),
+      dueDate: new Date('2024-02-15'),
+      leaseId: lease1.id,
+      companyName: 'MAMROUT PAPER GROUP',
+      contactName: 'Mohamed Mamrout',
+      billToAddress: `${warehouse.address}\n${warehouse.city}, ${warehouse.state} ${warehouse.zipCode}`,
+      terms: 'Net 15',
+      poNumber: 'PO-2024-001',
+      subtotal: 5150,
+      paymentsCredits: 0,
+      totalDue: 5150,
+      status: 'SENT',
+      sentAt: new Date('2024-02-01'),
+      notes: 'Monthly warehouse rental and services',
+      createdBy: 'System',
+      lineItems: {
+        create: [
+          {
+            quantity: 1,
+            itemCode: '4000',
+            description: 'Bay 1 Monthly Rent - 5,000 sq ft',
+            priceEach: 4500,
+            amount: 4500,
+            sortOrder: 0
+          },
+          {
+            quantity: 2,
+            itemCode: '4210',
+            description: 'Forklift Rental',
+            priceEach: 250,
+            amount: 500,
+            sortOrder: 1
+          },
+          {
+            quantity: 1,
+            itemCode: '4220',
+            description: 'Loading Dock Access Fee',
+            priceEach: 150,
+            amount: 150,
+            sortOrder: 2
+          }
+        ]
+      }
+    },
+    include: {
+      lineItems: true
+    }
+  });
+  console.log(`✅ Created invoice #${invoice1.invoiceNumber} for ${invoice1.companyName}`);
+
+  // Create invoice for Elite Warehouse
+  const invoice2 = await prisma.invoice.upsert({
+    where: { id: 'sample-invoice-2' },
+    update: {},
+    create: {
+      id: 'sample-invoice-2',
+      invoiceNumber: '5528',
+      invoiceDate: new Date('2024-02-01'),
+      dueDate: new Date('2024-03-01'),
+      leaseId: lease2.id,
+      companyName: 'Elite Warehouse Solutions',
+      contactName: 'Sarah Johnson',
+      billToAddress: `${warehouse.address}\n${warehouse.city}, ${warehouse.state} ${warehouse.zipCode}`,
+      terms: 'Net 30',
+      poNumber: 'EWS-24-002',
+      subtotal: 7100,
+      paymentsCredits: 0,
+      totalDue: 7100,
+      status: 'PAID',
+      sentAt: new Date('2024-02-01'),
+      paidAt: new Date('2024-02-15'),
+      notes: 'Monthly warehouse rental and additional services',
+      createdBy: 'System',
+      lineItems: {
+        create: [
+          {
+            quantity: 1,
+            itemCode: '4000',
+            description: 'Bay 2 Monthly Rent - 7,500 sq ft',
+            priceEach: 6200,
+            amount: 6200,
+            sortOrder: 0
+          },
+          {
+            quantity: 1,
+            itemCode: '4200',
+            description: 'CAM Charges',
+            priceEach: 450,
+            amount: 450,
+            sortOrder: 1
+          },
+          {
+            quantity: 100,
+            itemCode: '4230',
+            description: 'Pallet Storage (per pallet)',
+            priceEach: 4.50,
+            amount: 450,
+            sortOrder: 2
+          }
+        ]
+      }
+    },
+    include: {
+      lineItems: true
+    }
+  });
+  console.log(`✅ Created invoice #${invoice2.invoiceNumber} for ${invoice2.companyName}`);
+
+  // Create a draft invoice for the current month
+  const invoice3 = await prisma.invoice.upsert({
+    where: { id: 'sample-invoice-3' },
+    update: {},
+    create: {
+      id: 'sample-invoice-3',
+      invoiceNumber: '5529',
+      invoiceDate: new Date(),
+      dueDate: new Date(new Date().setDate(new Date().getDate() + 15)),
+      leaseId: lease1.id,
+      companyName: 'MAMROUT PAPER GROUP',
+      contactName: 'Mohamed Mamrout',
+      billToAddress: `${warehouse.address}\n${warehouse.city}, ${warehouse.state} ${warehouse.zipCode}`,
+      terms: 'Net 15',
+      poNumber: 'PO-2024-003',
+      subtotal: 5400,
+      paymentsCredits: 0,
+      totalDue: 5400,
+      status: 'DRAFT',
+      notes: 'Current month warehouse rental and equipment',
+      createdBy: 'System',
+      lineItems: {
+        create: [
+          {
+            quantity: 1,
+            itemCode: '4000',
+            description: 'Bay 1 Monthly Rent - 5,000 sq ft',
+            priceEach: 4500,
+            amount: 4500,
+            sortOrder: 0
+          },
+          {
+            quantity: 3,
+            itemCode: '4210',
+            description: 'Forklift Rental',
+            priceEach: 250,
+            amount: 750,
+            sortOrder: 1
+          },
+          {
+            quantity: 1,
+            itemCode: '4220',
+            description: 'Loading Dock Access Fee',
+            priceEach: 150,
+            amount: 150,
+            sortOrder: 2
+          }
+        ]
+      }
+    },
+    include: {
+      lineItems: true
+    }
+  });
+  console.log(`✅ Created invoice #${invoice3.invoiceNumber} (DRAFT) for ${invoice3.companyName}`);
+
+  console.log('\n✨ Seeding complete!');
+  console.log('\n📊 Sample Data Summary:');
+  console.log('   🏭 Warehouse Property: Industrial Park West Distribution Center');
+  console.log('   🏢 Warehouse Spaces: 3 bays/suites');
+  console.log('   📋 Active Leases: 2 commercial leases');
+  console.log('   📄 Invoices: 3 invoices (1 Draft, 1 Sent, 1 Paid)');
+  console.log('\n🚀 You can now log in and explore your warehouse property management system!');
 }
 
 main()

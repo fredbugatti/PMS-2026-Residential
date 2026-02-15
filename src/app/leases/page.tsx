@@ -369,11 +369,11 @@ export default function LeasesPage() {
                 <table className="w-full">
                   <thead className="bg-slate-50 border-b border-slate-200">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                        Tenant
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Company/Tenant
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                        Unit
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Warehouse Space
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                         Lease Period

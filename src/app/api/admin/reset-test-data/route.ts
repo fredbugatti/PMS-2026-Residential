@@ -177,20 +177,20 @@ async function createFullTestData() {
   // Create Properties with Units
   const property1 = await prisma.property.create({
     data: {
-      name: 'Sunset Apartments',
-      address: '123 Main Street',
+      name: 'Industrial Park West',
+      address: '123 Commerce Boulevard',
       city: 'Los Angeles',
       state: 'CA',
       zipCode: '90001',
-      propertyType: 'MULTI_FAMILY',
+      propertyType: 'WAREHOUSE',
       units: {
         create: [
-          { unitNumber: '101', bedrooms: 1, bathrooms: 1, squareFeet: 650 },
-          { unitNumber: '102', bedrooms: 2, bathrooms: 1, squareFeet: 850 },
-          { unitNumber: '103', bedrooms: 2, bathrooms: 2, squareFeet: 950 },
-          { unitNumber: '201', bedrooms: 1, bathrooms: 1, squareFeet: 650 },
-          { unitNumber: '202', bedrooms: 2, bathrooms: 1, squareFeet: 850 },
-          { unitNumber: '203', bedrooms: 3, bathrooms: 2, squareFeet: 1200 },
+          { unitNumber: 'Bay A1', bedrooms: 0, bathrooms: 1, squareFeet: 5000 },
+          { unitNumber: 'Bay A2', bedrooms: 0, bathrooms: 1, squareFeet: 7500 },
+          { unitNumber: 'Bay B1', bedrooms: 0, bathrooms: 2, squareFeet: 10000 },
+          { unitNumber: 'Bay B2', bedrooms: 0, bathrooms: 1, squareFeet: 5000 },
+          { unitNumber: 'Bay C1', bedrooms: 1, bathrooms: 2, squareFeet: 12000 }, // Has office space
+          { unitNumber: 'Bay C2', bedrooms: 0, bathrooms: 1, squareFeet: 8000 },
         ]
       }
     },
@@ -201,18 +201,18 @@ async function createFullTestData() {
 
   const property2 = await prisma.property.create({
     data: {
-      name: 'Ocean View Condos',
-      address: '456 Beach Boulevard',
+      name: 'Logistics Hub South',
+      address: '456 Distribution Drive',
       city: 'Santa Monica',
       state: 'CA',
       zipCode: '90401',
-      propertyType: 'MULTI_FAMILY',
+      propertyType: 'WAREHOUSE',
       units: {
         create: [
-          { unitNumber: 'A1', bedrooms: 2, bathrooms: 2, squareFeet: 1100 },
-          { unitNumber: 'A2', bedrooms: 2, bathrooms: 2, squareFeet: 1100 },
-          { unitNumber: 'B1', bedrooms: 3, bathrooms: 2, squareFeet: 1400 },
-          { unitNumber: 'B2', bedrooms: 3, bathrooms: 2, squareFeet: 1400 },
+          { unitNumber: 'Dock 1', bedrooms: 0, bathrooms: 1, squareFeet: 15000 },
+          { unitNumber: 'Dock 2', bedrooms: 0, bathrooms: 1, squareFeet: 15000 },
+          { unitNumber: 'Dock 3', bedrooms: 0, bathrooms: 2, squareFeet: 20000 },
+          { unitNumber: 'Dock 4', bedrooms: 0, bathrooms: 1, squareFeet: 18000 },
         ]
       }
     },
@@ -223,15 +223,15 @@ async function createFullTestData() {
 
   const property3 = await prisma.property.create({
     data: {
-      name: '789 Oak Street',
-      address: '789 Oak Street',
+      name: 'Distribution Center East',
+      address: '789 Industrial Parkway',
       city: 'Pasadena',
       state: 'CA',
       zipCode: '91101',
-      propertyType: 'SINGLE_FAMILY',
+      propertyType: 'INDUSTRIAL',
       units: {
         create: [
-          { unitNumber: 'MAIN', bedrooms: 4, bathrooms: 3, squareFeet: 2200 },
+          { unitNumber: 'Building A', bedrooms: 2, bathrooms: 3, squareFeet: 25000 }, // Large facility with office areas
         ]
       }
     },
@@ -247,16 +247,16 @@ async function createFullTestData() {
     ...property3.units.map(u => ({ ...u, propertyId: property3.id, propertyName: property3.name }))
   ];
 
-  // Tenant data (embedded in leases) with rent amounts
+  // Tenant data (embedded in leases) with rent amounts - Industrial/warehouse tenants
   const tenantData = [
-    { name: 'John Smith', email: 'john.smith@email.com', phone: '310-555-0101', rent: 1500 },
-    { name: 'Sarah Johnson', email: 'sarah.j@email.com', phone: '310-555-0102', rent: 1900 },
-    { name: 'Michael Williams', email: 'mwilliams@email.com', phone: '310-555-0103', rent: 2100 },
-    { name: 'Emily Brown', email: 'emily.brown@email.com', phone: '310-555-0104', rent: 1550 },
-    { name: 'David Garcia', email: 'dgarcia@email.com', phone: '310-555-0105', rent: 1950 },
-    { name: 'Jennifer Martinez', email: 'jen.martinez@email.com', phone: '310-555-0106', rent: 2600 },
-    { name: 'Robert Anderson', email: 'randerson@email.com', phone: '310-555-0107', rent: 2800 },
-    { name: 'Lisa Taylor', email: 'lisa.t@email.com', phone: '310-555-0108', rent: 2800 },
+    { name: 'ABC Logistics Inc', email: 'billing@abclogistics.com', phone: '310-555-0101', rent: 8500 },
+    { name: 'QuickShip Distribution', email: 'accounts@quickship.com', phone: '310-555-0102', rent: 12000 },
+    { name: 'Pacific Storage Solutions', email: 'info@pacificstorage.com', phone: '310-555-0103', rent: 15000 },
+    { name: 'Metro Freight Services', email: 'billing@metrofreight.com', phone: '310-555-0104', rent: 9000 },
+    { name: 'TechWarehouse Co', email: 'accounts@techwarehouse.com', phone: '310-555-0105', rent: 11500 },
+    { name: 'Global Import Export LLC', email: 'finance@globalimport.com', phone: '310-555-0106', rent: 18000 },
+    { name: 'West Coast Distribution', email: 'payments@wcdist.com', phone: '310-555-0107', rent: 22000 },
+    { name: 'Industrial Supply Corp', email: 'ar@indsupply.com', phone: '310-555-0108', rent: 16000 },
   ];
 
   const today = new Date();

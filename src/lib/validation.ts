@@ -72,7 +72,7 @@ export const createPropertySchema = z.object({
   city: z.string().min(1, 'City is required').max(100),
   state: z.string().length(2, 'State must be 2-letter code'),
   zipCode: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid ZIP code'),
-  type: z.enum(['SINGLE_FAMILY', 'MULTI_FAMILY', 'COMMERCIAL', 'MIXED_USE']).optional()
+  type: z.enum(['SINGLE_FAMILY', 'MULTI_FAMILY', 'COMMERCIAL', 'INDUSTRIAL', 'WAREHOUSE', 'MIXED_USE']).optional()
 });
 
 export const updatePropertySchema = createPropertySchema.partial();
