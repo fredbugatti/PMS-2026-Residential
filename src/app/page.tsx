@@ -199,7 +199,8 @@ export default function Dashboard() {
       const balancesData = balancesRes.ok ? await balancesRes.json() : { tenants: [] };
       const workOrdersData = workOrdersRes.ok ? await workOrdersRes.json() : [];
       const vendorsData = vendorsRes.ok ? await vendorsRes.json() : [];
-      const ledgerData = ledgerRes.ok ? await ledgerRes.json() : [];
+      const ledgerJson = ledgerRes.ok ? await ledgerRes.json() : [];
+      const ledgerData = Array.isArray(ledgerJson) ? ledgerJson : (ledgerJson.data || []);
       const monthlyChargesData = monthlyChargesRes.ok ? await monthlyChargesRes.json() : { totalMonthly: 0 };
       const pnlData = pnlRes.ok ? await pnlRes.json() : null;
 
@@ -833,10 +834,6 @@ export default function Dashboard() {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(amount);
-  };
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
   const getDaysUntil = (dateStr: string) => {
