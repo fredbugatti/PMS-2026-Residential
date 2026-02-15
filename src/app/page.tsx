@@ -640,7 +640,7 @@ export default function Dashboard() {
       }
 
       showSuccess('Property created! Now add a unit.');
-      setPropertyForm({ name: '', address: '' });
+      setPropertyForm({ name: '', address: '', totalSquareFeet: '' });
       setQuickCreateType('unit');
       fetchAllData();
     } catch (error: any) {
