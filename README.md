@@ -30,7 +30,7 @@ Designed for warehouse and industrial property management. Supports multiple fac
 
 ## Deployment
 
-Live deployment: https://pms-2026-residential.vercel.app
+Live deployment: https://pms-2026-industrial.vercel.app
 
 ## Setup
 
