@@ -42,7 +42,7 @@ This PMS has an **unusually strong technical foundation** - the ledger-first arc
 - Clean property/unit hierarchy with proper FK relationships
 - Unit status tracking (VACANT, OCCUPIED, MAINTENANCE)
 - Unique constraint on (propertyId, unitNumber) prevents duplicates
-- Property types supported (RESIDENTIAL, COMMERCIAL)
+- Property types supported (WAREHOUSE, INDUSTRIAL, COMMERCIAL)
 
 **What's Missing:**
 - No property-level financial tracking (per-property P&L exists but property isn't a full profit center)
@@ -69,7 +69,7 @@ This PMS has an **unusually strong technical foundation** - the ledger-first arc
 
 **What Works Well:**
 - Comprehensive lease model with tenant info, dates, deposits
-- Support for residential AND commercial leases (companyName field)
+- Support for warehouse, industrial, and commercial leases (companyName field)
 - Proper lease status workflow (DRAFT → ACTIVE → ENDED)
 - Lease-level ledger entries for full transaction history
 - Tenant portal with secure token-based access

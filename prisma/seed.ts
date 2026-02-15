@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // Comprehensive Chart of Accounts for Residential Property Management
+  // Comprehensive Chart of Accounts for Warehouse/Industrial Property Management
   const accounts: Array<{
     code: string;
     name: string;
@@ -608,7 +608,7 @@ async function main() {
     {
       code: '5500',
       name: 'Advertising & Marketing',
-      description: 'Listing fees, Zillow, Apartments.com, signs, photos.',
+      description: 'Listing fees, commercial real estate platforms, signage, photos.',
       type: 'EXPENSE' as AccountType,
       normalBalance: 'DR' as DebitCredit,
       active: true

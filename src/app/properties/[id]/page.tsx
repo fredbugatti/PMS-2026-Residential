@@ -273,8 +273,7 @@ export default function PropertyDetailPage() {
 
     try {
       // Create lease with tenant info embedded
-      // For commercial/industrial/warehouse: companyName is primary, contact name is tenantName
-      // For residential: just tenantName (first + last)
+      // For warehouse/industrial/commercial: companyName is primary, contact name is tenantName
       const isCommercial = property.propertyType === 'COMMERCIAL' ||
                           property.propertyType === 'INDUSTRIAL' ||
                           property.propertyType === 'WAREHOUSE';
@@ -579,7 +578,7 @@ export default function PropertyDetailPage() {
                             <span className="text-slate-400">-</span>
                           )
                         ) : (
-                          /* Residential: Show beds/baths and sq ft */
+                          /* Other property types: Show beds/baths and sq ft */
                           <>
                             <div>
                               {unit.bedrooms && `${unit.bedrooms} bed`}
@@ -932,7 +931,7 @@ export default function PropertyDetailPage() {
                       </div>
                     </>
                   ) : (
-                    /* Residential: First Name + Last Name */
+                    /* Individual tenant: First Name + Last Name */
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -1251,7 +1250,7 @@ export default function PropertyDetailPage() {
                 />
               </div>
 
-              {/* Residential: Beds, Baths, Sq Ft | Commercial/Industrial/Warehouse: Just Sq Ft */}
+              {/* Commercial/Industrial/Warehouse: Just Sq Ft | Other types: Beds, Baths, Sq Ft */}
               {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? (
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">

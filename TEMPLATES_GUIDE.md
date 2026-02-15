@@ -155,7 +155,7 @@ Always use double curly braces:
 
 The following templates are included by default:
 
-1. **Standard Residential Lease Agreement** - Comprehensive lease document
+1. **Standard Commercial/Industrial Lease Agreement** - Comprehensive lease document
 2. **Rent Increase Notice** - 60-day notice template
 3. **3-Day Notice to Pay Rent or Quit** - Legal eviction notice
 4. **Move-In Inspection Checklist** - Property condition form

@@ -7,8 +7,8 @@ async function seedTemplates() {
 
   const templates = [
     {
-      name: 'Standard Residential Lease Agreement',
-      description: 'A comprehensive lease agreement for residential properties',
+      name: 'Standard Commercial/Industrial Lease Agreement',
+      description: 'A comprehensive lease agreement for warehouse and industrial properties',
       category: 'LEASE_AGREEMENT' as DocumentCategory,
       isSystem: true,
       createdBy: 'system',
@@ -30,7 +30,7 @@ async function seedTemplates() {
       ],
       templateContent: `
         <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px;">
-          <h1 style="text-align: center; margin-bottom: 30px;">RESIDENTIAL LEASE AGREEMENT</h1>
+          <h1 style="text-align: center; margin-bottom: 30px;">COMMERCIAL/INDUSTRIAL LEASE AGREEMENT</h1>
 
           <p><strong>Date:</strong> {{currentDate}}</p>
 
