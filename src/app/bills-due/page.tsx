@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import AppLayout from '@/components/AppLayout';
 import { PartyPopper, ClipboardList } from 'lucide-react';
+import { useToast } from '@/components/Toast';
 
 interface Bill {
   id: string;
@@ -42,6 +43,7 @@ interface Summary {
 }
 
 export default function BillsDuePage() {
+  const { showSuccess, showError } = useToast();
   const [bills, setBills] = useState<Bill[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -144,9 +146,10 @@ export default function BillsDuePage() {
       setShowPayModal(false);
       setSelectedBill(null);
       fetchBills();
+      showSuccess('Payment saved successfully');
     } catch (error) {
       console.error('Failed to save payment:', error);
-      alert('Failed to save payment. Please try again.');
+      showError('Failed to save payment. Please try again.');
     } finally {
       setSaving(false);
     }

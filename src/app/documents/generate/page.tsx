@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { XCircle, FileText } from 'lucide-react';
+import { useToast } from '@/components/Toast';
 
 interface DocumentTemplate {
   id: string;
@@ -24,6 +25,7 @@ interface Lease {
 function GenerateDocumentContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { showSuccess, showError } = useToast();
   const templateId = searchParams.get('templateId');
 
   const [template, setTemplate] = useState<DocumentTemplate | null>(null);
@@ -92,8 +94,10 @@ function GenerateDocumentContent() {
       const data = await response.json();
       setGeneratedContent(data.content);
       setMergeData(data.mergeData);
+      showSuccess('Document generated');
     } catch (err: any) {
       setError(err.message);
+      showError(err.message);
     } finally {
       setGenerating(false);
     }
@@ -115,7 +119,7 @@ function GenerateDocumentContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 sm:p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
@@ -130,7 +134,7 @@ function GenerateDocumentContent() {
 
   if (!template) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 sm:p-8">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-xl shadow-lg p-12 text-center">
             <div className="mb-4"><XCircle className="h-14 w-14 text-red-400" /></div>
@@ -149,7 +153,7 @@ function GenerateDocumentContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -323,7 +327,7 @@ function GenerateDocumentContent() {
 export default function GenerateDocumentPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 sm:p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">

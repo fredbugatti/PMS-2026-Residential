@@ -3,6 +3,7 @@
 import React, { useState, useEffect, ReactNode } from 'react';
 import Link from 'next/link';
 import { BarChart3, Calendar, Search, Plug, Settings, Database, DollarSign, FileText, Wrench, AlertTriangle } from 'lucide-react';
+import { useToast } from '@/components/Toast';
 
 interface HealthCheck {
   name: string;
@@ -82,6 +83,7 @@ interface CronLog {
 }
 
 export default function AdminPage() {
+  const { showSuccess, showError } = useToast();
   const [activeTab, setActiveTab] = useState<'overview' | 'upcoming' | 'integrity' | 'apis' | 'cron' | 'data'>('overview');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -138,9 +140,13 @@ export default function AdminPage() {
     setApiTests(null);
     try {
       const res = await fetch('/api/admin/test-apis');
-      if (res.ok) setApiTests(await res.json());
+      if (res.ok) {
+        setApiTests(await res.json());
+        showSuccess('API tests completed');
+      }
     } catch (e) {
       console.error(e);
+      showError('API tests failed');
     } finally {
       setRunningApiTests(false);
     }
@@ -151,9 +157,13 @@ export default function AdminPage() {
     setIntegrity(null);
     try {
       const res = await fetch('/api/admin/integrity');
-      if (res.ok) setIntegrity(await res.json());
+      if (res.ok) {
+        setIntegrity(await res.json());
+        showSuccess('Integrity checks completed');
+      }
     } catch (e) {
       console.error(e);
+      showError('Integrity checks failed');
     } finally {
       setRunningIntegrity(false);
     }
@@ -168,10 +178,13 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ job: 'daily-charges' })
       });
-      setTestResult(await res.json());
+      const result = await res.json();
+      setTestResult(result);
       fetchAllData();
+      showSuccess('Cron job completed');
     } catch (error: any) {
       setTestResult({ error: error.message });
+      showError('Cron job failed');
     } finally {
       setTesting(false);
     }
@@ -190,8 +203,10 @@ export default function AdminPage() {
       setResetResult(await res.json());
       setResetConfirm('');
       fetchAllData();
+      showSuccess('Test data reset completed');
     } catch (error: any) {
       setResetResult({ error: error.message });
+      showError('Reset failed');
     } finally {
       setResetting(false);
     }

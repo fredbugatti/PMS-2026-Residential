@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useToast } from '@/components/Toast';
 
 type TabType = 'balances' | 'ledger';
 
@@ -49,6 +50,7 @@ interface Property {
 }
 
 export default function AccountingPage() {
+  const { showSuccess, showError } = useToast();
   const [activeTab, setActiveTab] = useState<TabType>('balances');
 
   // Balances state
@@ -171,6 +173,7 @@ export default function AccountingPage() {
       }
     } catch (error) {
       console.error('Failed to fetch preview:', error);
+      showError('Failed to load charge preview');
     } finally {
       setBulkLoading(false);
     }
@@ -188,9 +191,11 @@ export default function AccountingPage() {
         const result = await res.json();
         setBulkResults(result);
         fetchData();
+        showSuccess('Charges posted successfully');
       }
     } catch (error) {
       console.error('Failed to post charges:', error);
+      showError('Failed to post charges');
     } finally {
       setBulkLoading(false);
     }
@@ -228,7 +233,7 @@ export default function AccountingPage() {
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-slate-900">Accounting</h1>
@@ -257,7 +262,7 @@ export default function AccountingPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         {/* Tabs */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 mb-6">
           <div className="flex border-b border-slate-200">

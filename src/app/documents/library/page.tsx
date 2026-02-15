@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { Image, FileText, Edit3, BarChart3, Video, Paperclip, ClipboardList, Upload, FolderOpen, Star, Building2, Trash2 } from 'lucide-react';
+import { useToast } from '@/components/Toast';
 
 interface DocumentLibraryItem {
   id: string;
@@ -34,6 +35,7 @@ interface Lease {
 
 export default function DocumentLibraryPage() {
   const router = useRouter();
+  const { showSuccess, showError } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [documents, setDocuments] = useState<DocumentLibraryItem[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
@@ -200,8 +202,10 @@ export default function DocumentLibraryPage() {
         leaseId: ''
       });
       if (fileInputRef.current) fileInputRef.current.value = '';
+      showSuccess('Document uploaded successfully');
     } catch (err: any) {
       setError(err.message);
+      showError(err.message);
     } finally {
       setUploading(false);
     }
@@ -252,8 +256,10 @@ export default function DocumentLibraryPage() {
 
       await loadData();
       setShowEditModal(false);
+      showSuccess('Document updated');
     } catch (err: any) {
       setError(err.message);
+      showError(err.message);
     } finally {
       setUploading(false);
     }
@@ -275,8 +281,10 @@ export default function DocumentLibraryPage() {
       }
 
       await loadData();
+      showSuccess('Document deleted');
     } catch (err: any) {
       setError(err.message);
+      showError(err.message);
     }
   };
 
@@ -312,7 +320,7 @@ export default function DocumentLibraryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 sm:p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
@@ -326,7 +334,7 @@ export default function DocumentLibraryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">

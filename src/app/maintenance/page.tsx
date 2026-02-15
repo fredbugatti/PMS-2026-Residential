@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { MaintenancePageSkeleton } from '@/components/Skeleton';
+import { useToast } from '@/components/Toast';
 
 interface WorkOrderUpdate {
   id: string;
@@ -54,6 +55,7 @@ interface Property {
 
 function MaintenanceContent() {
   const searchParams = useSearchParams();
+  const { showSuccess, showError, showWarning } = useToast();
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
@@ -189,7 +191,7 @@ function MaintenanceContent() {
       return true;
     } catch (error) {
       console.error('Update failed:', error);
-      alert('Update failed');
+      showError('Update failed');
       return false;
     }
   };
@@ -250,9 +252,10 @@ function MaintenanceContent() {
       await fetchData();
       setShowDetailModal(false);
       setSelectedWorkOrder(null);
+      showSuccess('Work order deleted');
     } catch (error) {
       console.error('Delete failed:', error);
-      alert('Failed to delete work order');
+      showError('Failed to delete work order');
     }
   };
 
@@ -280,7 +283,7 @@ function MaintenanceContent() {
       setNewUpdateNote('');
     } catch (error) {
       console.error('Failed to add update:', error);
-      alert('Failed to add update');
+      showError('Failed to add update');
     } finally {
       setAddingUpdate(false);
     }
@@ -288,7 +291,7 @@ function MaintenanceContent() {
 
   const handleCreateVendor = async () => {
     if (!vendorForm.name.trim()) {
-      alert('Vendor name is required');
+      showWarning('Vendor name is required');
       return;
     }
 
@@ -306,10 +309,10 @@ function MaintenanceContent() {
       setVendors(prev => [...prev, newVendor]);
       setShowVendorModal(false);
       setVendorForm({ name: '', company: '', email: '', phone: '', specialties: [] });
-      alert(`Vendor "${newVendor.name}" created successfully!`);
+      showSuccess(`Vendor "${newVendor.name}" created successfully!`);
     } catch (error) {
       console.error('Failed to create vendor:', error);
-      alert('Failed to create vendor');
+      showError('Failed to create vendor');
     } finally {
       setCreatingVendor(false);
     }
@@ -318,14 +321,14 @@ function MaintenanceContent() {
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length + selectedPhotos.length > 5) {
-      alert('Maximum 5 photos allowed');
+      showWarning('Maximum 5 photos allowed');
       return;
     }
 
     // Validate file types
     const validFiles = files.filter(f => f.type.startsWith('image/'));
     if (validFiles.length !== files.length) {
-      alert('Only image files are allowed');
+      showWarning('Only image files are allowed');
     }
 
     setSelectedPhotos(prev => [...prev, ...validFiles]);
@@ -359,7 +362,7 @@ function MaintenanceContent() {
 
   const handleCreateWorkOrder = async () => {
     if (!createForm.title || !createForm.propertyId || !createForm.unitId) {
-      alert('Title, property, and unit are required');
+      showWarning('Title, property, and unit are required');
       return;
     }
 
@@ -393,9 +396,10 @@ function MaintenanceContent() {
       photoPreviewUrls.forEach(url => URL.revokeObjectURL(url));
       setSelectedPhotos([]);
       setPhotoPreviewUrls([]);
+      showSuccess('Work order created');
     } catch (error) {
       console.error('Create failed:', error);
-      alert('Failed to create work order');
+      showError('Failed to create work order');
     } finally {
       setUploadingPhotos(false);
     }
@@ -412,7 +416,7 @@ function MaintenanceContent() {
 
   const handleSaveCost = async (workOrderId: string) => {
     if (!costForm.actualCost) {
-      alert('Please enter actual cost');
+      showWarning('Please enter actual cost');
       return;
     }
     const success = await updateWorkOrder(workOrderId, {

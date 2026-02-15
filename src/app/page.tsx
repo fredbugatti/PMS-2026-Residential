@@ -68,7 +68,7 @@ interface FinancialSnapshot {
 }
 
 export default function Dashboard() {
-  const { showSuccess, showError, showWarning } = useToast();
+  const { showSuccess, showError, showWarning, showInfo } = useToast();
   const [stats, setStats] = useState<Stats>({
     totalProperties: 0,
     totalUnits: 0,
@@ -235,12 +235,13 @@ export default function Dashboard() {
       }));
       setRecentActivity(activities);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch data:', error);
+      showError(error.message || 'Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showError]);
 
   // Pull-to-refresh handler
   const handleRefresh = useCallback(async () => {
@@ -250,7 +251,8 @@ export default function Dashboard() {
       fetchPendingRentIncreases(),
       fetchCronStatus()
     ]);
-  }, [fetchAllData]);
+    showInfo('Dashboard refreshed');
+  }, [fetchAllData, showInfo]);
 
   const fetchPendingCharges = async () => {
     try {
@@ -259,8 +261,9 @@ export default function Dashboard() {
         const data = await res.json();
         setPendingCharges(data);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch pending charges:', error);
+      showError(error.message || 'Failed to fetch pending charges');
     }
   };
 
@@ -271,8 +274,9 @@ export default function Dashboard() {
         const data = await res.json();
         setPendingRentIncreases(data);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch pending rent increases:', error);
+      showError(error.message || 'Failed to fetch pending rent increases');
     }
   };
 
@@ -283,8 +287,9 @@ export default function Dashboard() {
         const data = await res.json();
         setCronStatus(data);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch cron status:', error);
+      showError(error.message || 'Failed to fetch cron status');
     }
   };
 
@@ -635,22 +640,22 @@ export default function Dashboard() {
               <p className="text-sm text-slate-600 mt-1">Property management overview</p>
             </div>
             {/* Quick Action Buttons */}
-            <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0">
+            <div className="grid grid-cols-2 sm:flex gap-2">
               <button
                 onClick={() => setShowPaymentModal(true)}
-                className="px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
+                className="px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold flex items-center justify-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
               >
                 <DollarSign className="h-4 w-4" /> Payment
               </button>
               <button
                 onClick={() => setShowChargeModal(true)}
-                className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
+                className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold flex items-center justify-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
               >
                 + Charge
               </button>
               <button
                 onClick={() => setShowWorkOrderModal(true)}
-                className="px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
+                className="col-span-2 sm:col-span-1 px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-semibold flex items-center justify-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
               >
                 <Wrench className="h-4 w-4" /> Work Order
               </button>
@@ -709,7 +714,7 @@ export default function Dashboard() {
                     <button
                       onClick={handlePostAllCharges}
                       disabled={postingCharges}
-                      className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full sm:w-auto px-4 py-2.5 min-h-[44px] bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {postingCharges ? 'Posting...' : 'Post Now'}
                     </button>
@@ -731,7 +736,7 @@ export default function Dashboard() {
                   <button
                     onClick={handleApplyRentIncreases}
                     disabled={applyingIncreases}
-                    className="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto px-4 py-2.5 min-h-[44px] bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {applyingIncreases ? 'Applying...' : 'Apply All'}
                   </button>
@@ -752,7 +757,7 @@ export default function Dashboard() {
                   <button
                     onClick={handlePostAllCharges}
                     disabled={postingCharges}
-                    className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto px-4 py-2.5 min-h-[44px] bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {postingCharges ? 'Posting...' : 'Post All Charges'}
                   </button>
@@ -880,7 +885,7 @@ export default function Dashboard() {
                       <button
                         type="button"
                         onClick={() => setPaymentForm({ ...paymentForm, amount: selectedLease.balance.toFixed(2) })}
-                        className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
+                        className="px-4 py-2.5 min-h-[44px] bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
                       >
                         Pay Full Balance
                       </button>
@@ -1149,7 +1154,7 @@ export default function Dashboard() {
                           <button
                             type="button"
                             onClick={() => removeWorkOrderPhoto(index)}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold hover:bg-red-600"
                           >
                             &times;
                           </button>

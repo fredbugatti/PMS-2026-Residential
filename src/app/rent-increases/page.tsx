@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useToast } from '@/components/Toast';
 
 interface RentIncrease {
   id: string;
@@ -20,6 +21,7 @@ interface RentIncrease {
 }
 
 export default function RentIncreasesPage() {
+  const { showSuccess, showError } = useToast();
   const [increases, setIncreases] = useState<RentIncrease[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'SCHEDULED' | 'APPLIED'>('all');
@@ -57,12 +59,12 @@ export default function RentIncreasesPage() {
       }
 
       const result = await res.json();
-      alert(`${result.message}\n\nApplied: ${result.applied.length}\nErrors: ${result.errors.length}`);
+      showSuccess(`${result.message} - Applied: ${result.applied.length}, Errors: ${result.errors.length}`);
 
       await fetchIncreases();
     } catch (error) {
       console.error('Failed to apply pending increases:', error);
-      alert('Failed to apply pending increases');
+      showError('Failed to apply pending increases');
     }
   };
 
@@ -91,7 +93,7 @@ export default function RentIncreasesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
           <div className="flex items-start justify-between flex-col md:flex-row gap-4">
             <div>
               <nav className="flex gap-4 mb-4">
@@ -113,7 +115,7 @@ export default function RentIncreasesPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {/* Filter Tabs */}
         <div className="flex gap-2 mb-6">
           <button

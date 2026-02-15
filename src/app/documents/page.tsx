@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, ReactNode } from 'react';
 import { Image, FileText, Edit3, BarChart3, Paperclip, FolderOpen, Star, FileIcon } from 'lucide-react';
+import { useToast } from '@/components/Toast';
 
 type TabType = 'library' | 'templates';
 
@@ -44,6 +45,7 @@ interface Lease {
 }
 
 export default function DocumentsPage() {
+  const { showSuccess, showError, showWarning } = useToast();
   const [activeTab, setActiveTab] = useState<TabType>('library');
   const [loading, setLoading] = useState(true);
 
@@ -176,9 +178,10 @@ export default function DocumentsPage() {
       await fetchData();
       setShowUploadModal(false);
       setUploadForm({ file: null, category: '', description: '', tags: '', propertyId: '', leaseId: '' });
+      showSuccess('Document uploaded successfully');
     } catch (error) {
       console.error('Upload failed:', error);
-      alert('Upload failed');
+      showError('Upload failed');
     } finally {
       setUploading(false);
     }
@@ -189,8 +192,10 @@ export default function DocumentsPage() {
     try {
       await fetch(`/api/library/${doc.id}`, { method: 'DELETE' });
       fetchData();
+      showSuccess('Document deleted');
     } catch (error) {
       console.error('Delete failed:', error);
+      showError('Failed to delete document');
     }
   };
 
@@ -210,7 +215,7 @@ export default function DocumentsPage() {
   // Template handlers
   const handleSaveTemplate = async () => {
     if (!templateForm.name || !templateForm.templateContent) {
-      alert('Name and content are required');
+      showWarning('Name and content are required');
       return;
     }
 
@@ -237,9 +242,10 @@ export default function DocumentsPage() {
       setShowTemplateModal(false);
       setSelectedTemplate(null);
       setTemplateForm({ name: '', description: '', category: 'OTHER', templateContent: '', mergeFields: '', fileType: 'pdf' });
+      showSuccess('Template saved successfully');
     } catch (error) {
       console.error('Save failed:', error);
-      alert('Failed to save template');
+      showError('Failed to save template');
     } finally {
       setUploading(false);
     }
@@ -247,15 +253,17 @@ export default function DocumentsPage() {
 
   const handleDeleteTemplate = async (template: Template) => {
     if (template.isSystem) {
-      alert('System templates cannot be deleted');
+      showWarning('System templates cannot be deleted');
       return;
     }
     if (!confirm(`Delete "${template.name}"?`)) return;
     try {
       await fetch(`/api/templates/${template.id}`, { method: 'DELETE' });
       fetchData();
+      showSuccess('Template deleted');
     } catch (error) {
       console.error('Delete failed:', error);
+      showError('Failed to delete template');
     }
   };
 
@@ -281,7 +289,7 @@ export default function DocumentsPage() {
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-slate-900">Documents</h1>
@@ -313,7 +321,7 @@ export default function DocumentsPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         {/* Tabs */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 mb-6">
           <div className="flex border-b border-slate-200">

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Building2 } from 'lucide-react';
 import { PropertiesListSkeleton } from '@/components/Skeleton';
+import { useToast } from '@/components/Toast';
 
 interface Property {
   id: string;
@@ -27,6 +28,7 @@ interface UnitForm {
 }
 
 export default function PropertiesPage() {
+  const { showSuccess, showError } = useToast();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [showWizard, setShowWizard] = useState(false);
@@ -103,9 +105,11 @@ export default function PropertiesPage() {
       }
 
       setCreatedPropertyId(data.property.id);
+      showSuccess('Property created successfully');
       setWizardStep(2);
     } catch (error: any) {
       setError(error.message);
+      showError(error.message);
     } finally {
       setSubmitting(false);
     }
@@ -167,9 +171,11 @@ export default function PropertiesPage() {
       }
 
       // Move to completion step
+      showSuccess('Units added to property');
       setWizardStep(3);
     } catch (error: any) {
       setError(error.message);
+      showError(error.message);
     } finally {
       setSubmitting(false);
     }
@@ -223,7 +229,7 @@ export default function PropertiesPage() {
             <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Building2 className="h-8 w-8 text-blue-600" />
             </div>
-            <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-2">
+            <h3 className="text-base font-semibold text-slate-900 mb-2">
               No properties yet
             </h3>
             <p className="text-slate-500 mb-6 text-sm sm:text-base">
@@ -247,7 +253,7 @@ export default function PropertiesPage() {
                 <div className="p-4 sm:p-6">
                   <div className="flex items-start justify-between mb-3 sm:mb-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-1 truncate">{property.name}</h3>
+                      <h3 className="text-base font-semibold text-slate-900 mb-1 truncate">{property.name}</h3>
                       {property.address && (
                         <p className="text-xs sm:text-sm text-slate-600 truncate">
                           {property.address}
@@ -282,7 +288,7 @@ export default function PropertiesPage() {
 
                     <div className="flex justify-between items-center pt-3 border-t border-slate-200">
                       <span className="text-xs sm:text-sm text-slate-600">Monthly Revenue</span>
-                      <span className="text-base sm:text-lg font-bold text-green-600">
+                      <span className="text-base font-bold text-green-600">
                         {formatCurrency(property.monthlyRevenue)}
                       </span>
                     </div>
@@ -307,7 +313,7 @@ export default function PropertiesPage() {
             {/* Progress Header */}
             <div className="bg-slate-50 px-4 sm:px-6 py-4 border-b border-slate-200">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-base sm:text-lg font-bold text-slate-900">
+                <h2 className="text-base font-bold text-slate-900">
                   {wizardStep === 1 && 'Property Details'}
                   {wizardStep === 2 && 'Add Units'}
                   {wizardStep === 3 && 'Setup Complete'}
@@ -377,7 +383,7 @@ export default function PropertiesPage() {
                       required
                       value={propertyForm.name}
                       onChange={(e) => setPropertyForm({ ...propertyForm, name: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-lg"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                       placeholder="Industrial Park West"
                       autoFocus
                     />
@@ -396,7 +402,7 @@ export default function PropertiesPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                     <div className="col-span-2">
                       <label className="block text-sm font-medium text-slate-700 mb-1">
                         City
@@ -507,7 +513,7 @@ export default function PropertiesPage() {
                         )}
                       </div>
 
-                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-3">
                         <div className="col-span-3 sm:col-span-1">
                           <label className="block text-xs text-slate-500 mb-1">Unit #</label>
                           <input
@@ -551,7 +557,7 @@ export default function PropertiesPage() {
                             placeholder="Ground"
                           />
                         </div>
-                        <div className="hidden sm:block">
+                        <div>
                           <label className="block text-xs text-slate-500 mb-1">Sq Ft</label>
                           <input
                             type="number"

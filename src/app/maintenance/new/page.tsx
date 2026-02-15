@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useToast } from '@/components/Toast';
 
 interface Property {
   id: string;
@@ -31,6 +32,7 @@ interface Vendor {
 
 export default function NewWorkOrder() {
   const router = useRouter();
+  const { showSuccess, showError, showWarning } = useToast();
   const [submitting, setSubmitting] = useState(false);
   const [properties, setProperties] = useState<Property[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
@@ -160,7 +162,7 @@ export default function NewWorkOrder() {
     e.preventDefault();
 
     if (!formData.propertyId || !formData.unitId || !formData.title || !formData.description) {
-      alert('Please fill in all required fields');
+      showWarning('Please fill in all required fields');
       return;
     }
 
@@ -188,9 +190,10 @@ export default function NewWorkOrder() {
       }
 
       const workOrder = await res.json();
+      showSuccess('Work order created');
       router.push('/maintenance/workflow');
     } catch (error: any) {
-      alert(error.message);
+      showError(error.message);
       setSubmitting(false);
     }
   };

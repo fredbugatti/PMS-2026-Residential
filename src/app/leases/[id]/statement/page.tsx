@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import { useToast } from '@/components/Toast';
 
 interface LedgerEntry {
   id: string;
@@ -40,6 +41,7 @@ interface StatementData {
 export default function StatementPage() {
   const params = useParams();
   const leaseId = params.id as string;
+  const { showInfo, showError: showErrorToast } = useToast();
   const [data, setData] = useState<StatementData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +58,7 @@ export default function StatementPage() {
       setData(statementData);
     } catch (err: any) {
       setError(err.message);
+      showErrorToast(err.message);
     } finally {
       setLoading(false);
     }
@@ -68,6 +71,7 @@ export default function StatementPage() {
   const handleDownloadPDF = () => {
     // Trigger print dialog - user can select "Save as PDF"
     window.print();
+    showInfo('Statement downloaded');
   };
 
   const formatCurrency = (amount: number) => {
@@ -127,28 +131,28 @@ export default function StatementPage() {
   return (
     <>
       {/* Print/Download Controls - Hidden when printing */}
-      <div className="print:hidden bg-slate-100 border-b border-slate-200 px-6 py-4 sticky top-0 z-10">
+      <div className="print:hidden bg-slate-100 border-b border-slate-200 px-4 sm:px-6 py-3 sm:py-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <a
               href={`/leases/${leaseId}`}
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >
-              &larr; Back to Lease
+              &larr; Back
             </a>
-            <span className="text-slate-400">|</span>
-            <span className="text-sm text-slate-600">Tenant Statement</span>
+            <span className="text-slate-400 hidden sm:inline">|</span>
+            <span className="text-sm text-slate-600 hidden sm:inline">Tenant Statement</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={handleDownloadPDF}
-              className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors text-sm font-medium"
+              className="px-3 sm:px-4 py-2.5 sm:py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors text-sm font-medium min-h-[44px] sm:min-h-0"
             >
               Download PDF
             </button>
             <button
               onClick={handlePrint}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+              className="px-3 sm:px-4 py-2.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium min-h-[44px] sm:min-h-0"
             >
               Print
             </button>
@@ -158,7 +162,7 @@ export default function StatementPage() {
 
       {/* Statement Content */}
       <div className="bg-white min-h-screen">
-        <div className="max-w-4xl mx-auto px-6 py-8 print:px-0 print:py-0">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 print:px-0 print:py-0">
           {/* Header */}
           <div className="flex justify-between items-start mb-8 print:mb-6">
             <div>

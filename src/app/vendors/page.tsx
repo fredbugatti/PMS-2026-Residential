@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { HardHat } from 'lucide-react';
+import { useToast } from '@/components/Toast';
 
 interface Vendor {
   id: string;
@@ -19,6 +20,7 @@ interface Vendor {
 }
 
 export default function VendorsPage() {
+  const { showSuccess, showError } = useToast();
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -88,8 +90,9 @@ export default function VendorsPage() {
       });
       setShowForm(false);
       await fetchVendors();
+      showSuccess('Vendor created successfully');
     } catch (error: any) {
-      alert(error.message);
+      showError(error.message);
     } finally {
       setSubmitting(false);
     }

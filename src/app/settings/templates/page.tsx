@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useToast } from '@/components/Toast';
 
 interface DocumentTemplate {
   id: string;
@@ -54,6 +55,7 @@ const MERGE_FIELDS = [
 ];
 
 export default function TemplatesPage() {
+  const { showSuccess, showError, showWarning } = useToast();
   const [templates, setTemplates] = useState<DocumentTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -119,8 +121,9 @@ export default function TemplatesPage() {
 
       await fetchTemplates();
       closeModal();
+      showSuccess(editingTemplate ? 'Template updated' : 'Template created');
     } catch (error: any) {
-      alert(error.message);
+      showError(error.message);
     } finally {
       setSaving(false);
     }
@@ -128,7 +131,7 @@ export default function TemplatesPage() {
 
   const handleDelete = async (template: DocumentTemplate) => {
     if (template.isSystem) {
-      alert('Cannot delete system templates');
+      showWarning('Cannot delete system templates');
       return;
     }
 
@@ -143,9 +146,11 @@ export default function TemplatesPage() {
 
       if (res.ok) {
         await fetchTemplates();
+        showSuccess('Template deleted');
       }
     } catch (error) {
       console.error('Failed to delete template:', error);
+      showError('Failed to delete template');
     }
   };
 
@@ -161,9 +166,11 @@ export default function TemplatesPage() {
 
       if (res.ok) {
         await fetchTemplates();
+        showSuccess(`Template ${template.active ? 'deactivated' : 'activated'}`);
       }
     } catch (error) {
       console.error('Failed to toggle template:', error);
+      showError('Failed to update template');
     }
   };
 

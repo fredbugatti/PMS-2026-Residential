@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ClipboardList, ExternalLink, Copy, Mail, Lock, Check } from 'lucide-react';
+import { useToast } from '@/components/Toast';
 
 interface LedgerEntry {
   id: string;
@@ -103,6 +104,7 @@ interface ScheduledCharge {
 export default function LeaseDetailPage() {
   const params = useParams();
   const searchParams = useSearchParams();
+  const { showSuccess, showError, showWarning, showInfo } = useToast();
   const [lease, setLease] = useState<Lease | null>(null);
   const [loading, setLoading] = useState(true);
   const [showTransactionModal, setShowTransactionModal] = useState(false);
@@ -307,9 +309,10 @@ export default function LeaseDetailPage() {
 
       await fetchLease();
       setEditingRent(false);
+      showSuccess('Monthly rent updated');
     } catch (error) {
       console.error('Failed to update rent:', error);
-      alert('Failed to update monthly rent');
+      showError('Failed to update monthly rent');
     }
   };
 
@@ -330,9 +333,10 @@ export default function LeaseDetailPage() {
 
       await fetchLease();
       setEditingTenantInfo(false);
+      showSuccess('Tenant information updated');
     } catch (error) {
       console.error('Failed to update tenant info:', error);
-      alert('Failed to update tenant information');
+      showError('Failed to update tenant information');
     } finally {
       setSavingTenantInfo(false);
     }
@@ -387,10 +391,10 @@ export default function LeaseDetailPage() {
 
       const data = await res.json();
       await fetchLease();
-      alert('Portal link generated successfully!');
+      showSuccess('Portal link generated successfully');
     } catch (error) {
       console.error('Failed to generate portal link:', error);
-      alert('Failed to generate portal link');
+      showError('Failed to generate portal link');
     } finally {
       setGeneratingPortal(false);
     }
@@ -406,13 +410,13 @@ export default function LeaseDetailPage() {
       setTimeout(() => setCopiedPortalLink(false), 2000);
     } catch (error) {
       console.error('Failed to copy link:', error);
-      alert('Failed to copy link to clipboard');
+      showError('Failed to copy link to clipboard');
     }
   };
 
   const handleEmailPortalLink = async () => {
     if (!lease?.portalToken || !lease?.tenantEmail) {
-      alert('Tenant email is required to send the portal link');
+      showError('Tenant email is required to send the portal link');
       return;
     }
 
@@ -437,10 +441,10 @@ export default function LeaseDetailPage() {
       if (!res.ok) throw new Error('Failed to revoke portal access');
 
       await fetchLease();
-      alert('Portal access revoked successfully');
+      showSuccess('Portal access revoked successfully');
     } catch (error) {
       console.error('Failed to revoke portal access:', error);
-      alert('Failed to revoke portal access');
+      showError('Failed to revoke portal access');
     } finally {
       setGeneratingPortal(false);
     }
@@ -479,6 +483,7 @@ export default function LeaseDetailPage() {
       // Refresh data
       await fetchLease();
       await fetchDepositStatus();
+      showSuccess('Security deposit received');
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -528,6 +533,7 @@ export default function LeaseDetailPage() {
       // Refresh data
       await fetchLease();
       await fetchDepositStatus();
+      showSuccess('Security deposit returned');
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -604,6 +610,7 @@ export default function LeaseDetailPage() {
 
       // Refresh data
       await fetchRentIncreases();
+      showSuccess('Rent increase scheduled');
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -629,10 +636,10 @@ export default function LeaseDetailPage() {
 
       await fetchLease();
       await fetchRentIncreases();
-      alert('Rent increase applied successfully');
+      showSuccess('Rent increase applied successfully');
     } catch (error) {
       console.error('Failed to apply rent increase:', error);
-      alert('Failed to apply rent increase');
+      showError('Failed to apply rent increase');
     }
   };
 
@@ -651,9 +658,10 @@ export default function LeaseDetailPage() {
       }
 
       await fetchRentIncreases();
+      showSuccess('Rent increase cancelled');
     } catch (error) {
       console.error('Failed to cancel rent increase:', error);
-      alert('Failed to cancel rent increase');
+      showError('Failed to cancel rent increase');
     }
   };
 
@@ -714,6 +722,7 @@ export default function LeaseDetailPage() {
 
       // Refresh documents
       await fetchDocuments();
+      showSuccess('Document uploaded');
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -736,9 +745,10 @@ export default function LeaseDetailPage() {
       }
 
       await fetchDocuments();
+      showSuccess('Deleted successfully');
     } catch (error) {
       console.error('Failed to delete document:', error);
-      alert('Failed to delete document');
+      showError('Failed to delete document');
     }
   };
 
@@ -835,6 +845,7 @@ export default function LeaseDetailPage() {
 
       setShowAutomationModal(false);
       await fetchAutomationSettings();
+      showSuccess('Automation settings saved');
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -861,11 +872,11 @@ export default function LeaseDetailPage() {
       }
 
       const data = await res.json();
-      alert(data.message);
+      showSuccess(data.message || 'Charge posted successfully');
       await fetchLease();
       await fetchAutomationSettings();
     } catch (error: any) {
-      alert(error.message);
+      showError(error.message);
     } finally {
       setChargingRent(false);
     }
@@ -890,10 +901,10 @@ export default function LeaseDetailPage() {
       }
 
       const data = await res.json();
-      alert(data.message);
+      showSuccess(data.message || 'Late fee charged');
       await fetchLease();
     } catch (error: any) {
-      alert(error.message);
+      showError(error.message);
     } finally {
       setChargingLateFee(false);
     }
@@ -961,6 +972,7 @@ export default function LeaseDetailPage() {
 
       // Refresh lease data
       await fetchLease();
+      showSuccess(editingScheduledChargeId ? 'Scheduled charge updated' : 'Scheduled charges saved');
 
     } catch (err: any) {
       setError(err.message);
@@ -1010,8 +1022,9 @@ export default function LeaseDetailPage() {
       }
 
       await fetchLease();
+      showSuccess('Deleted successfully');
     } catch (err: any) {
-      alert(err.message);
+      showError(err.message);
     }
   };
 
@@ -1030,7 +1043,7 @@ export default function LeaseDetailPage() {
 
       await fetchLease();
     } catch (err: any) {
-      alert(err.message);
+      showError(err.message);
     }
   };
 
@@ -1052,10 +1065,10 @@ export default function LeaseDetailPage() {
 
       const data = await res.json();
       const { summary } = data;
-      alert(`Posted ${summary.posted} charge(s), skipped ${summary.skipped}, errors: ${summary.errors}`);
+      showSuccess(`Posted ${summary.posted} charge(s), skipped ${summary.skipped}, errors: ${summary.errors}`);
       await fetchLease();
     } catch (err: any) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setPostingScheduledCharges(false);
     }
@@ -1078,7 +1091,7 @@ export default function LeaseDetailPage() {
 
       await fetchLease();
     } catch (err: any) {
-      alert(err.message);
+      showError(err.message);
     }
   };
 
@@ -1096,8 +1109,9 @@ export default function LeaseDetailPage() {
       }
 
       await fetchLease();
+      showSuccess('Deleted successfully');
     } catch (err: any) {
-      alert(err.message);
+      showError(err.message);
     }
   };
 
@@ -1133,6 +1147,7 @@ export default function LeaseDetailPage() {
 
       // Refresh lease data
       await fetchLease();
+      showSuccess('Payment recorded successfully');
 
     } catch (err: any) {
       setError(err.message);
@@ -1210,10 +1225,10 @@ export default function LeaseDetailPage() {
 
       // Show success message
       if (successCount > 0) {
-        alert(`Successfully posted ${successCount} charge${successCount > 1 ? 's' : ''}`);
+        showSuccess(`Charge posted successfully${successCount > 1 ? ` (${successCount} charges)` : ''}`);
       }
       if (errors.length > 0) {
-        alert(`Some charges failed: ${errors.join(', ')}`);
+        showError(`Some charges failed: ${errors.join(', ')}`);
       }
 
       // Refresh lease data
@@ -1246,8 +1261,13 @@ export default function LeaseDetailPage() {
 
       await fetchLease();
       setShowStatusDropdown(false);
+      if (newStatus === 'TERMINATED') {
+        showWarning('Lease terminated');
+      } else {
+        showSuccess('Lease updated successfully');
+      }
     } catch (error: any) {
-      alert(error.message);
+      showError(error.message);
     } finally {
       setUpdatingStatus(false);
     }
@@ -1415,7 +1435,7 @@ export default function LeaseDetailPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <div>
               <button
@@ -1424,7 +1444,7 @@ export default function LeaseDetailPage() {
               >
                 ← Back to Leases
               </button>
-              <h1 className="text-2xl font-bold text-slate-900">{lease.tenantName}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900">{lease.tenantName}</h1>
               <p className="text-sm text-slate-600 mt-1">{lease.unitName}</p>
             </div>
             <div className="flex items-center gap-3">
@@ -1485,7 +1505,7 @@ export default function LeaseDetailPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8 space-y-6">
         {/* Lease Expiry Alert - Show at top if expiring soon */}
         {(() => {
           const daysLeft = getDaysUntilLeaseEnds();
@@ -1626,7 +1646,7 @@ export default function LeaseDetailPage() {
             </div>
           </div>
           {/* Ledger View Toggle */}
-          <div className="px-6 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+          <div className="px-4 sm:px-6 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50 overflow-x-auto">
             <span className="text-sm text-slate-600">
               {ledgerViewMode === 'simplified' ? 'Showing charges & payments only' : 'Showing full accounting ledger'}
             </span>
@@ -1686,145 +1706,193 @@ export default function LeaseDetailPage() {
             </div>
           ) : ledgerViewMode === 'simplified' ? (
             /* Simplified View - AR entries only */
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
-                      Description
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
-                      Charge
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
-                      Payment
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
+            <>
+              {/* Mobile card view */}
+              <div className="md:hidden divide-y divide-slate-200">
+                {lease.ledgerEntries
+                  .filter(entry => entry.accountCode === '1200')
+                  .map((entry) => (
+                  <div key={entry.id} className="px-4 py-3 flex items-center justify-between">
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium text-slate-900 truncate">{entry.description}</div>
+                      <div className="text-xs text-slate-500">{formatDate(entry.entryDate)}</div>
+                    </div>
+                    <div className="text-right ml-3">
+                      {entry.debitCredit === 'DR' ? (
+                        <span className="text-sm font-medium text-red-600">
+                          +{formatCurrency(parseFloat(entry.amount.toString()))}
+                        </span>
+                      ) : (
+                        <span className="text-sm font-medium text-green-600">
+                          -{formatCurrency(parseFloat(entry.amount.toString()))}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Desktop table view */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-slate-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                        Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                        Description
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
+                        Charge
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
+                        Payment
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
 
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {lease.ledgerEntries
-                    .filter(entry => entry.accountCode === '1200')
-                    .map((entry) => (
-                    <tr key={entry.id} className="hover:bg-slate-50 group">
-                      <td className="px-6 py-4 text-sm text-slate-900">
-                        {formatDate(entry.entryDate)}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-900">
-                        {entry.description}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-right">
-                        {entry.debitCredit === 'DR' ? (
-                          <span className="text-red-600 font-medium">
-                            +{formatCurrency(parseFloat(entry.amount.toString()))}
-                          </span>
-                        ) : (
-                          <span className="text-slate-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-right">
-                        {entry.debitCredit === 'CR' ? (
-                          <span className="text-green-600 font-medium">
-                            -{formatCurrency(parseFloat(entry.amount.toString()))}
-                          </span>
-                        ) : (
-                          <span className="text-slate-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-right">
-                        <button
-                          onClick={() => handleDeleteLedgerEntry(entry.id, entry.description)}
-                          className="p-1 text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all"
-                          title="Delete entry"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </td>
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {lease.ledgerEntries
+                      .filter(entry => entry.accountCode === '1200')
+                      .map((entry) => (
+                      <tr key={entry.id} className="hover:bg-slate-50 group">
+                        <td className="px-6 py-4 text-sm text-slate-900">
+                          {formatDate(entry.entryDate)}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-900">
+                          {entry.description}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-right">
+                          {entry.debitCredit === 'DR' ? (
+                            <span className="text-red-600 font-medium">
+                              +{formatCurrency(parseFloat(entry.amount.toString()))}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400">-</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-right">
+                          {entry.debitCredit === 'CR' ? (
+                            <span className="text-green-600 font-medium">
+                              -{formatCurrency(parseFloat(entry.amount.toString()))}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400">-</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-right">
+                          <button
+                            onClick={() => handleDeleteLedgerEntry(entry.id, entry.description)}
+                            className="p-1 text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all"
+                            title="Delete entry"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           ) : (
             /* Full Ledger View - All entries with accounting details */
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
-                      Account
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
-                      Description
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
-                      Debit
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
-                      Credit
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
+            <>
+              {/* Mobile card view */}
+              <div className="md:hidden divide-y divide-slate-200">
+                {lease.ledgerEntries.map((entry) => (
+                  <div key={entry.id} className="px-4 py-3">
+                    <div className="flex items-center justify-between">
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium text-slate-900 truncate">{entry.description}</div>
+                        <div className="text-xs text-slate-500">{formatDate(entry.entryDate)} &middot; {entry.account.code} {entry.account.name}</div>
+                      </div>
+                      <div className="text-right ml-3">
+                        <span className={`text-sm font-medium ${entry.debitCredit === 'DR' ? 'text-slate-900' : 'text-green-600'}`}>
+                          {entry.debitCredit === 'DR' ? 'DR' : 'CR'} {formatCurrency(parseFloat(entry.amount.toString()))}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Desktop table view */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-slate-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                        Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                        Account
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
+                        Description
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
+                        Debit
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
+                        Credit
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
 
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {lease.ledgerEntries.map((entry) => (
-                    <tr key={entry.id} className="hover:bg-slate-50 group">
-                      <td className="px-6 py-4 text-sm text-slate-900">
-                        {formatDate(entry.entryDate)}
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        <div className="text-slate-900 font-medium">{entry.account.code}</div>
-                        <div className="text-slate-500 text-xs">{entry.account.name}</div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-900">
-                        {entry.description}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-right">
-                        {entry.debitCredit === 'DR' ? (
-                          <span className="text-slate-900 font-medium">
-                            {formatCurrency(parseFloat(entry.amount.toString()))}
-                          </span>
-                        ) : (
-                          <span className="text-slate-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-right">
-                        {entry.debitCredit === 'CR' ? (
-                          <span className="text-slate-900 font-medium">
-                            {formatCurrency(parseFloat(entry.amount.toString()))}
-                          </span>
-                        ) : (
-                          <span className="text-slate-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-right">
-                        <button
-                          onClick={() => handleDeleteLedgerEntry(entry.id, entry.description)}
-                          className="p-1 text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all"
-                          title="Delete entry"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </td>
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {lease.ledgerEntries.map((entry) => (
+                      <tr key={entry.id} className="hover:bg-slate-50 group">
+                        <td className="px-6 py-4 text-sm text-slate-900">
+                          {formatDate(entry.entryDate)}
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          <div className="text-slate-900 font-medium">{entry.account.code}</div>
+                          <div className="text-slate-500 text-xs">{entry.account.name}</div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-900">
+                          {entry.description}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-right">
+                          {entry.debitCredit === 'DR' ? (
+                            <span className="text-slate-900 font-medium">
+                              {formatCurrency(parseFloat(entry.amount.toString()))}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400">-</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-right">
+                          {entry.debitCredit === 'CR' ? (
+                            <span className="text-slate-900 font-medium">
+                              {formatCurrency(parseFloat(entry.amount.toString()))}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400">-</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-right">
+                          <button
+                            onClick={() => handleDeleteLedgerEntry(entry.id, entry.description)}
+                            className="p-1 text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all"
+                            title="Delete entry"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
 
@@ -2614,7 +2682,7 @@ export default function LeaseDetailPage() {
       </div>
 
       {/* Documents Section - Collapsible */}
-      <div className="max-w-7xl mx-auto px-6 pb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-4 sm:pb-8">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200">
           <button
             onClick={() => setDocumentsExpanded(!documentsExpanded)}
@@ -2711,7 +2779,7 @@ export default function LeaseDetailPage() {
 
       {/* Maintenance Requests Section - Collapsible */}
       {lease.unitId && (
-        <div className="max-w-7xl mx-auto px-6 pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-4 sm:pb-8">
           <div className="bg-white rounded-xl shadow-sm border border-slate-200">
             <button
               onClick={() => setMaintenanceExpanded(!maintenanceExpanded)}
@@ -2811,9 +2879,9 @@ export default function LeaseDetailPage() {
 
       {/* Document Upload Modal */}
       {showDocumentModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-            <div className="p-6 border-b border-slate-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-2xl sm:rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6 border-b border-slate-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-slate-900">Upload Document</h2>
                 <button
@@ -2832,7 +2900,7 @@ export default function LeaseDetailPage() {
               </div>
             </div>
 
-            <form onSubmit={handleDocumentUpload} className="p-6 space-y-4">
+            <form onSubmit={handleDocumentUpload} className="p-4 sm:p-6 space-y-4">
               {error && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                   <p className="text-sm text-red-800">{error}</p>
@@ -3212,9 +3280,9 @@ export default function LeaseDetailPage() {
 
       {/* Manage Deposit Modal (Receive / Return) */}
       {showDepositModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-slate-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-2xl sm:rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6 border-b border-slate-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-slate-900">Manage Deposit</h2>
                 <button
@@ -3257,7 +3325,7 @@ export default function LeaseDetailPage() {
             </div>
 
             {depositModalTab === 'receive' ? (
-              <form onSubmit={handleDepositReceiveSubmit} className="p-6 space-y-4">
+              <form onSubmit={handleDepositReceiveSubmit} className="p-4 sm:p-6 space-y-4">
                 {error && (
                   <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                     <p className="text-sm text-red-800">{error}</p>
@@ -3340,7 +3408,7 @@ export default function LeaseDetailPage() {
                 </div>
               </form>
             ) : (
-              <form onSubmit={handleDepositReturnSubmit} className="p-6 space-y-4">
+              <form onSubmit={handleDepositReturnSubmit} className="p-4 sm:p-6 space-y-4">
                 {error && (
                   <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                     <p className="text-sm text-red-800">{error}</p>
@@ -3485,9 +3553,9 @@ export default function LeaseDetailPage() {
 
       {/* Automation Settings Modal */}
       {showAutomationModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-            <div className="p-6 border-b border-slate-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-2xl sm:rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6 border-b border-slate-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-slate-900">Automation Settings</h2>
                 <button
@@ -3504,7 +3572,7 @@ export default function LeaseDetailPage() {
               </div>
             </div>
 
-            <form onSubmit={handleAutomationSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleAutomationSubmit} className="p-4 sm:p-6 space-y-4">
               {error && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                   <p className="text-sm text-red-800">{error}</p>
@@ -3625,9 +3693,9 @@ export default function LeaseDetailPage() {
 
       {/* Scheduled Charge Modal */}
       {showScheduledChargeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="p-6 border-b border-slate-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-2xl sm:rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-4 sm:p-6 border-b border-slate-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-slate-900">
                   {editingScheduledChargeId ? 'Edit Scheduled Charge' : 'Add Scheduled Charges'}
@@ -3651,7 +3719,7 @@ export default function LeaseDetailPage() {
               )}
             </div>
 
-            <form onSubmit={handleAddScheduledCharges} className="flex-1 overflow-y-auto p-6">
+            <form onSubmit={handleAddScheduledCharges} className="flex-1 overflow-y-auto p-4 sm:p-6">
               {error && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
                   <p className="text-sm text-red-800">{error}</p>
@@ -3831,9 +3899,9 @@ export default function LeaseDetailPage() {
 
       {/* Rent Increase Modal */}
       {showRentIncreaseModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-            <div className="p-6 border-b border-slate-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-2xl sm:rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6 border-b border-slate-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-slate-900">Schedule Rent Increase</h2>
                 <button
@@ -3850,7 +3918,7 @@ export default function LeaseDetailPage() {
               </div>
             </div>
 
-            <form onSubmit={handleRentIncreaseSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleRentIncreaseSubmit} className="p-4 sm:p-6 space-y-4">
               {error && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                   <p className="text-sm text-red-800">{error}</p>

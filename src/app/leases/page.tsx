@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { FileText } from 'lucide-react';
 import { LeasesPageSkeleton } from '@/components/Skeleton';
+import { useToast } from '@/components/Toast';
 
 interface Lease {
   id: string;
@@ -36,6 +37,7 @@ interface Unit {
 }
 
 export default function LeasesPage() {
+  const { showSuccess, showError } = useToast();
   const [leases, setLeases] = useState<Lease[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<string>('all');
@@ -196,9 +198,10 @@ export default function LeasesPage() {
       });
       setAvailableUnits([]);
       setShowModal(false);
+      showSuccess('Lease created successfully');
       fetchLeases();
     } catch (error: any) {
-      alert(error.message);
+      showError(error.message);
     }
   };
 
@@ -316,7 +319,7 @@ export default function LeasesPage() {
                       {lease.status}
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3 text-sm">
                     <div>
                       <div className="text-slate-500 text-xs">Period</div>
                       <div className="text-slate-900">{formatDate(lease.startDate)} - {formatDate(lease.endDate)}</div>

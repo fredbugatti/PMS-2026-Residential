@@ -3,6 +3,7 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { useParams } from 'next/navigation';
 import { Image, FileText, Edit3, BarChart3, Paperclip, FolderOpen } from 'lucide-react';
+import { useToast } from '@/components/Toast';
 
 interface Property {
   id: string;
@@ -64,6 +65,7 @@ interface Lease {
 export default function PropertyDetailPage() {
   const params = useParams();
   const propertyId = params.id as string;
+  const { showSuccess, showError, showInfo } = useToast();
 
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
@@ -215,9 +217,10 @@ export default function PropertyDetailPage() {
       }
 
       setShowUnitModal(false);
+      showSuccess('Unit saved successfully');
       fetchProperty();
     } catch (error: any) {
-      alert(error.message);
+      showError(error.message);
     }
   };
 
@@ -234,9 +237,10 @@ export default function PropertyDetailPage() {
         throw new Error(error.error || 'Failed to delete unit');
       }
 
+      showSuccess('Unit deleted');
       fetchProperty();
     } catch (error: any) {
-      alert(error.message);
+      showError(error.message);
     }
   };
 
@@ -307,10 +311,12 @@ export default function PropertyDetailPage() {
 
       const lease = await leaseRes.json();
       setCreatedLeaseId(lease.id);
+      showSuccess('Lease created successfully');
       setLeaseWizardStep(3);
       fetchProperty();
     } catch (error: any) {
       setLeaseError(error.message);
+      showError(error.message);
     } finally {
       setLeaseSubmitting(false);
     }
@@ -373,9 +379,10 @@ export default function PropertyDetailPage() {
 
       setShowDocModal(false);
       setDocForm({ file: null, category: '', description: '', tags: '' });
+      showSuccess('Document uploaded successfully');
       fetchProperty();
     } catch (error: any) {
-      alert(error.message);
+      showError(error.message);
     } finally {
       setUploading(false);
     }
@@ -387,9 +394,10 @@ export default function PropertyDetailPage() {
     try {
       const res = await fetch(`/api/library/${docId}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete');
+      showSuccess('Document deleted');
       fetchProperty();
     } catch (error: any) {
-      alert(error.message);
+      showError(error.message);
     }
   };
 
@@ -435,7 +443,7 @@ export default function PropertyDetailPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold text-slate-900">{property.name}</h1>
@@ -458,7 +466,7 @@ export default function PropertyDetailPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8 space-y-8">
         {/* Stats Cards */}
         <div className={`grid grid-cols-1 sm:grid-cols-2 ${totalSquareFeet > 0 ? 'md:grid-cols-5' : 'md:grid-cols-4'} gap-4 md:gap-6`}>
           <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
@@ -544,7 +552,79 @@ export default function PropertyDetailPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              {/* Mobile card view */}
+              <div className="md:hidden divide-y divide-slate-200">
+                {property.units.map((unit) => (
+                  <div key={unit.id} className="p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium text-slate-900 text-base">{unit.unitNumber}</div>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getUnitStatusColor(unit.status)}`}>
+                        {unit.status}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <span className="text-slate-500">Sq Ft:</span>{' '}
+                        <span className="text-slate-900">{unit.squareFeet ? unit.squareFeet.toLocaleString() : '-'}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Dock Doors:</span>{' '}
+                        <span className="text-slate-900">{unit.dockDoors ?? '-'}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Clear Height:</span>{' '}
+                        <span className="text-slate-900">{unit.clearHeight ? `${unit.clearHeight} ft` : '-'}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Monthly:</span>{' '}
+                        <span className="text-slate-900">
+                          {unit.leases.length > 0 && unit.leases[0].scheduledCharges?.[0]
+                            ? formatCurrency(Number(unit.leases[0].scheduledCharges[0].amount))
+                            : '-'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-sm">
+                      <span className="text-slate-500">Company:</span>{' '}
+                      {unit.leases.length > 0 ? (
+                        <a
+                          href={`/leases/${unit.leases[0].id}`}
+                          className="text-blue-600 hover:text-blue-800 font-medium"
+                        >
+                          {unit.leases[0].tenantName}
+                        </a>
+                      ) : (
+                        <span className="text-slate-400">Vacant</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 pt-2">
+                      {unit.status === 'VACANT' && unit.leases.length === 0 && (
+                        <button
+                          onClick={() => openLeaseWizard(unit)}
+                          className="text-green-600 hover:text-green-800 text-sm font-medium py-2 px-3 min-h-[44px]"
+                        >
+                          Add Company
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleEditUnit(unit)}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium py-2 px-3 min-h-[44px]"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteUnit(unit.id)}
+                        className="text-red-600 hover:text-red-800 text-sm font-medium py-2 px-3 min-h-[44px]"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop table view */}
+              <table className="w-full hidden md:table">
                 <thead className="bg-slate-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
@@ -637,20 +717,20 @@ export default function PropertyDetailPage() {
                           {unit.status === 'VACANT' && unit.leases.length === 0 && (
                             <button
                               onClick={() => openLeaseWizard(unit)}
-                              className="text-green-600 hover:text-green-800 text-sm font-medium"
+                              className="text-green-600 hover:text-green-800 text-sm font-medium py-2 px-3 min-h-[44px]"
                             >
                               Add Company
                             </button>
                           )}
                           <button
                             onClick={() => handleEditUnit(unit)}
-                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            className="text-blue-600 hover:text-blue-800 text-sm font-medium py-2 px-3 min-h-[44px]"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleDeleteUnit(unit.id)}
-                            className="text-red-600 hover:text-red-800 text-sm font-medium"
+                            className="text-red-600 hover:text-red-800 text-sm font-medium py-2 px-3 min-h-[44px]"
                           >
                             Delete
                           </button>
@@ -679,7 +759,46 @@ export default function PropertyDetailPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              {/* Mobile card view */}
+              <div className="md:hidden divide-y divide-slate-200">
+                {property.leases.map((lease) => (
+                  <div key={lease.id} className="p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium text-slate-900 text-base">{lease.tenantName}</div>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getLeaseStatusColor(lease.status)}`}>
+                        {lease.status}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <span className="text-slate-500">Unit:</span>{' '}
+                        <span className="text-slate-900">{lease.unitName}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Monthly:</span>{' '}
+                        <span className="text-slate-900">
+                          {formatCurrency(lease.scheduledCharges?.[0] ? Number(lease.scheduledCharges[0].amount) : null)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-sm">
+                      <span className="text-slate-500">Period:</span>{' '}
+                      <span className="text-slate-900">{formatDate(lease.startDate)} - {formatDate(lease.endDate)}</span>
+                    </div>
+                    <div className="pt-2">
+                      <button
+                        onClick={() => window.location.href = `/leases/${lease.id}`}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium py-2 px-3 min-h-[44px]"
+                      >
+                        View
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop table view */}
+              <table className="w-full hidden md:table">
                 <thead className="bg-slate-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
@@ -725,7 +844,7 @@ export default function PropertyDetailPage() {
                       <td className="px-6 py-4 text-center">
                         <button
                           onClick={() => window.location.href = `/leases/${lease.id}`}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          className="text-blue-600 hover:text-blue-800 text-sm font-medium py-2 px-3 min-h-[44px]"
                         >
                           View
                         </button>
@@ -824,8 +943,8 @@ export default function PropertyDetailPage() {
 
       {/* Add Tenant & Lease Wizard */}
       {showLeaseWizard && selectedUnit && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-2xl sm:rounded-xl shadow-xl max-w-xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             {/* Progress Header */}
             <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
               <div className="flex items-center justify-between mb-3">

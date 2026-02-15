@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useToast } from '@/components/Toast';
 
 interface WorkOrder {
   id: string;
@@ -65,6 +66,7 @@ interface WorkOrder {
 export default function WorkOrderDetail() {
   const params = useParams();
   const router = useRouter();
+  const { showSuccess, showError } = useToast();
   const [workOrder, setWorkOrder] = useState<WorkOrder | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -109,8 +111,9 @@ export default function WorkOrderDetail() {
 
       await fetchWorkOrder();
       setShowStatusDropdown(false);
+      showSuccess(`Status changed to ${newStatus}`);
     } catch (error: any) {
-      alert(error.message);
+      showError(error.message);
     } finally {
       setUpdating(false);
     }
@@ -145,8 +148,9 @@ export default function WorkOrderDetail() {
       }
 
       await fetchWorkOrder();
+      showSuccess('Work order completed');
     } catch (error: any) {
-      alert(error.message);
+      showError(error.message);
     } finally {
       setUpdating(false);
     }
@@ -181,9 +185,9 @@ export default function WorkOrderDetail() {
       }
 
       await fetchWorkOrder();
-      alert('Work order marked as PAID. Ledger entries have been created.');
+      showSuccess('Work order marked as PAID. Ledger entries have been created.');
     } catch (error: any) {
-      alert(error.message);
+      showError(error.message);
     } finally {
       setUpdating(false);
     }

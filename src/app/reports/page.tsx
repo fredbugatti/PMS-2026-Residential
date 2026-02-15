@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense, Fragment } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ReportsPageSkeleton } from '@/components/Skeleton';
+import { useToast } from '@/components/Toast';
 
 interface TenantBalance {
   leaseId: string;
@@ -290,6 +291,7 @@ export default function ReportsPageWrapper() {
 function ReportsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { showSuccess, showError } = useToast();
   const [data, setData] = useState<ReportData | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<string>('all');
@@ -555,13 +557,14 @@ function ReportsPage() {
         entryDate: new Date().toISOString().split('T')[0]
       });
       setShowExpenseModal(false);
+      showSuccess('Expense added successfully');
 
       // Refresh data
       fetchExpenses();
       fetchProfitLoss();
     } catch (error: any) {
       console.error('Failed to add expense:', error);
-      alert(error.message || 'Failed to add expense');
+      showError(error.message || 'Failed to add expense');
     } finally {
       setSubmittingExpense(false);
     }
@@ -879,7 +882,7 @@ function ReportsPage() {
       setShowBulkModal(true);
     } catch (error) {
       console.error('Failed to fetch preview:', error);
-      alert('Failed to load charge preview');
+      showError('Failed to load charge preview');
     } finally {
       setBulkLoading(false);
     }
@@ -901,12 +904,13 @@ function ReportsPage() {
 
       const result = await res.json();
       setBulkResults(result);
+      showSuccess('Bulk charges posted successfully');
 
       // Refresh the report to show updated balances
       await fetchReport();
     } catch (error: any) {
       console.error('Failed to post bulk charges:', error);
-      alert(error.message || 'Failed to post charges');
+      showError(error.message || 'Failed to post charges');
     } finally {
       setBulkLoading(false);
     }

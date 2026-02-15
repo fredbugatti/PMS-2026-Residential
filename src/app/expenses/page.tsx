@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useToast } from '@/components/Toast';
 
 interface Property {
   id: string;
@@ -63,6 +64,7 @@ interface PendingExpense {
 type TabType = 'one-time' | 'recurring' | 'pending';
 
 export default function ExpensesPage() {
+  const { showSuccess, showError } = useToast();
   const [activeTab, setActiveTab] = useState<TabType>('one-time');
   const [loading, setLoading] = useState(true);
   const [properties, setProperties] = useState<Property[]>([]);
@@ -202,6 +204,7 @@ export default function ExpensesPage() {
       }
 
       setSuccess('Expense recorded successfully!');
+      showSuccess('Expense recorded successfully!');
       setShowOneTimeForm(false);
       setShowOptionalFields(false);
       setOneTimeForm({
@@ -215,6 +218,7 @@ export default function ExpensesPage() {
       loadExpenses();
     } catch (err: any) {
       setError(err.message);
+      showError(err.message);
     } finally {
       setSubmitting(false);
     }
@@ -243,12 +247,14 @@ export default function ExpensesPage() {
       }
 
       setSuccess(editingScheduled ? 'Scheduled expense updated!' : 'Scheduled expense created!');
+      showSuccess(editingScheduled ? 'Scheduled expense updated!' : 'Scheduled expense created!');
       setShowScheduledForm(false);
       setEditingScheduled(null);
       resetScheduledForm();
       loadScheduledExpenses();
     } catch (err: any) {
       setError(err.message);
+      showError(err.message);
     } finally {
       setSubmitting(false);
     }
@@ -264,9 +270,11 @@ export default function ExpensesPage() {
         throw new Error(data.error || 'Failed to delete');
       }
       setSuccess('Scheduled expense deleted');
+      showSuccess('Scheduled expense deleted');
       loadScheduledExpenses();
     } catch (err: any) {
       setError(err.message);
+      showError(err.message);
     }
   }
 
@@ -281,6 +289,7 @@ export default function ExpensesPage() {
       loadScheduledExpenses();
     } catch (err: any) {
       setError(err.message);
+      showError(err.message);
     }
   }
 
@@ -292,9 +301,11 @@ export default function ExpensesPage() {
         throw new Error(data.error || 'Failed to confirm');
       }
       setSuccess('Expense confirmed and posted!');
+      showSuccess('Expense confirmed and posted!');
       loadPendingExpenses();
     } catch (err: any) {
       setError(err.message);
+      showError(err.message);
     }
   }
 
@@ -308,9 +319,11 @@ export default function ExpensesPage() {
         throw new Error(data.error || 'Failed to skip');
       }
       setSuccess('Expense skipped');
+      showSuccess('Expense skipped');
       loadPendingExpenses();
     } catch (err: any) {
       setError(err.message);
+      showError(err.message);
     }
   }
 

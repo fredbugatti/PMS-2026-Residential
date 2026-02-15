@@ -4,6 +4,7 @@ import { useState, useEffect, ReactNode } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Lock, Droplets, Lightbulb, Snowflake, Plug, Wrench, ClipboardList, Camera } from 'lucide-react';
+import { useToast } from '@/components/Toast';
 
 interface TenantPortalData {
   lease: {
@@ -25,6 +26,7 @@ interface TenantPortalData {
 export default function TenantMaintenanceRequest() {
   const params = useParams();
   const router = useRouter();
+  const { showError, showWarning } = useToast();
   const token = params.token as string;
 
   const [data, setData] = useState<TenantPortalData | null>(null);
@@ -70,7 +72,7 @@ export default function TenantMaintenanceRequest() {
     // Limit to 5 photos
     const remainingSlots = 5 - uploadedPhotos.length;
     if (remainingSlots <= 0) {
-      alert('Maximum 5 photos allowed');
+      showWarning('Maximum 5 photos allowed');
       return;
     }
 
@@ -79,7 +81,7 @@ export default function TenantMaintenanceRequest() {
     filesToProcess.forEach(file => {
       // Check file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert(`${file.name} is too large. Maximum size is 5MB.`);
+        showWarning(`${file.name} is too large. Maximum size is 5MB.`);
         return;
       }
 
@@ -99,7 +101,7 @@ export default function TenantMaintenanceRequest() {
     e.preventDefault();
 
     if (!formData.title || !formData.description) {
-      alert('Please fill in all required fields');
+      showWarning('Please fill in all required fields');
       return;
     }
 
@@ -133,7 +135,7 @@ export default function TenantMaintenanceRequest() {
 
       setSuccess(true);
     } catch (error: any) {
-      alert(error.message);
+      showError(error.message);
     } finally {
       setSubmitting(false);
     }

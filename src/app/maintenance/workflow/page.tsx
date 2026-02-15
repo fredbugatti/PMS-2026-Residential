@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useToast } from '@/components/Toast';
 
 interface WorkOrder {
   id: string;
@@ -43,6 +44,7 @@ interface Vendor {
 }
 
 export default function MaintenanceWorkflow() {
+  const { showSuccess, showError, showWarning } = useToast();
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -97,7 +99,7 @@ export default function MaintenanceWorkflow() {
       return true;
     } catch (error) {
       console.error('Update failed:', error);
-      alert('Update failed');
+      showError('Update failed');
       return false;
     }
   };
@@ -119,7 +121,7 @@ export default function MaintenanceWorkflow() {
 
   const handleSaveCost = async (workOrderId: string) => {
     if (!costForm.actualCost) {
-      alert('Please enter actual cost');
+      showWarning('Please enter actual cost');
       return;
     }
 

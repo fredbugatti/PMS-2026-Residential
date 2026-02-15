@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useToast } from '@/components/Toast';
 
 interface Account {
   code: string;
@@ -40,6 +41,7 @@ type SortField = 'code' | 'name' | 'transactionCount' | 'balance';
 type SortDirection = 'asc' | 'desc';
 
 export default function ChartOfAccountsPage() {
+  const { showSuccess, showError } = useToast();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -131,8 +133,9 @@ export default function ChartOfAccountsPage() {
 
       await fetchAccounts();
       closeModal();
+      showSuccess(editingAccount ? 'Account updated' : 'Account created');
     } catch (error: any) {
-      alert(error.message);
+      showError(error.message);
     } finally {
       setSaving(false);
     }
@@ -151,9 +154,11 @@ export default function ChartOfAccountsPage() {
 
       if (res.ok) {
         await fetchAccounts();
+        showSuccess(`Account ${account.active ? 'deactivated' : 'activated'}`);
       }
     } catch (error) {
       console.error('Failed to toggle account:', error);
+      showError('Failed to update account');
     }
   };
 
