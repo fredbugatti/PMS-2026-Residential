@@ -105,12 +105,14 @@ export default function LeaseDetailPage() {
   const searchParams = useSearchParams();
   const [lease, setLease] = useState<Lease | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [transactionMode, setTransactionMode] = useState<'payment' | 'charge'>('payment');
 
   // Auto-open payment modal if ?action=pay is in URL
   useEffect(() => {
     if (searchParams.get('action') === 'pay' && lease) {
-      setShowPaymentModal(true);
+      setTransactionMode('payment');
+      setShowTransactionModal(true);
       if (lease.balance > 0) {
         setPaymentForm(prev => ({ ...prev, amount: lease.balance.toFixed(2) }));
       }
@@ -121,7 +123,7 @@ export default function LeaseDetailPage() {
     description: '',
     paymentDate: new Date().toISOString().split('T')[0]
   });
-  const [showChargeModal, setShowChargeModal] = useState(false);
+  // Charge form state (used inside transaction modal's charge tab)
   const [charges, setCharges] = useState<Array<{
     amount: string;
     chargeType: 'rent' | 'late_fee' | 'utility' | 'other';
@@ -137,8 +139,8 @@ export default function LeaseDetailPage() {
   const [editingRent, setEditingRent] = useState(false);
   const [rentAmount, setRentAmount] = useState('');
   const [depositStatus, setDepositStatus] = useState<DepositStatus | null>(null);
-  const [showDepositReceiveModal, setShowDepositReceiveModal] = useState(false);
-  const [showDepositReturnModal, setShowDepositReturnModal] = useState(false);
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [depositModalTab, setDepositModalTab] = useState<'receive' | 'return'>('receive');
   const [depositReceiveForm, setDepositReceiveForm] = useState({
     amount: '',
     description: '',
@@ -177,6 +179,7 @@ export default function LeaseDetailPage() {
     lateFeeType: 'FLAT',
     reminderEmails: false
   });
+  const [automationPreset, setAutomationPreset] = useState<'off' | 'basic' | 'standard' | 'full'>('off');
   const [chargingRent, setChargingRent] = useState(false);
   const [chargingLateFee, setChargingLateFee] = useState(false);
   const [automationExpanded, setAutomationExpanded] = useState(false);
@@ -471,7 +474,7 @@ export default function LeaseDetailPage() {
         description: '',
         receiptDate: new Date().toISOString().split('T')[0]
       });
-      setShowDepositReceiveModal(false);
+      setShowDepositModal(false);
 
       // Refresh data
       await fetchLease();
@@ -520,7 +523,7 @@ export default function LeaseDetailPage() {
         returnDate: new Date().toISOString().split('T')[0],
         deductions: []
       });
-      setShowDepositReturnModal(false);
+      setShowDepositModal(false);
 
       // Refresh data
       await fetchLease();
@@ -772,9 +775,37 @@ export default function LeaseDetailPage() {
           lateFeeType: data.lateFeeType || 'FLAT',
           reminderEmails: data.reminderEmails || false
         });
+        // Derive preset from current settings
+        if (!data.autoChargeEnabled) {
+          setAutomationPreset('off');
+        } else if (data.reminderEmails) {
+          setAutomationPreset('full');
+        } else if (data.lateFeeAmount && parseFloat(data.lateFeeAmount) > 0) {
+          setAutomationPreset('standard');
+        } else {
+          setAutomationPreset('basic');
+        }
       }
     } catch (error) {
       console.error('Failed to fetch automation settings:', error);
+    }
+  };
+
+  const applyAutomationPreset = (preset: 'off' | 'basic' | 'standard' | 'full') => {
+    setAutomationPreset(preset);
+    switch (preset) {
+      case 'off':
+        setAutomationForm({ autoChargeEnabled: false, chargeDay: '', gracePeriodDays: '', lateFeeAmount: '', lateFeeType: 'FLAT', reminderEmails: false });
+        break;
+      case 'basic':
+        setAutomationForm({ autoChargeEnabled: true, chargeDay: '1', gracePeriodDays: '', lateFeeAmount: '', lateFeeType: 'FLAT', reminderEmails: false });
+        break;
+      case 'standard':
+        setAutomationForm({ autoChargeEnabled: true, chargeDay: '1', gracePeriodDays: '5', lateFeeAmount: '50', lateFeeType: 'FLAT', reminderEmails: false });
+        break;
+      case 'full':
+        setAutomationForm({ autoChargeEnabled: true, chargeDay: '1', gracePeriodDays: '5', lateFeeAmount: '50', lateFeeType: 'FLAT', reminderEmails: true });
+        break;
     }
   };
 
@@ -1098,7 +1129,7 @@ export default function LeaseDetailPage() {
         description: '',
         paymentDate: new Date().toISOString().split('T')[0]
       });
-      setShowPaymentModal(false);
+      setShowTransactionModal(false);
 
       // Refresh lease data
       await fetchLease();
@@ -1175,7 +1206,7 @@ export default function LeaseDetailPage() {
       // Reset form and close modal
       setCharges([{ amount: '', chargeType: 'rent', description: '' }]);
       setChargeDate(new Date().toISOString().split('T')[0]);
-      setShowChargeModal(false);
+      setShowTransactionModal(false);
 
       // Show success message
       if (successCount > 0) {
@@ -1438,7 +1469,8 @@ export default function LeaseDetailPage() {
                 <button
                   onClick={() => {
                     setPaymentForm(prev => ({ ...prev, amount: lease.balance.toFixed(2) }));
-                    setShowPaymentModal(true);
+                    setTransactionMode('payment');
+                    setShowTransactionModal(true);
                   }}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2"
                 >
@@ -1571,7 +1603,8 @@ export default function LeaseDetailPage() {
                       description: ''
                     }]);
                     setChargeDate(new Date().toISOString().split('T')[0]);
-                    setShowChargeModal(true);
+                    setTransactionMode('charge');
+                    setShowTransactionModal(true);
                   }}
                   className="px-3 sm:px-3 py-2.5 sm:py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                 >
@@ -1582,7 +1615,8 @@ export default function LeaseDetailPage() {
                     if (lease.balance > 0) {
                       setPaymentForm(prev => ({ ...prev, amount: lease.balance.toFixed(2) }));
                     }
-                    setShowPaymentModal(true);
+                    setTransactionMode('payment');
+                    setShowTransactionModal(true);
                   }}
                   className="px-3 sm:px-3 py-2.5 sm:py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
                 >
@@ -1635,14 +1669,15 @@ export default function LeaseDetailPage() {
                       description: ''
                     }]);
                     setChargeDate(new Date().toISOString().split('T')[0]);
-                    setShowChargeModal(true);
+                    setTransactionMode('charge');
+                    setShowTransactionModal(true);
                   }}
                   className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
                 >
                   + Charge
                 </button>
                 <button
-                  onClick={() => setShowPaymentModal(true)}
+                  onClick={() => { setTransactionMode('payment'); setShowTransactionModal(true); }}
                   className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700"
                 >
                   + Payment
@@ -1860,7 +1895,8 @@ export default function LeaseDetailPage() {
                           ...depositReceiveForm,
                           amount: lease.securityDepositAmount?.toString() || ''
                         });
-                        setShowDepositReceiveModal(true);
+                        setDepositModalTab('receive');
+                        setShowDepositModal(true);
                       }}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
                     >
@@ -1874,7 +1910,8 @@ export default function LeaseDetailPage() {
                           ...depositReturnForm,
                           amount: depositStatus.currentBalance.toString()
                         });
-                        setShowDepositReturnModal(true);
+                        setDepositModalTab('return');
+                        setShowDepositModal(true);
                       }}
                       className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
                     >
@@ -2875,144 +2912,16 @@ export default function LeaseDetailPage() {
         </div>
       )}
 
-      {/* Payment Modal - Bottom sheet on mobile */}
-      {showPaymentModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-4 sm:p-6 border-b border-slate-200 sticky top-0 bg-white rounded-t-xl">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-slate-900">Record Payment</h2>
-                <button
-                  onClick={() => {
-                    setShowPaymentModal(false);
-                    setError('');
-                  }}
-                  className="text-slate-400 hover:text-slate-600"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <form onSubmit={handlePaymentSubmit} className="p-4 sm:p-6 space-y-4">
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-800">{error}</p>
-                </div>
-              )}
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-900">
-                  <span className="font-semibold">Balance Due:</span> {formatCurrency(lease.balance)}
-                </p>
-                {lease.balance > 0 && (
-                  <p className="text-xs text-blue-700 mt-1">
-                    Recording this payment will reduce the amount owed.
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-sm font-medium text-slate-700">
-                    Payment Amount *
-                  </label>
-                  {lease.balance > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => setPaymentForm({ ...paymentForm, amount: lease.balance.toFixed(2) })}
-                      className="text-xs text-green-600 hover:text-green-800 font-medium"
-                    >
-                      Pay Full Balance ({formatCurrency(lease.balance)})
-                    </button>
-                  )}
-                </div>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    required
-                    value={paymentForm.amount}
-                    onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
-                    className="w-full pl-8 pr-3 py-2.5 sm:py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base sm:text-sm"
-                    placeholder="0.00"
-                    autoFocus
-                  />
-                </div>
-                {parseFloat(paymentForm.amount) > lease.balance && lease.balance > 0 && (
-                  <p className="mt-1 text-xs text-amber-600">
-                    This is more than the balance due. The extra {formatCurrency(parseFloat(paymentForm.amount) - lease.balance)} will become a credit.
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Payment Date *
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={paymentForm.paymentDate}
-                  onChange={(e) => setPaymentForm({ ...paymentForm, paymentDate: e.target.value })}
-                  className="w-full px-3 py-2.5 sm:py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base sm:text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Description (optional)
-                </label>
-                <input
-                  type="text"
-                  value={paymentForm.description}
-                  onChange={(e) => setPaymentForm({ ...paymentForm, description: e.target.value })}
-                  className="w-full px-3 py-2.5 sm:py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base sm:text-sm"
-                  placeholder={`Payment from ${lease.tenantName}`}
-                />
-              </div>
-
-              <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowPaymentModal(false);
-                    setError('');
-                  }}
-                  className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 px-4 py-3 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {submitting ? 'Recording...' : 'Record Payment'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Charge Modal - Bottom sheet on mobile */}
-      {showChargeModal && (
+      {/* Transaction Modal (Payment / Charge) - Bottom sheet on mobile */}
+      {showTransactionModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
           <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-4 sm:p-6 border-b border-slate-200 sticky top-0 bg-white rounded-t-xl">
               <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900">Post Charges</h2>
-                  <p className="text-sm text-slate-600 mt-1">Add multiple charges at once</p>
-                </div>
+                <h2 className="text-xl font-bold text-slate-900">New Transaction</h2>
                 <button
                   onClick={() => {
-                    setShowChargeModal(false);
+                    setShowTransactionModal(false);
                     setError('');
                   }}
                   className="text-slate-400 hover:text-slate-600"
@@ -3022,423 +2931,554 @@ export default function LeaseDetailPage() {
                   </svg>
                 </button>
               </div>
+              {/* Toggle tabs */}
+              <div className="flex mt-3 bg-slate-100 rounded-lg p-1">
+                <button
+                  type="button"
+                  onClick={() => setTransactionMode('payment')}
+                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
+                    transactionMode === 'payment'
+                      ? 'bg-white text-green-700 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-800'
+                  }`}
+                >
+                  Payment
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTransactionMode('charge')}
+                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
+                    transactionMode === 'charge'
+                      ? 'bg-white text-blue-700 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-800'
+                  }`}
+                >
+                  Charge
+                </button>
+              </div>
             </div>
 
-            <form onSubmit={handleChargeSubmit} className="p-4 sm:p-6 space-y-4">
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-800">{error}</p>
+            {transactionMode === 'payment' ? (
+              <form onSubmit={handlePaymentSubmit} className="p-4 sm:p-6 space-y-4">
+                {error && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-800">{error}</p>
+                  </div>
+                )}
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-900">
+                    <span className="font-semibold">Balance Due:</span> {formatCurrency(lease.balance)}
+                  </p>
+                  {lease.balance > 0 && (
+                    <p className="text-xs text-blue-700 mt-1">
+                      Recording this payment will reduce the amount owed.
+                    </p>
+                  )}
                 </div>
-              )}
 
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-900">
-                  <span className="font-semibold">Tenant:</span> {lease.tenantName}
-                </p>
-                <p className="text-xs text-blue-700 mt-1">
-                  All charges will post: DR Accounts Receivable / CR Lease Income
-                </p>
-              </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-sm font-medium text-slate-700">
+                      Payment Amount *
+                    </label>
+                    {lease.balance > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setPaymentForm({ ...paymentForm, amount: lease.balance.toFixed(2) })}
+                        className="text-xs text-green-600 hover:text-green-800 font-medium"
+                      >
+                        Pay Full Balance ({formatCurrency(lease.balance)})
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      required
+                      value={paymentForm.amount}
+                      onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
+                      className="w-full pl-8 pr-3 py-2.5 sm:py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base sm:text-sm"
+                      placeholder="0.00"
+                      autoFocus
+                    />
+                  </div>
+                  {parseFloat(paymentForm.amount) > lease.balance && lease.balance > 0 && (
+                    <p className="mt-1 text-xs text-amber-600">
+                      This is more than the balance due. The extra {formatCurrency(parseFloat(paymentForm.amount) - lease.balance)} will become a credit.
+                    </p>
+                  )}
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Charge Date (applies to all) *
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={chargeDate}
-                  onChange={(e) => setChargeDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Payment Date *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={paymentForm.paymentDate}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, paymentDate: e.target.value })}
+                    className="w-full px-3 py-2.5 sm:py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base sm:text-sm"
+                  />
+                </div>
 
-              <div className="border-t pt-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-slate-900">Charges</h3>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Description (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={paymentForm.description}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, description: e.target.value })}
+                    className="w-full px-3 py-2.5 sm:py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base sm:text-sm"
+                    placeholder={`Payment from ${lease.tenantName}`}
+                  />
+                </div>
+
+                <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
                   <button
                     type="button"
-                    onClick={addCharge}
-                    className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                    onClick={() => {
+                      setShowTransactionModal(false);
+                      setError('');
+                    }}
+                    className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    Add Another Charge
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex-1 px-4 py-3 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {submitting ? 'Recording...' : 'Record Payment'}
                   </button>
                 </div>
+              </form>
+            ) : (
+              <form onSubmit={handleChargeSubmit} className="p-4 sm:p-6 space-y-4">
+                {error && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-800">{error}</p>
+                  </div>
+                )}
 
-                <div className="space-y-3">
-                  {charges.map((charge, index) => (
-                    <div key={index} className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-1 space-y-3">
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-xs font-medium text-slate-700 mb-1">
-                                Type *
-                              </label>
-                              <select
-                                required
-                                value={charge.chargeType}
-                                onChange={(e) => updateCharge(index, 'chargeType', e.target.value)}
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                              >
-                                <option value="rent">Monthly Lease Payment</option>
-                                <option value="late_fee">Late Fee</option>
-                                <option value="utility">Utility</option>
-                                <option value="other">Other</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-xs font-medium text-slate-700 mb-1">
-                                Amount *
-                              </label>
-                              <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
-                                <input
-                                  type="number"
-                                  step="0.01"
-                                  min="0.01"
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-900">
+                    <span className="font-semibold">Tenant:</span> {lease.tenantName}
+                  </p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    All charges will post: DR Accounts Receivable / CR Lease Income
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Charge Date (applies to all) *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={chargeDate}
+                    onChange={(e) => setChargeDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="border-t pt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-semibold text-slate-900">Charges</h3>
+                    <button
+                      type="button"
+                      onClick={addCharge}
+                      className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      Add Another Charge
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {charges.map((charge, index) => (
+                      <div key={index} className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                        <div className="flex items-start gap-3">
+                          <div className="flex-1 space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-xs font-medium text-slate-700 mb-1">
+                                  Type *
+                                </label>
+                                <select
                                   required
-                                  value={charge.amount}
-                                  onChange={(e) => updateCharge(index, 'amount', e.target.value)}
-                                  className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                  placeholder="0.00"
-                                />
+                                  value={charge.chargeType}
+                                  onChange={(e) => updateCharge(index, 'chargeType', e.target.value)}
+                                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                >
+                                  <option value="rent">Monthly Lease Payment</option>
+                                  <option value="late_fee">Late Fee</option>
+                                  <option value="utility">Utility</option>
+                                  <option value="other">Other</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-slate-700 mb-1">
+                                  Amount *
+                                </label>
+                                <div className="relative">
+                                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0.01"
+                                    required
+                                    value={charge.amount}
+                                    onChange={(e) => updateCharge(index, 'amount', e.target.value)}
+                                    className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                    placeholder="0.00"
+                                  />
+                                </div>
                               </div>
                             </div>
+                            <div>
+                              <label className="block text-xs font-medium text-slate-700 mb-1">
+                                Description (optional)
+                              </label>
+                              <input
+                                type="text"
+                                value={charge.description}
+                                onChange={(e) => updateCharge(index, 'description', e.target.value)}
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                placeholder="Auto-filled based on charge type"
+                              />
+                            </div>
                           </div>
-                          <div>
-                            <label className="block text-xs font-medium text-slate-700 mb-1">
-                              Description (optional)
-                            </label>
+                          {charges.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeCharge(index)}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                              title="Remove charge"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-3 p-3 bg-slate-50 rounded-lg">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-semibold text-slate-700">Total Amount:</span>
+                      <span className="text-lg font-bold text-slate-900">
+                        ${charges.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowTransactionModal(false);
+                      setError('');
+                    }}
+                    className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex-1 px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {submitting ? 'Posting...' : `Post ${charges.filter(c => c.amount && parseFloat(c.amount) > 0).length} Charge${charges.filter(c => c.amount && parseFloat(c.amount) > 0).length !== 1 ? 's' : ''}`}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Manage Deposit Modal (Receive / Return) */}
+      {showDepositModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-slate-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-slate-900">Manage Deposit</h2>
+                <button
+                  onClick={() => {
+                    setShowDepositModal(false);
+                    setError('');
+                  }}
+                  className="text-slate-400 hover:text-slate-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              {/* Toggle tabs */}
+              <div className="flex mt-3 bg-slate-100 rounded-lg p-1">
+                <button
+                  type="button"
+                  onClick={() => setDepositModalTab('receive')}
+                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
+                    depositModalTab === 'receive'
+                      ? 'bg-white text-blue-700 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-800'
+                  }`}
+                >
+                  Receive
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDepositModalTab('return')}
+                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
+                    depositModalTab === 'return'
+                      ? 'bg-white text-green-700 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-800'
+                  }`}
+                >
+                  Return
+                </button>
+              </div>
+            </div>
+
+            {depositModalTab === 'receive' ? (
+              <form onSubmit={handleDepositReceiveSubmit} className="p-6 space-y-4">
+                {error && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-800">{error}</p>
+                  </div>
+                )}
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-900">
+                    <span className="font-semibold">This will post:</span> DR Cash / CR Deposits Held
+                  </p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    Records deposit received and increases liability
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Deposit Amount *
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      required
+                      value={depositReceiveForm.amount}
+                      onChange={(e) => setDepositReceiveForm({ ...depositReceiveForm, amount: e.target.value })}
+                      className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="0.00"
+                      autoFocus
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Receipt Date *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={depositReceiveForm.receiptDate}
+                    onChange={(e) => setDepositReceiveForm({ ...depositReceiveForm, receiptDate: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Description (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={depositReceiveForm.description}
+                    onChange={(e) => setDepositReceiveForm({ ...depositReceiveForm, description: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder={`Security deposit from ${lease.tenantName}`}
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowDepositModal(false);
+                      setError('');
+                    }}
+                    className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {submitting ? 'Recording...' : 'Record Deposit'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <form onSubmit={handleDepositReturnSubmit} className="p-6 space-y-4">
+                {error && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-800">{error}</p>
+                  </div>
+                )}
+
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <p className="text-sm text-green-900">
+                    <span className="font-semibold">Deposit Held:</span> {formatCurrency(depositStatus?.currentBalance || 0)}
+                  </p>
+                  <p className="text-xs text-green-700 mt-1">
+                    Base posting: DR Deposits Held / CR Cash
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Amount to Return *
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      required
+                      value={depositReturnForm.amount}
+                      onChange={(e) => setDepositReturnForm({ ...depositReturnForm, amount: e.target.value })}
+                      className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="0.00"
+                      autoFocus
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Return Date *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={depositReturnForm.returnDate}
+                    onChange={(e) => setDepositReturnForm({ ...depositReturnForm, returnDate: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Description (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={depositReturnForm.description}
+                    onChange={(e) => setDepositReturnForm({ ...depositReturnForm, description: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder={`Deposit return to ${lease.tenantName}`}
+                  />
+                </div>
+
+                {/* Deductions Section */}
+                <div className="border-t pt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-semibold text-slate-900">Deductions (optional)</h3>
+                    <button
+                      type="button"
+                      onClick={addDeduction}
+                      className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      + Add Deduction
+                    </button>
+                  </div>
+
+                  {depositReturnForm.deductions.length > 0 && (
+                    <div className="space-y-3">
+                      {depositReturnForm.deductions.map((deduction, index) => (
+                        <div key={index} className="flex gap-2">
+                          <input
+                            type="text"
+                            value={deduction.description}
+                            onChange={(e) => updateDeduction(index, 'description', e.target.value)}
+                            className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                            placeholder="Cleaning, repairs, etc."
+                          />
+                          <div className="relative w-32">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
                             <input
-                              type="text"
-                              value={charge.description}
-                              onChange={(e) => updateCharge(index, 'description', e.target.value)}
-                              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                              placeholder="Auto-filled based on charge type"
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={deduction.amount}
+                              onChange={(e) => updateDeduction(index, 'amount', e.target.value)}
+                              className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                              placeholder="0.00"
                             />
                           </div>
-                        </div>
-                        {charges.length > 1 && (
                           <button
                             type="button"
-                            onClick={() => removeCharge(index)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
-                            title="Remove charge"
+                            onClick={() => removeDeduction(index)}
+                            className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                           </button>
-                        )}
+                        </div>
+                      ))}
+                      <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p className="text-xs text-yellow-800">
+                          Deductions will post: DR Deposits Held / DR Expense for each item
+                        </p>
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
 
-                <div className="mt-3 p-3 bg-slate-50 rounded-lg">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="font-semibold text-slate-700">Total Amount:</span>
-                    <span className="text-lg font-bold text-slate-900">
-                      ${charges.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0).toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowChargeModal(false);
-                    setError('');
-                  }}
-                  className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {submitting ? 'Posting...' : `Post ${charges.filter(c => c.amount && parseFloat(c.amount) > 0).length} Charge${charges.filter(c => c.amount && parseFloat(c.amount) > 0).length !== 1 ? 's' : ''}`}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Deposit Receive Modal */}
-      {showDepositReceiveModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-            <div className="p-6 border-b border-slate-200">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-slate-900">Record Deposit Received</h2>
-                <button
-                  onClick={() => {
-                    setShowDepositReceiveModal(false);
-                    setError('');
-                  }}
-                  className="text-slate-400 hover:text-slate-600"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <form onSubmit={handleDepositReceiveSubmit} className="p-6 space-y-4">
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-800">{error}</p>
-                </div>
-              )}
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-900">
-                  <span className="font-semibold">This will post:</span> DR Cash / CR Deposits Held
-                </p>
-                <p className="text-xs text-blue-700 mt-1">
-                  Records deposit received and increases liability
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Deposit Amount *
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    required
-                    value={depositReceiveForm.amount}
-                    onChange={(e) => setDepositReceiveForm({ ...depositReceiveForm, amount: e.target.value })}
-                    className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="0.00"
-                    autoFocus
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Receipt Date *
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={depositReceiveForm.receiptDate}
-                  onChange={(e) => setDepositReceiveForm({ ...depositReceiveForm, receiptDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Description (optional)
-                </label>
-                <input
-                  type="text"
-                  value={depositReceiveForm.description}
-                  onChange={(e) => setDepositReceiveForm({ ...depositReceiveForm, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={`Security deposit from ${lease.tenantName}`}
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowDepositReceiveModal(false);
-                    setError('');
-                  }}
-                  className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {submitting ? 'Recording...' : 'Record Deposit'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Deposit Return Modal */}
-      {showDepositReturnModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-slate-200">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-slate-900">Return Security Deposit</h2>
-                <button
-                  onClick={() => {
-                    setShowDepositReturnModal(false);
-                    setError('');
-                  }}
-                  className="text-slate-400 hover:text-slate-600"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <form onSubmit={handleDepositReturnSubmit} className="p-6 space-y-4">
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-800">{error}</p>
-                </div>
-              )}
-
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-sm text-green-900">
-                  <span className="font-semibold">Deposit Held:</span> {formatCurrency(depositStatus?.currentBalance || 0)}
-                </p>
-                <p className="text-xs text-green-700 mt-1">
-                  Base posting: DR Deposits Held / CR Cash
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Amount to Return *
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    required
-                    value={depositReturnForm.amount}
-                    onChange={(e) => setDepositReturnForm({ ...depositReturnForm, amount: e.target.value })}
-                    className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="0.00"
-                    autoFocus
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Return Date *
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={depositReturnForm.returnDate}
-                  onChange={(e) => setDepositReturnForm({ ...depositReturnForm, returnDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Description (optional)
-                </label>
-                <input
-                  type="text"
-                  value={depositReturnForm.description}
-                  onChange={(e) => setDepositReturnForm({ ...depositReturnForm, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder={`Deposit return to ${lease.tenantName}`}
-                />
-              </div>
-
-              {/* Deductions Section */}
-              <div className="border-t pt-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-slate-900">Deductions (optional)</h3>
+                <div className="flex gap-3 pt-4">
                   <button
                     type="button"
-                    onClick={addDeduction}
-                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                    onClick={() => {
+                      setShowDepositModal(false);
+                      setError('');
+                    }}
+                    className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
                   >
-                    + Add Deduction
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {submitting ? 'Processing...' : 'Return Deposit'}
                   </button>
                 </div>
-
-                {depositReturnForm.deductions.length > 0 && (
-                  <div className="space-y-3">
-                    {depositReturnForm.deductions.map((deduction, index) => (
-                      <div key={index} className="flex gap-2">
-                        <input
-                          type="text"
-                          value={deduction.description}
-                          onChange={(e) => updateDeduction(index, 'description', e.target.value)}
-                          className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
-                          placeholder="Cleaning, repairs, etc."
-                        />
-                        <div className="relative w-32">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
-                          <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            value={deduction.amount}
-                            onChange={(e) => updateDeduction(index, 'amount', e.target.value)}
-                            className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
-                            placeholder="0.00"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeDeduction(index)}
-                          className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
-                    ))}
-                    <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <p className="text-xs text-yellow-800">
-                        Deductions will post: DR Deposits Held / DR Expense for each item
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowDepositReturnModal(false);
-                    setError('');
-                  }}
-                  className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {submitting ? 'Processing...' : 'Return Deposit'}
-                </button>
-              </div>
-            </form>
+              </form>
+            )}
           </div>
         </div>
       )}
@@ -3471,107 +3511,91 @@ export default function LeaseDetailPage() {
                 </div>
               )}
 
-              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                <div>
-                  <p className="text-sm font-medium text-slate-900">Enable Auto-Charge</p>
-                  <p className="text-xs text-slate-600 mt-0.5">Automatically charge rent each month</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={automationForm.autoChargeEnabled}
-                    onChange={(e) => setAutomationForm({ ...automationForm, autoChargeEnabled: e.target.checked })}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                </label>
-              </div>
+              <p className="text-sm text-slate-600">Choose an automation level for this lease.</p>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Charge Day (1-31)
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="31"
-                  value={automationForm.chargeDay}
-                  onChange={(e) => setAutomationForm({ ...automationForm, chargeDay: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="e.g., 1 for first day of month"
-                />
-                <p className="text-xs text-slate-500 mt-1">Day of the month to charge rent (1 = 1st, 15 = 15th, etc.)</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Grace Period (days)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={automationForm.gracePeriodDays}
-                  onChange={(e) => setAutomationForm({ ...automationForm, gracePeriodDays: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="5"
-                />
-                <p className="text-xs text-slate-500 mt-1">Days before late fee is charged</p>
-              </div>
-
-              <div className="border-t pt-4">
-                <h3 className="text-sm font-semibold text-slate-900 mb-3">Late Fee Configuration</h3>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Late Fee Type
-                  </label>
-                  <select
-                    value={automationForm.lateFeeType}
-                    onChange={(e) => setAutomationForm({ ...automationForm, lateFeeType: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  >
-                    <option value="FLAT">Flat Fee</option>
-                    <option value="PERCENTAGE">Percentage of Rent</option>
-                  </select>
-                </div>
-
-                <div className="mt-3">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    {automationForm.lateFeeType === 'FLAT' ? 'Late Fee Amount' : 'Late Fee Percentage'}
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
-                      {automationForm.lateFeeType === 'FLAT' ? '$' : '%'}
-                    </span>
+              <div className="space-y-3">
+                {/* Off */}
+                <label
+                  className={`block p-4 rounded-lg border-2 cursor-pointer transition-colors ${
+                    automationPreset === 'off' ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
                     <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={automationForm.lateFeeAmount}
-                      onChange={(e) => setAutomationForm({ ...automationForm, lateFeeAmount: e.target.value })}
-                      className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                      placeholder={automationForm.lateFeeType === 'FLAT' ? '50.00' : '5.00'}
+                      type="radio"
+                      name="automationPreset"
+                      checked={automationPreset === 'off'}
+                      onChange={() => applyAutomationPreset('off')}
+                      className="text-indigo-600 focus:ring-indigo-500"
                     />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Off</p>
+                      <p className="text-xs text-slate-500 mt-0.5">No automatic charges or reminders</p>
+                    </div>
                   </div>
-                  {automationForm.lateFeeType === 'PERCENTAGE' && (
-                    <p className="text-xs text-slate-500 mt-1">Percentage of monthly rent (e.g., 5 for 5%)</p>
-                  )}
-                </div>
-              </div>
+                </label>
 
-              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                <div>
-                  <p className="text-sm font-medium text-slate-900">Reminder Emails</p>
-                  <p className="text-xs text-slate-600 mt-0.5">Send payment reminders (coming soon)</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={automationForm.reminderEmails}
-                    onChange={(e) => setAutomationForm({ ...automationForm, reminderEmails: e.target.checked })}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                {/* Basic */}
+                <label
+                  className={`block p-4 rounded-lg border-2 cursor-pointer transition-colors ${
+                    automationPreset === 'basic' ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="automationPreset"
+                      checked={automationPreset === 'basic'}
+                      onChange={() => applyAutomationPreset('basic')}
+                      className="text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Basic</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Auto-charge on the 1st. No late fees, no reminders.</p>
+                    </div>
+                  </div>
+                </label>
+
+                {/* Standard */}
+                <label
+                  className={`block p-4 rounded-lg border-2 cursor-pointer transition-colors ${
+                    automationPreset === 'standard' ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="automationPreset"
+                      checked={automationPreset === 'standard'}
+                      onChange={() => applyAutomationPreset('standard')}
+                      className="text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Standard</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Auto-charge on the 1st, 5-day grace period, $50 flat late fee. No reminders.</p>
+                    </div>
+                  </div>
+                </label>
+
+                {/* Full */}
+                <label
+                  className={`block p-4 rounded-lg border-2 cursor-pointer transition-colors ${
+                    automationPreset === 'full' ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="automationPreset"
+                      checked={automationPreset === 'full'}
+                      onChange={() => applyAutomationPreset('full')}
+                      className="text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Full</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Auto-charge on the 1st, 5-day grace period, $50 flat late fee, reminder emails enabled.</p>
+                    </div>
+                  </div>
                 </label>
               </div>
 

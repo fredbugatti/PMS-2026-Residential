@@ -38,6 +38,7 @@ export default function NewWorkOrder() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [filteredUnits, setFilteredUnits] = useState<Unit[]>([]);
   const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const [formData, setFormData] = useState({
     propertyId: '',
@@ -297,21 +298,22 @@ export default function NewWorkOrder() {
                   onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
                   className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
+                  <option value="GENERAL">General</option>
                   <option value="PLUMBING">Plumbing</option>
                   <option value="ELECTRICAL">Electrical</option>
                   <option value="HVAC">HVAC</option>
-                  <option value="APPLIANCE">Appliance</option>
-                  <option value="GENERAL">General</option>
+                  <option value="DOCK_DOOR">Dock Door</option>
+                  <option value="FIRE_SAFETY">Fire Safety</option>
+                  <option value="STRUCTURAL">Structural</option>
                   <option value="OTHER">Other</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Priority <span className="text-red-500">*</span>
+                  Priority
                 </label>
                 <select
-                  required
                   value={formData.priority}
                   onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
                   className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -324,133 +326,141 @@ export default function NewWorkOrder() {
               </div>
             </div>
 
-            {/* Reporter Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Reported By <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.reportedBy}
-                  onChange={(e) => setFormData({ ...formData, reportedBy: e.target.value })}
-                  placeholder="Name"
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={formData.reportedEmail}
-                  onChange={(e) => setFormData({ ...formData, reportedEmail: e.target.value })}
-                  placeholder="email@example.com"
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            {/* Assignment & Scheduling */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Assign to Vendor
-                </label>
-                <select
-                  value={formData.vendorId}
-                  onChange={(e) => setFormData({ ...formData, vendorId: e.target.value })}
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">Select vendor (optional)</option>
-                  {vendors.map((v) => (
-                    <option key={v.id} value={v.id}>
-                      {v.name} {v.company && `(${v.company})`}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Estimated Cost
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.estimatedCost}
-                  onChange={(e) => setFormData({ ...formData, estimatedCost: e.target.value })}
-                  placeholder="0.00"
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Scheduled Date
-                </label>
-                <input
-                  type="date"
-                  value={formData.scheduledDate}
-                  onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            {/* Internal Notes */}
+            {/* Reporter - auto-filled from lease */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Internal Notes
+                Reported By <span className="text-red-500">*</span>
               </label>
-              <textarea
-                rows={3}
-                value={formData.internalNotes}
-                onChange={(e) => setFormData({ ...formData, internalNotes: e.target.value })}
-                placeholder="Notes for internal use (not visible to tenant)"
+              <input
+                type="text"
+                required
+                value={formData.reportedBy}
+                onChange={(e) => setFormData({ ...formData, reportedBy: e.target.value })}
+                placeholder="Auto-filled from lease when unit is selected"
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
-            {/* Photo Upload */}
+            {/* Advanced Options Toggle */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Photos
-              </label>
-              <div className="space-y-4">
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handlePhotoUpload}
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                {uploadedPhotos.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {uploadedPhotos.map((photo, index) => (
-                      <div key={index} className="relative group">
-                        <img
-                          src={photo}
-                          alt={`Upload ${index + 1}`}
-                          className="w-full h-32 object-cover rounded-lg border border-slate-200"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removePhoto(index)}
-                          className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    ))}
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+              >
+                <svg className={`w-4 h-4 transition-transform ${showAdvanced ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+                {showAdvanced ? 'Hide' : 'Show'} advanced options
+              </button>
+
+              {showAdvanced && (
+                <div className="mt-4 space-y-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        value={formData.reportedEmail}
+                        onChange={(e) => setFormData({ ...formData, reportedEmail: e.target.value })}
+                        placeholder="email@example.com"
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Assign to Vendor
+                      </label>
+                      <select
+                        value={formData.vendorId}
+                        onChange={(e) => setFormData({ ...formData, vendorId: e.target.value })}
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                      >
+                        <option value="">None</option>
+                        {vendors.map((v) => (
+                          <option key={v.id} value={v.id}>
+                            {v.name} {v.company && `(${v.company})`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
-                )}
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Estimated Cost
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.estimatedCost}
+                        onChange={(e) => setFormData({ ...formData, estimatedCost: e.target.value })}
+                        placeholder="0.00"
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Scheduled Date
+                      </label>
+                      <input
+                        type="date"
+                        value={formData.scheduledDate}
+                        onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Internal Notes
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={formData.internalNotes}
+                      onChange={(e) => setFormData({ ...formData, internalNotes: e.target.value })}
+                      placeholder="Notes for internal use"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Photos
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handlePhotoUpload}
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                    />
+                    {uploadedPhotos.length > 0 && (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
+                        {uploadedPhotos.map((photo, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={photo}
+                              alt={`Upload ${index + 1}`}
+                              className="w-full h-32 object-cover rounded-lg border border-slate-200"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removePhoto(index)}
+                              className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Actions */}

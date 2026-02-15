@@ -535,192 +535,111 @@ export default function LeasesPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-6">
-              {/* Tenant Information */}
-              <div>
-                <h3 className="text-sm font-semibold text-slate-900 mb-3">Tenant Information</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
-                      Tenant Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.tenantName}
-                      onChange={(e) => setFormData({ ...formData, tenantName: e.target.value })}
-                      className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                      placeholder="John Smith"
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        value={formData.tenantEmail}
-                        onChange={(e) => setFormData({ ...formData, tenantEmail: e.target.value })}
-                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                        placeholder="john@example.com"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">
-                        Phone
-                      </label>
-                      <input
-                        type="tel"
-                        value={formData.tenantPhone}
-                        onChange={(e) => setFormData({ ...formData, tenantPhone: e.target.value })}
-                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                        placeholder="(555) 123-4567"
-                      />
-                    </div>
-                  </div>
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5">
+              {/* Tenant */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Tenant Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.tenantName}
+                    onChange={(e) => setFormData({ ...formData, tenantName: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                    placeholder="Contact name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Company Name
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.companyName}
+                    onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                    placeholder="Acme Logistics"
+                  />
                 </div>
               </div>
 
-              {/* Unit Information */}
-              <div>
-                <h3 className="text-sm font-semibold text-slate-900 mb-3">Unit Information</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
-                      Property
-                    </label>
+              {/* Property & Unit */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Property *
+                  </label>
+                  <select
+                    required
+                    value={formData.propertyId}
+                    onChange={(e) => handlePropertyChange(e.target.value)}
+                    className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                  >
+                    <option value="">Select property</option>
+                    {properties.map(property => (
+                      <option key={property.id} value={property.id}>{property.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Unit *
+                  </label>
+                  {formData.propertyId && availableUnits.length > 0 ? (
                     <select
-                      value={formData.propertyId}
-                      onChange={(e) => handlePropertyChange(e.target.value)}
+                      required
+                      value={formData.unitId}
+                      onChange={(e) => handleUnitChange(e.target.value)}
                       className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                     >
-                      <option value="">Select a property (optional)</option>
-                      {properties.map(property => (
-                        <option key={property.id} value={property.id}>{property.name}</option>
+                      <option value="">Select unit</option>
+                      {availableUnits.map(unit => (
+                        <option key={unit.id} value={unit.id}>
+                          {unit.unitNumber} {unit.status !== 'VACANT' ? `(${unit.status})` : ''}
+                        </option>
                       ))}
                     </select>
-                    <p className="text-xs text-slate-500 mt-1">Select a property to choose from available units</p>
-                  </div>
-
-                  {formData.propertyId && availableUnits.length > 0 ? (
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">
-                        Unit *
-                      </label>
-                      <select
-                        required
-                        value={formData.unitId}
-                        onChange={(e) => handleUnitChange(e.target.value)}
-                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                      >
-                        <option value="">Select a unit</option>
-                        {availableUnits.map(unit => (
-                          <option key={unit.id} value={unit.id}>
-                            {unit.unitNumber} {unit.status !== 'VACANT' ? `(${unit.status})` : ''}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
                   ) : (
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">
-                        Unit Name *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.unitName}
-                        onChange={(e) => setFormData({ ...formData, unitName: e.target.value })}
-                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                        placeholder="Unit 101"
-                        disabled={formData.propertyId !== '' && availableUnits.length === 0}
-                      />
-                      {formData.propertyId && availableUnits.length === 0 && (
-                        <p className="text-xs text-red-500 mt-1">No units available for this property</p>
-                      )}
-                      {!formData.propertyId && (
-                        <p className="text-xs text-slate-500 mt-1">Or enter unit name manually if not using property system</p>
-                      )}
-                    </div>
+                    <input
+                      type="text"
+                      required
+                      value={formData.unitName}
+                      onChange={(e) => setFormData({ ...formData, unitName: e.target.value })}
+                      className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                      placeholder={formData.propertyId ? 'No units available' : 'Select property first'}
+                      disabled={formData.propertyId !== '' && availableUnits.length === 0}
+                    />
                   )}
                 </div>
               </div>
 
-              {/* Lease Details */}
-              <div>
-                <h3 className="text-sm font-semibold text-slate-900 mb-3">Lease Details</h3>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">
-                        Start Date *
-                      </label>
-                      <input
-                        type="date"
-                        required
-                        value={formData.startDate}
-                        onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">
-                        End Date *
-                      </label>
-                      <input
-                        type="date"
-                        required
-                        value={formData.endDate}
-                        onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">
-                        Security Deposit
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={formData.securityDepositAmount}
-                        onChange={(e) => setFormData({ ...formData, securityDepositAmount: e.target.value })}
-                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                        placeholder="1500.00"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">
-                        Status *
-                      </label>
-                      <select
-                        required
-                        value={formData.status}
-                        onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                      >
-                        <option value="DRAFT">Draft</option>
-                        <option value="ACTIVE">Active</option>
-                        <option value="ENDED">Ended</option>
-                        <option value="TERMINATED">Terminated</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
-                      Notes
-                    </label>
-                    <textarea
-                      value={formData.notes}
-                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                      rows={3}
-                      className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                      placeholder="Additional notes about this lease..."
-                    />
-                  </div>
+              {/* Dates */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Start Date *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={formData.startDate}
+                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    End Date *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={formData.endDate}
+                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                  />
                 </div>
               </div>
 
