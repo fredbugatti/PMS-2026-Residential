@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, Fragment } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ReportsPageSkeleton } from '@/components/Skeleton';
 
@@ -166,6 +166,63 @@ interface AgingData {
   };
 }
 
+interface BalanceSheetAccount {
+  code: string;
+  name: string;
+  balance: number;
+}
+
+interface BalanceSheetData {
+  asOfDate: string;
+  assets: {
+    accounts: BalanceSheetAccount[];
+    total: number;
+  };
+  liabilities: {
+    accounts: BalanceSheetAccount[];
+    total: number;
+  };
+  equity: {
+    accounts: BalanceSheetAccount[];
+    retainedEarnings: number;
+    total: number;
+  };
+  summary: {
+    totalAssets: number;
+    totalLiabilitiesAndEquity: number;
+    isBalanced: boolean;
+  };
+}
+
+interface TrialBalanceRow {
+  code: string;
+  name: string;
+  type: string;
+  normalBalance: string;
+  totalDebits: number;
+  totalCredits: number;
+  debitBalance: number;
+  creditBalance: number;
+}
+
+interface TrialBalanceData {
+  asOfDate: string;
+  accounts: TrialBalanceRow[];
+  grouped: {
+    ASSET: TrialBalanceRow[];
+    LIABILITY: TrialBalanceRow[];
+    EQUITY: TrialBalanceRow[];
+    INCOME: TrialBalanceRow[];
+    EXPENSE: TrialBalanceRow[];
+  };
+  totals: {
+    totalDebits: number;
+    totalCredits: number;
+    difference: number;
+    isBalanced: boolean;
+  };
+}
+
 interface LedgerTransaction {
   id: string;
   date: string;
@@ -244,7 +301,7 @@ function ReportsPage() {
   const [chargeDate, setChargeDate] = useState(new Date().toISOString().split('T')[0]);
   const [bulkResults, setBulkResults] = useState<{ results: BulkChargeResult[], errors: any[] } | null>(null);
   const [incomeData, setIncomeData] = useState<IncomeBreakdown | null>(null);
-  const [activeTab, setActiveTab] = useState<'balances' | 'pnl' | 'expenses' | 'aging' | 'transactions' | 'rentroll'>('balances');
+  const [activeTab, setActiveTab] = useState<'balances' | 'pnl' | 'expenses' | 'aging' | 'transactions' | 'rentroll' | 'balancesheet' | 'trialbalance'>('balances');
   const [agingData, setAgingData] = useState<AgingData | null>(null);
   const [pnlData, setPnlData] = useState<ProfitLossData | null>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -267,12 +324,14 @@ function ReportsPage() {
   const [allTransactions, setAllTransactions] = useState<LedgerTransaction[]>([]);
   const [transactionsLoading, setTransactionsLoading] = useState(false);
   const [rentRollData, setRentRollData] = useState<RentRollData | null>(null);
+  const [balanceSheetData, setBalanceSheetData] = useState<BalanceSheetData | null>(null);
+  const [trialBalanceData, setTrialBalanceData] = useState<TrialBalanceData | null>(null);
 
   useEffect(() => {
     document.title = 'Reports | Sanprinon';
     // Check URL for tab parameter
     const tabParam = searchParams.get('tab');
-    if (tabParam && ['balances', 'pnl', 'expenses', 'aging', 'transactions', 'rentroll'].includes(tabParam)) {
+    if (tabParam && ['balances', 'pnl', 'expenses', 'aging', 'transactions', 'rentroll', 'balancesheet', 'trialbalance'].includes(tabParam)) {
       setActiveTab(tabParam as typeof activeTab);
     }
     fetchReport();
@@ -403,6 +462,34 @@ function ReportsPage() {
       }
     } catch (error) {
       console.error('Failed to fetch rent roll:', error);
+    }
+  };
+
+  const fetchBalanceSheet = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (selectedProperty !== 'all') params.set('propertyId', selectedProperty);
+      const res = await fetch(`/api/reports/balance-sheet?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setBalanceSheetData(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch balance sheet:', error);
+    }
+  };
+
+  const fetchTrialBalance = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (selectedProperty !== 'all') params.set('propertyId', selectedProperty);
+      const res = await fetch(`/api/reports/trial-balance?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setTrialBalanceData(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch trial balance:', error);
     }
   };
 
@@ -693,6 +780,56 @@ function ReportsPage() {
       `${rentRollData.summary.overallOccupancy}% overall occupancy`
     ]);
     downloadCSV(rows, `rent-roll-${rentRollData.asOfDate}.csv`);
+  };
+
+  const exportBalanceSheetCSV = () => {
+    if (!balanceSheetData) return;
+    const rows: string[][] = [
+      ['Balance Sheet'],
+      [`As of: ${balanceSheetData.asOfDate}`],
+      [],
+      ['Account Code', 'Account Name', 'Amount'],
+      ['ASSETS', '', ''],
+      ...balanceSheetData.assets.accounts.map(a => [a.code, a.name, a.balance.toFixed(2)]),
+      ['', 'Total Assets', balanceSheetData.assets.total.toFixed(2)],
+      [],
+      ['LIABILITIES', '', ''],
+      ...balanceSheetData.liabilities.accounts.map(a => [a.code, a.name, a.balance.toFixed(2)]),
+      ['', 'Total Liabilities', balanceSheetData.liabilities.total.toFixed(2)],
+      [],
+      ['EQUITY', '', ''],
+      ...balanceSheetData.equity.accounts.map(a => [a.code, a.name, a.balance.toFixed(2)]),
+      ['', 'Retained Earnings', balanceSheetData.equity.retainedEarnings.toFixed(2)],
+      ['', 'Total Equity', balanceSheetData.equity.total.toFixed(2)],
+      [],
+      ['TOTAL LIABILITIES & EQUITY', '', balanceSheetData.summary.totalLiabilitiesAndEquity.toFixed(2)],
+      [],
+      ['Balanced', '', balanceSheetData.summary.isBalanced ? 'Yes' : 'No']
+    ];
+    downloadCSV(rows, `balance-sheet-${balanceSheetData.asOfDate}.csv`);
+  };
+
+  const exportTrialBalanceCSV = () => {
+    if (!trialBalanceData) return;
+    const rows: string[][] = [
+      ['Trial Balance'],
+      [`As of: ${trialBalanceData.asOfDate}`],
+      [],
+      ['Account Code', 'Account Name', 'Type', 'Debit Balance', 'Credit Balance']
+    ];
+    const typeLabels: Record<string, string> = { ASSET: 'Assets', LIABILITY: 'Liabilities', EQUITY: 'Equity', INCOME: 'Income', EXPENSE: 'Expenses' };
+    for (const type of ['ASSET', 'LIABILITY', 'EQUITY', 'INCOME', 'EXPENSE'] as const) {
+      const accounts = trialBalanceData.grouped[type];
+      if (accounts.length === 0) continue;
+      rows.push([typeLabels[type], '', '', '', '']);
+      accounts.forEach(a => {
+        rows.push([a.code, a.name, a.type, a.debitBalance > 0 ? a.debitBalance.toFixed(2) : '', a.creditBalance > 0 ? a.creditBalance.toFixed(2) : '']);
+      });
+      rows.push([]);
+    }
+    rows.push(['', '', 'TOTALS', trialBalanceData.totals.totalDebits.toFixed(2), trialBalanceData.totals.totalCredits.toFixed(2)]);
+    rows.push(['', '', 'Balanced', '', trialBalanceData.totals.isBalanced ? 'Yes' : 'No']);
+    downloadCSV(rows, `trial-balance-${trialBalanceData.asOfDate}.csv`);
   };
 
   const getFilteredTenants = () => {
@@ -1012,6 +1149,35 @@ function ReportsPage() {
             }`}
           >
             Ledger
+          </button>
+
+          {/* Accounting Reports */}
+          <div className="hidden sm:block w-px h-6 bg-slate-300 mx-1"></div>
+          <button
+            onClick={() => {
+              setActiveTab('balancesheet');
+              fetchBalanceSheet();
+            }}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
+              activeTab === 'balancesheet'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+            }`}
+          >
+            Balance Sheet
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab('trialbalance');
+              fetchTrialBalance();
+            }}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
+              activeTab === 'trialbalance'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+            }`}
+          >
+            Trial Balance
           </button>
         </div>
 
@@ -1942,6 +2108,246 @@ function ReportsPage() {
               <div className="bg-white rounded-xl p-12 shadow-sm border border-slate-200 text-center">
                 <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
                 <p className="text-slate-500">Loading rent roll...</p>
+              </div>
+            )}
+          </div>
+        )}
+        {/* Balance Sheet Tab */}
+        {activeTab === 'balancesheet' && (
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div>
+                <h2 className="text-base sm:text-lg font-semibold text-slate-900">Balance Sheet</h2>
+                <p className="text-xs sm:text-sm text-slate-600">
+                  {balanceSheetData ? `As of ${balanceSheetData.asOfDate}` : 'Loading...'}
+                </p>
+              </div>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <button
+                  onClick={exportBalanceSheetCSV}
+                  disabled={!balanceSheetData}
+                  className="px-3 py-2.5 sm:py-2 text-xs bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors flex items-center justify-center gap-1 flex-1 sm:flex-none disabled:opacity-50"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Export CSV
+                </button>
+                <button
+                  onClick={fetchBalanceSheet}
+                  className="px-3 py-2.5 sm:py-2 text-xs bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors flex-1 sm:flex-none"
+                >
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            {balanceSheetData ? (
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                {/* Balance indicator */}
+                <div className={`px-6 py-3 border-b ${balanceSheetData.summary.isBalanced ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                  <p className={`text-sm font-medium ${balanceSheetData.summary.isBalanced ? 'text-green-700' : 'text-red-700'}`}>
+                    {balanceSheetData.summary.isBalanced ? 'Books are balanced' : 'Out of balance — review entries'}
+                  </p>
+                </div>
+
+                <div className="divide-y divide-slate-200">
+                  {/* Assets */}
+                  <div className="p-6">
+                    <h4 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-4">Assets</h4>
+                    {balanceSheetData.assets.accounts.length === 0 ? (
+                      <p className="text-sm text-slate-500 italic">No asset balances</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {balanceSheetData.assets.accounts.map((a) => (
+                          <div key={a.code} className="flex justify-between items-center py-1">
+                            <span className="text-sm text-slate-700"><span className="text-slate-400 mr-2">{a.code}</span>{a.name}</span>
+                            <span className="text-sm font-medium text-slate-900">{formatCurrency(a.balance)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center mt-4 pt-3 border-t border-slate-200">
+                      <span className="text-sm font-semibold text-slate-900">Total Assets</span>
+                      <span className="text-sm font-bold text-blue-600">{formatCurrency(balanceSheetData.assets.total)}</span>
+                    </div>
+                  </div>
+
+                  {/* Liabilities */}
+                  <div className="p-6">
+                    <h4 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-4">Liabilities</h4>
+                    {balanceSheetData.liabilities.accounts.length === 0 ? (
+                      <p className="text-sm text-slate-500 italic">No liability balances</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {balanceSheetData.liabilities.accounts.map((a) => (
+                          <div key={a.code} className="flex justify-between items-center py-1">
+                            <span className="text-sm text-slate-700"><span className="text-slate-400 mr-2">{a.code}</span>{a.name}</span>
+                            <span className="text-sm font-medium text-slate-900">{formatCurrency(a.balance)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center mt-4 pt-3 border-t border-slate-200">
+                      <span className="text-sm font-semibold text-slate-900">Total Liabilities</span>
+                      <span className="text-sm font-bold text-red-600">{formatCurrency(balanceSheetData.liabilities.total)}</span>
+                    </div>
+                  </div>
+
+                  {/* Equity */}
+                  <div className="p-6">
+                    <h4 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-4">Equity</h4>
+                    {balanceSheetData.equity.accounts.length > 0 && (
+                      <div className="space-y-2 mb-2">
+                        {balanceSheetData.equity.accounts.map((a) => (
+                          <div key={a.code} className="flex justify-between items-center py-1">
+                            <span className="text-sm text-slate-700"><span className="text-slate-400 mr-2">{a.code}</span>{a.name}</span>
+                            <span className="text-sm font-medium text-slate-900">{formatCurrency(a.balance)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-700 italic">Retained Earnings (Net Income)</span>
+                      <span className={`text-sm font-medium ${balanceSheetData.equity.retainedEarnings >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {formatCurrency(balanceSheetData.equity.retainedEarnings)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center mt-4 pt-3 border-t border-slate-200">
+                      <span className="text-sm font-semibold text-slate-900">Total Equity</span>
+                      <span className="text-sm font-bold text-green-600">{formatCurrency(balanceSheetData.equity.total)}</span>
+                    </div>
+                  </div>
+
+                  {/* Summary */}
+                  <div className="p-6 bg-slate-50">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-base font-bold text-slate-900">Total Assets</span>
+                        <span className="text-lg font-bold text-blue-600">{formatCurrency(balanceSheetData.summary.totalAssets)}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-base font-bold text-slate-900">Total Liabilities & Equity</span>
+                        <span className="text-lg font-bold text-slate-900">{formatCurrency(balanceSheetData.summary.totalLiabilitiesAndEquity)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl p-12 shadow-sm border border-slate-200 text-center">
+                <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-slate-500">Loading balance sheet...</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Trial Balance Tab */}
+        {activeTab === 'trialbalance' && (
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div>
+                <h2 className="text-base sm:text-lg font-semibold text-slate-900">Trial Balance</h2>
+                <p className="text-xs sm:text-sm text-slate-600">
+                  {trialBalanceData ? `As of ${trialBalanceData.asOfDate}` : 'Loading...'}
+                </p>
+              </div>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <button
+                  onClick={exportTrialBalanceCSV}
+                  disabled={!trialBalanceData}
+                  className="px-3 py-2.5 sm:py-2 text-xs bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors flex items-center justify-center gap-1 flex-1 sm:flex-none disabled:opacity-50"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Export CSV
+                </button>
+                <button
+                  onClick={fetchTrialBalance}
+                  className="px-3 py-2.5 sm:py-2 text-xs bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors flex-1 sm:flex-none"
+                >
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            {trialBalanceData ? (
+              <>
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200">
+                    <p className="text-xs sm:text-sm text-slate-600">Total Debits</p>
+                    <p className="text-xl sm:text-2xl font-bold text-slate-900 mt-1">{formatCurrency(trialBalanceData.totals.totalDebits)}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200">
+                    <p className="text-xs sm:text-sm text-slate-600">Total Credits</p>
+                    <p className="text-xl sm:text-2xl font-bold text-slate-900 mt-1">{formatCurrency(trialBalanceData.totals.totalCredits)}</p>
+                  </div>
+                  <div className={`bg-white rounded-xl p-4 sm:p-5 shadow-sm border ${trialBalanceData.totals.isBalanced ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'}`}>
+                    <p className="text-xs sm:text-sm text-slate-600">Status</p>
+                    <p className={`text-xl sm:text-2xl font-bold mt-1 ${trialBalanceData.totals.isBalanced ? 'text-green-600' : 'text-red-600'}`}>
+                      {trialBalanceData.totals.isBalanced ? 'Balanced' : `Off by ${formatCurrency(Math.abs(trialBalanceData.totals.difference))}`}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Trial Balance Table */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-slate-50">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Account</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Name</th>
+                          <th className="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Debit</th>
+                          <th className="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Credit</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200">
+                        {(['ASSET', 'LIABILITY', 'EQUITY', 'INCOME', 'EXPENSE'] as const).map(type => {
+                          const accounts = trialBalanceData.grouped[type];
+                          if (accounts.length === 0) return null;
+                          const typeLabels: Record<string, string> = { ASSET: 'Assets', LIABILITY: 'Liabilities', EQUITY: 'Equity', INCOME: 'Income', EXPENSE: 'Expenses' };
+                          return (
+                            <Fragment key={type}>
+                              <tr className="bg-slate-50">
+                                <td colSpan={4} className="px-4 py-2 text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                                  {typeLabels[type]}
+                                </td>
+                              </tr>
+                              {accounts.map(account => (
+                                <tr key={account.code} className="hover:bg-slate-50 transition-colors">
+                                  <td className="px-4 py-2.5 text-sm font-mono text-slate-500">{account.code}</td>
+                                  <td className="px-4 py-2.5 text-sm text-slate-900">{account.name}</td>
+                                  <td className="px-4 py-2.5 text-sm text-right font-medium text-slate-900">
+                                    {account.debitBalance > 0 ? formatCurrency(account.debitBalance) : ''}
+                                  </td>
+                                  <td className="px-4 py-2.5 text-sm text-right font-medium text-slate-900">
+                                    {account.creditBalance > 0 ? formatCurrency(account.creditBalance) : ''}
+                                  </td>
+                                </tr>
+                              ))}
+                            </Fragment>
+                          );
+                        })}
+                      </tbody>
+                      <tfoot className="bg-slate-50 border-t-2 border-slate-300">
+                        <tr>
+                          <td colSpan={2} className="px-4 py-3 text-sm font-bold text-slate-900">Totals</td>
+                          <td className="px-4 py-3 text-sm text-right font-bold text-slate-900">{formatCurrency(trialBalanceData.totals.totalDebits)}</td>
+                          <td className="px-4 py-3 text-sm text-right font-bold text-slate-900">{formatCurrency(trialBalanceData.totals.totalCredits)}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="bg-white rounded-xl p-12 shadow-sm border border-slate-200 text-center">
+                <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-slate-500">Loading trial balance...</p>
               </div>
             )}
           </div>

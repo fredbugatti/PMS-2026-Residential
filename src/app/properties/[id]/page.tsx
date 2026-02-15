@@ -428,6 +428,8 @@ export default function PropertyDetailPage() {
   const allocatedSquareFeet = property.units.reduce((sum, u) => sum + (u.squareFeet || 0), 0);
   const remainingSquareFeet = totalSquareFeet - allocatedSquareFeet;
   const sfAllocationPct = totalSquareFeet > 0 ? Math.min((allocatedSquareFeet / totalSquareFeet) * 100, 100) : 0;
+  const revenuePerSF = allocatedSquareFeet > 0 ? monthlyRevenue / allocatedSquareFeet : 0;
+  const annualRevenuePerSF = revenuePerSF * 12;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -494,6 +496,27 @@ export default function PropertyDetailPage() {
           )}
         </div>
 
+        {/* Per-SF Analytics */}
+        {totalSquareFeet > 0 && monthlyRevenue > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+              <p className="text-sm text-slate-600 mb-1">Revenue / SF (Monthly)</p>
+              <p className="text-2xl font-bold text-blue-600">${revenuePerSF.toFixed(2)}</p>
+              <p className="text-xs text-slate-500 mt-1">per occupied sq ft</p>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+              <p className="text-sm text-slate-600 mb-1">Revenue / SF (Annual)</p>
+              <p className="text-2xl font-bold text-green-600">${annualRevenuePerSF.toFixed(2)}</p>
+              <p className="text-xs text-slate-500 mt-1">per occupied sq ft</p>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+              <p className="text-sm text-slate-600 mb-1">Annual Revenue</p>
+              <p className="text-2xl font-bold text-slate-900">{formatCurrency(monthlyRevenue * 12)}</p>
+              <p className="text-xs text-slate-500 mt-1">{formatCurrency(monthlyRevenue)}/mo x 12</p>
+            </div>
+          </div>
+        )}
+
         {/* Units Section */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200">
           <div className="p-6 border-b border-slate-200 flex items-center justify-between">
@@ -536,6 +559,11 @@ export default function PropertyDetailPage() {
                     <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                       {property.propertyType === 'COMMERCIAL' ? 'Monthly' : 'Rent'}
                     </th>
+                    {totalSquareFeet > 0 && (
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                        $/SF/Yr
+                      </th>
+                    )}
                     <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                       Status
                     </th>
@@ -589,6 +617,19 @@ export default function PropertyDetailPage() {
                           ? formatCurrency(Number(unit.leases[0].scheduledCharges[0].amount))
                           : '-'}
                       </td>
+                      {totalSquareFeet > 0 && (
+                        <td className="px-6 py-4 text-sm text-slate-900">
+                          {(() => {
+                            const rent = unit.leases.length > 0 && unit.leases[0].scheduledCharges?.[0]
+                              ? Number(unit.leases[0].scheduledCharges[0].amount) : 0;
+                            const sf = unit.squareFeet || 0;
+                            if (rent > 0 && sf > 0) {
+                              return `$${((rent * 12) / sf).toFixed(2)}`;
+                            }
+                            return '-';
+                          })()}
+                        </td>
+                      )}
                       <td className="px-6 py-4">
                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getUnitStatusColor(unit.status)}`}>
                           {unit.status}
