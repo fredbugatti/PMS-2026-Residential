@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "vercel": {
+      "command": "vercel-mcp",
+      "env": {
+        "VERCEL_TOKEN": "your_vercel_token_here"
+      }
+    },
+    "git": {
+      "command": "git-mcp"
+    }
+  }
+}
