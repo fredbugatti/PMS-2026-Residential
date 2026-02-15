@@ -1,5 +1,6 @@
 // Structured logging for production debugging
 // In production, logs are JSON for easy parsing by log aggregators (Datadog, CloudWatch, etc.)
+import * as Sentry from '@sentry/nextjs';
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -92,6 +93,7 @@ function log(level: LogLevel, message: string, context?: LogContext, error?: Err
       break;
     case 'error':
       console.error(formatted);
+      if (error) Sentry.captureException(error);
       break;
   }
 }

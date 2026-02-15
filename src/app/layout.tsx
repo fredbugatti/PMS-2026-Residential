@@ -9,12 +9,19 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'Sanprinon - Warehouse Management',
   description: 'Professional warehouse management ledger system',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Sanprinon WMS',
+  },
 }
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
+  themeColor: '#1e40af',
 }
 
 export default function RootLayout({
