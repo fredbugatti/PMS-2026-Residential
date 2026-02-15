@@ -509,7 +509,12 @@ export default function PropertiesPage() {
               )}
 
               {/* Step 2: Add Spaces */}
-              {wizardStep === 2 && (
+              {wizardStep === 2 && (() => {
+                const totalSF = propertyForm.totalSquareFeet ? parseInt(propertyForm.totalSquareFeet) : 0;
+                const allocatedSF = units.reduce((sum, u) => sum + (u.squareFeet ? parseInt(u.squareFeet) : 0), 0);
+                const remainingSF = totalSF - allocatedSF;
+                const allocationPct = totalSF > 0 ? Math.min((allocatedSF / totalSF) * 100, 100) : 0;
+                return (
                 <div className="space-y-4">
                   <p className="text-gray-600 mb-4 text-sm sm:text-base">
                     Add warehouse spaces to your property. You can add more later.
