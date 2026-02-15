@@ -39,7 +39,8 @@ export default function PropertiesPage() {
     address: '',
     city: '',
     state: '',
-    zipCode: ''
+    zipCode: '',
+    totalSquareFeet: ''
   });
 
   // Created property ID (after step 1)
@@ -75,7 +76,8 @@ export default function PropertiesPage() {
       address: '',
       city: '',
       state: '',
-      zipCode: ''
+      zipCode: '',
+      totalSquareFeet: ''
     });
     setUnits([{ unitNumber: '1', bedrooms: '', bathrooms: '', squareFeet: '', rent: '' }]);
     setCreatedPropertyId(null);
@@ -430,15 +432,60 @@ export default function PropertiesPage() {
                       />
                     </div>
                   </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      Total Square Footage
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={propertyForm.totalSquareFeet}
+                      onChange={(e) => setPropertyForm({ ...propertyForm, totalSquareFeet: e.target.value })}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                      placeholder="e.g. 200000"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">
+                      Total building square footage for tracking space allocation across units.
+                    </p>
+                  </div>
                 </div>
               )}
 
               {/* Step 2: Add Units */}
-              {wizardStep === 2 && (
+              {wizardStep === 2 && (() => {
+                const totalSF = propertyForm.totalSquareFeet ? parseInt(propertyForm.totalSquareFeet) : 0;
+                const allocatedSF = units.reduce((sum, u) => sum + (u.squareFeet ? parseInt(u.squareFeet) : 0), 0);
+                const remainingSF = totalSF - allocatedSF;
+                const allocationPct = totalSF > 0 ? Math.min((allocatedSF / totalSF) * 100, 100) : 0;
+                return (
                 <div className="space-y-4">
                   <p className="text-slate-600 mb-4 text-sm sm:text-base">
                     Add units to your property. You can add more later.
                   </p>
+
+                  {totalSF > 0 && (
+                    <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="font-medium text-slate-700">Space Allocation</span>
+                        <span className="text-slate-600">
+                          {allocatedSF.toLocaleString()} / {totalSF.toLocaleString()} sq ft
+                        </span>
+                      </div>
+                      <div className="w-full bg-blue-200 rounded-full h-3 mb-2">
+                        <div
+                          className={`h-3 rounded-full transition-all ${remainingSF < 0 ? 'bg-red-500' : 'bg-blue-600'}`}
+                          style={{ width: `${Math.min(allocationPct, 100)}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-xs text-slate-500">
+                        <span>Allocated: {allocationPct.toFixed(1)}%</span>
+                        <span className={remainingSF < 0 ? 'text-red-600 font-medium' : ''}>
+                          {remainingSF >= 0 ? `${remainingSF.toLocaleString()} sq ft remaining` : `${Math.abs(remainingSF).toLocaleString()} sq ft over-allocated`}
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                   {units.map((unit, index) => (
                     <div key={index} className="p-3 sm:p-4 bg-slate-50 rounded-xl border border-slate-200">
@@ -525,7 +572,8 @@ export default function PropertiesPage() {
                     + Add Another Unit
                   </button>
                 </div>
-              )}
+                );
+              })()}
 
               {/* Step 3: Complete */}
               {wizardStep === 3 && (

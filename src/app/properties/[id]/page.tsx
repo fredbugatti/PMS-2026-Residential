@@ -12,6 +12,7 @@ interface Property {
   state: string | null;
   zipCode: string | null;
   totalUnits: number | null;
+  totalSquareFeet: number | null;
   propertyType: string | null;
   notes: string | null;
   active: boolean;
@@ -423,6 +424,11 @@ export default function PropertyDetailPage() {
       return sum + (rentCharge ? Number(rentCharge.amount) : 0);
     }, 0);
 
+  const totalSquareFeet = property.totalSquareFeet || 0;
+  const allocatedSquareFeet = property.units.reduce((sum, u) => sum + (u.squareFeet || 0), 0);
+  const remainingSquareFeet = totalSquareFeet - allocatedSquareFeet;
+  const sfAllocationPct = totalSquareFeet > 0 ? Math.min((allocatedSquareFeet / totalSquareFeet) * 100, 100) : 0;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
@@ -442,6 +448,7 @@ export default function PropertyDetailPage() {
               {property.propertyType && (
                 <p className="text-sm text-slate-500 mt-1">
                   Type: {property.propertyType}
+                  {totalSquareFeet > 0 && ` • ${totalSquareFeet.toLocaleString()} sq ft`}
                 </p>
               )}
             </div>
@@ -451,7 +458,7 @@ export default function PropertyDetailPage() {
 
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className={`grid grid-cols-1 sm:grid-cols-2 ${totalSquareFeet > 0 ? 'md:grid-cols-5' : 'md:grid-cols-4'} gap-4 md:gap-6`}>
           <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
             <p className="text-sm text-slate-600 mb-1">Total Units</p>
             <p className="text-3xl font-bold text-slate-900">{totalUnits}</p>
@@ -468,6 +475,23 @@ export default function PropertyDetailPage() {
             <p className="text-sm text-slate-600 mb-1">Monthly Revenue</p>
             <p className="text-2xl font-bold text-green-600">{formatCurrency(monthlyRevenue)}</p>
           </div>
+          {totalSquareFeet > 0 && (
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+              <p className="text-sm text-slate-600 mb-1">Space Allocation</p>
+              <p className="text-2xl font-bold text-slate-900">
+                {allocatedSquareFeet.toLocaleString()} <span className="text-sm font-normal text-slate-500">/ {totalSquareFeet.toLocaleString()} sf</span>
+              </p>
+              <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
+                <div
+                  className={`h-2 rounded-full ${remainingSquareFeet < 0 ? 'bg-red-500' : remainingSquareFeet === 0 ? 'bg-green-500' : 'bg-blue-500'}`}
+                  style={{ width: `${Math.min(sfAllocationPct, 100)}%` }}
+                />
+              </div>
+              <p className="text-xs text-slate-500 mt-1">
+                {remainingSquareFeet >= 0 ? `${remainingSquareFeet.toLocaleString()} sf remaining` : `${Math.abs(remainingSquareFeet).toLocaleString()} sf over`}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Units Section */}

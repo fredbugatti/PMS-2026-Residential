@@ -50,6 +50,7 @@ model Property {
   state           String?           @db.VarChar(50)
   zipCode         String?           @map("zip_code") @db.VarChar(20)
   totalUnits      Int?              @map("total_units")
+  totalSquareFeet Int?              @map("total_square_feet")
   propertyType    String            @default("RESIDENTIAL") @map("property_type") @db.VarChar(20) // RESIDENTIAL or COMMERCIAL
   notes           String?           @db.Text
   active          Boolean           @default(true)
