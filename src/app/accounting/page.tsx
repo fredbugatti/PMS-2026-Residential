@@ -288,7 +288,7 @@ export default function AccountingPage() {
         {activeTab === 'balances' && (
           <div className="space-y-6">
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
               <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
                 <p className="text-sm text-slate-600">Total Tenants</p>
                 <p className="text-2xl font-bold text-slate-900 mt-1">{filteredTenants.length}</p>
@@ -408,7 +408,7 @@ export default function AccountingPage() {
 
             {/* Filters */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                 <select
                   value={accountFilter}
                   onChange={(e) => setAccountFilter(e.target.value)}

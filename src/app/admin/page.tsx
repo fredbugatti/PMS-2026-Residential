@@ -220,7 +220,7 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 p-4 sm:p-8 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-slate-600">Loading system status...</p>
@@ -233,7 +233,7 @@ export default function AdminPage() {
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="bg-white border-b sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-8 py-4">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 md:py-4">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-slate-900">System Admin</h1>
@@ -284,12 +284,12 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-8">
+      <div className="max-w-7xl mx-auto p-4 md:p-8">
         {/* OVERVIEW TAB */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
             {/* Quick Status Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
               <div className={`p-4 rounded-lg border-2 ${health?.status === 'ok' ? 'bg-green-50 border-green-300' : health?.status === 'warning' ? 'bg-yellow-50 border-yellow-300' : 'bg-red-50 border-red-300'}`}>
                 <div className="text-3xl mb-1">{getStatusIcon(health?.status || '')}</div>
                 <div className="font-semibold">System Health</div>
@@ -319,7 +319,7 @@ export default function AdminPage() {
             {stats && (
               <div className="bg-white rounded-lg shadow p-6">
                 <h2 className="text-lg font-semibold mb-4">Database Statistics</h2>
-                <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-4">
                   {[
                     { label: 'Properties', value: stats.counts.properties },
                     { label: 'Units', value: stats.counts.units },
@@ -789,7 +789,7 @@ export default function AdminPage() {
             {stats && (
               <div className="bg-white rounded-lg shadow p-6">
                 <h2 className="text-lg font-semibold mb-4">Current Data</h2>
-                <div className="grid grid-cols-4 gap-4 text-sm">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-sm">
                   <div>Properties: <strong>{stats.counts.properties}</strong></div>
                   <div>Units: <strong>{stats.counts.units}</strong></div>
                   <div>Leases: <strong>{stats.counts.leases}</strong></div>

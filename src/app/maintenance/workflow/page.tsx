@@ -208,7 +208,7 @@ export default function MaintenanceWorkflow() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Workflow Columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {/* Column 1: New Requests */}
           <div className="space-y-4">
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">

@@ -176,7 +176,7 @@ export default function LedgerPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 space-y-4">
         {/* Summary Cards */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-3 sm:p-5">
             <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Entries</div>
             <div className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white">{entries.length}</div>

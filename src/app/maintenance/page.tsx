@@ -728,7 +728,7 @@ function MaintenanceContent() {
                   rows={3}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
                   <select
@@ -973,7 +973,7 @@ function MaintenanceContent() {
             {/* Content */}
             <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
               {/* Status and Details Row */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <div>
                   <label className="text-xs text-slate-500 block">Status</label>
                   <span className={`text-sm font-medium ${
@@ -1257,7 +1257,7 @@ function MaintenanceContent() {
                   placeholder="e.g., ABC Plumbing LLC"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
                   <input

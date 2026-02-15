@@ -348,7 +348,7 @@ export default function DocumentsPage() {
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+              className={`border-2 border-dashed rounded-xl p-4 sm:p-8 text-center transition-colors ${
                 isDragging
                   ? 'border-blue-500 bg-blue-50'
                   : 'border-slate-300 hover:border-slate-400'

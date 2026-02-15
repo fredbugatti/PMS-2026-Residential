@@ -155,7 +155,7 @@ function GenerateDocumentContent() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-4xl font-bold text-slate-900 mb-2">Generate Document</h1>
+              <h1 className="text-2xl md:text-4xl font-bold text-slate-900 mb-2">Generate Document</h1>
               <p className="text-slate-600">
                 Template: <span className="font-semibold">{template.name}</span>
               </p>
@@ -176,10 +176,10 @@ function GenerateDocumentContent() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Left Sidebar - Configuration */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-lg p-6 sticky top-8">
+            <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 sticky top-4 md:top-8">
               <h2 className="text-xl font-bold text-slate-900 mb-4">Configuration</h2>
 
               {/* Template Info */}
@@ -278,7 +278,7 @@ function GenerateDocumentContent() {
               </div>
 
               {/* Preview Content */}
-              <div className="p-8 min-h-[600px]">
+              <div className="p-8 min-h-[300px] md:min-h-[600px]">
                 {generatedContent ? (
                   <div
                     className="prose max-w-none print:text-black"

@@ -1060,7 +1060,7 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Add Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mt-4">
           <button
             onClick={() => { setQuickCreateType('property'); setShowQuickCreate(true); }}
             className="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4 text-center hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all border border-blue-200 dark:border-blue-800"
@@ -1534,7 +1534,7 @@ export default function Dashboard() {
 
             {/* Entity Selection Grid */}
             {!quickCreateType && (
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <button
                   onClick={() => setQuickCreateType('property')}
                   className="flex flex-col items-center p-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"

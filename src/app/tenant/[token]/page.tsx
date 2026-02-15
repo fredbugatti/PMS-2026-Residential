@@ -240,11 +240,11 @@ export default function TenantPortal() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Account Balance Card - Prominent */}
         <div className="mb-8">
-          <div className={`rounded-2xl shadow-xl p-8 ${data.balance > 0 ? 'bg-gradient-to-br from-red-500 to-pink-600' : 'bg-gradient-to-br from-green-500 to-emerald-600'} text-white`}>
+          <div className={`rounded-2xl shadow-xl p-4 sm:p-8 ${data.balance > 0 ? 'bg-gradient-to-br from-red-500 to-pink-600' : 'bg-gradient-to-br from-green-500 to-emerald-600'} text-white`}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white/90 text-lg mb-2">Current Balance</p>
-                <p className="text-5xl font-bold mb-4">{formatCurrency(Math.abs(data.balance))}</p>
+                <p className="text-3xl sm:text-5xl font-bold mb-4">{formatCurrency(Math.abs(data.balance))}</p>
                 {data.balance > 0 ? (
                   <div className="flex items-center gap-4">
                     <p className="text-white/90 text-lg">Amount Owed</p>
@@ -309,7 +309,7 @@ export default function TenantPortal() {
             ) : (
               <>
                 {/* Summary Row */}
-                <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-slate-50 rounded-xl">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 p-4 bg-slate-50 rounded-xl">
                   <div className="text-center">
                     <div className="text-sm text-slate-600 mb-1">Total Charged</div>
                     <div className="text-xl font-bold text-red-600">
@@ -416,7 +416,7 @@ export default function TenantPortal() {
             <nav className="flex -mb-px">
               <button
                 onClick={() => setActiveTab('overview')}
-                className={`px-8 py-4 text-sm font-medium border-b-2 transition-colors ${
+                className={`px-4 sm:px-8 py-3 sm:py-4 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === 'overview'
                     ? 'border-blue-600 text-blue-600'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -426,7 +426,7 @@ export default function TenantPortal() {
               </button>
               <button
                 onClick={() => setActiveTab('maintenance')}
-                className={`px-8 py-4 text-sm font-medium border-b-2 transition-colors ${
+                className={`px-4 sm:px-8 py-3 sm:py-4 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === 'maintenance'
                     ? 'border-blue-600 text-blue-600'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -436,7 +436,7 @@ export default function TenantPortal() {
               </button>
               <button
                 onClick={() => setActiveTab('documents')}
-                className={`px-8 py-4 text-sm font-medium border-b-2 transition-colors ${
+                className={`px-4 sm:px-8 py-3 sm:py-4 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === 'documents'
                     ? 'border-blue-600 text-blue-600'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'

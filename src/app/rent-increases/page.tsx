@@ -92,7 +92,7 @@ export default function RentIncreasesPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between flex-col md:flex-row gap-4">
             <div>
               <nav className="flex gap-4 mb-4">
                 <a href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">Dashboard</a>
@@ -158,7 +158,7 @@ export default function RentIncreasesPage() {
             <div className="divide-y divide-slate-200">
               {filteredIncreases.map((increase) => (
                 <div key={increase.id} className="p-6">
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between flex-col md:flex-row gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-lg font-semibold text-slate-900">

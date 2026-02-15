@@ -149,7 +149,7 @@ export default function VendorDetail() {
           const unpaidCount = vendor.workOrders.filter(wo => wo.paymentStatus !== 'PAID' && wo.actualCost).length;
 
           return (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-8">
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                 <div className="text-sm text-slate-600 mb-1">Total Work Orders</div>
                 <div className="text-3xl font-bold text-slate-900">{vendor.workOrders.length}</div>
@@ -171,7 +171,7 @@ export default function VendorDetail() {
           );
         })()}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Work Orders */}

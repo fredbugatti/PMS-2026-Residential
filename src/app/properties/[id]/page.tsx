@@ -451,7 +451,7 @@ export default function PropertyDetailPage() {
 
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
             <p className="text-sm text-slate-600 mb-1">Total Units</p>
             <p className="text-3xl font-bold text-slate-900">{totalUnits}</p>
@@ -1210,7 +1210,7 @@ export default function PropertyDetailPage() {
                   />
                 </div>
               ) : (
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">
                       Bedrooms

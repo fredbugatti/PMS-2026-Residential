@@ -356,10 +356,10 @@ export default function TenantPay() {
 
         {/* Balance Card */}
         {!showPaymentForm && (
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 mb-6">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-4 sm:p-8 mb-6">
             <div className="text-center mb-8">
               <div className="text-sm text-slate-600 mb-2">Current Balance Due</div>
-              <div className={`text-5xl font-bold ${hasBalance ? 'text-slate-900' : 'text-green-600'}`}>
+              <div className={`text-3xl sm:text-5xl font-bold ${hasBalance ? 'text-slate-900' : 'text-green-600'}`}>
                 {formatCurrency(data?.currentBalance || 0)}
               </div>
               {!hasBalance && (

@@ -268,7 +268,7 @@ export default function ChartOfAccountsPage() {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/4"></div>
           <div className="h-64 bg-slate-200 dark:bg-slate-700 rounded"></div>
@@ -278,7 +278,7 @@ export default function ChartOfAccountsPage() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-4 md:p-6 max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -296,7 +296,7 @@ export default function ChartOfAccountsPage() {
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-6">
         <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
           <div className="text-2xl font-bold text-slate-900 dark:text-white">{accounts.length}</div>
           <div className="text-sm text-slate-500 dark:text-slate-400">Total Accounts</div>

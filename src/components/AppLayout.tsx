@@ -84,7 +84,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
         {pathname !== '/' && (
           <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-2.5">
-            <nav className="flex items-center space-x-1 text-sm overflow-x-auto">
+            <nav className="flex items-center space-x-1 text-xs sm:text-sm overflow-x-auto">
               {breadcrumbs.map((crumb, index) => (
                 <div key={crumb.path} className="flex items-center flex-shrink-0">
                   {index > 0 && (

@@ -115,21 +115,21 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             <div className="flex gap-1 bg-slate-800 rounded-lg p-1">
               <button
                 onClick={() => setTheme('light')}
-                className={cn('p-1.5 rounded transition-colors', theme === 'light' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white')}
+                className={cn('p-2 sm:p-1.5 rounded transition-colors', theme === 'light' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white')}
                 title="Light mode"
               >
                 <Sun className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setTheme('system')}
-                className={cn('p-1.5 rounded transition-colors', theme === 'system' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white')}
+                className={cn('p-2 sm:p-1.5 rounded transition-colors', theme === 'system' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white')}
                 title="System"
               >
                 <Monitor className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setTheme('dark')}
-                className={cn('p-1.5 rounded transition-colors', theme === 'dark' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white')}
+                className={cn('p-2 sm:p-1.5 rounded transition-colors', theme === 'dark' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white')}
                 title="Dark mode"
               >
                 <Moon className="h-4 w-4" />

@@ -354,7 +354,7 @@ export default function TenantAutopay() {
 
         {/* Current Autopay Status */}
         {!showSetupForm && (
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 mb-6">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-4 sm:p-8 mb-6">
             {data?.autopayEnabled ? (
               <>
                 <div className="flex items-center gap-3 mb-6">

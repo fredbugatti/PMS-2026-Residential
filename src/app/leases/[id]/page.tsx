@@ -1825,7 +1825,7 @@ export default function LeaseDetailPage() {
 
             {depositExpanded && (
               <div className="px-6 pb-6 border-t border-slate-200 pt-4">
-                <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
                   <div>
                     <p className="text-xs text-slate-500 mb-1">Expected Amount</p>
                     <p className="text-lg font-semibold text-slate-900">
@@ -3648,7 +3648,7 @@ export default function LeaseDetailPage() {
                       required
                     />
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-1">Amount *</label>
                       <div className="relative">

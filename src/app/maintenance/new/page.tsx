@@ -207,7 +207,7 @@ export default function NewWorkOrder() {
               ← Back
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">Create Work Order</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Create Work Order</h1>
               <p className="text-slate-600 mt-1">Submit a new maintenance request</p>
             </div>
           </div>
@@ -218,7 +218,7 @@ export default function NewWorkOrder() {
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <div className="space-y-6">
             {/* Property & Unit Selection */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   Property <span className="text-red-500">*</span>
@@ -286,7 +286,7 @@ export default function NewWorkOrder() {
             </div>
 
             {/* Category & Priority */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   Category <span className="text-red-500">*</span>
@@ -325,7 +325,7 @@ export default function NewWorkOrder() {
             </div>
 
             {/* Reporter Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   Reported By <span className="text-red-500">*</span>

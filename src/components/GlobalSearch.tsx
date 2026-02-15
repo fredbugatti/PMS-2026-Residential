@@ -206,28 +206,28 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                 <div className="space-y-1">
                   <button
                     onClick={() => { router.push('/properties'); onClose(); }}
-                    className="w-full px-3 py-2 flex items-center gap-3 text-left rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                    className="w-full px-3 py-3 sm:py-2 flex items-center gap-3 text-left rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50"
                   >
                     <Building2 className="h-5 w-5 text-slate-500" />
                     <span className="text-sm text-slate-700 dark:text-slate-300">View Properties</span>
                   </button>
                   <button
                     onClick={() => { router.push('/leases'); onClose(); }}
-                    className="w-full px-3 py-2 flex items-center gap-3 text-left rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                    className="w-full px-3 py-3 sm:py-2 flex items-center gap-3 text-left rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50"
                   >
                     <FileText className="h-5 w-5 text-slate-500" />
                     <span className="text-sm text-slate-700 dark:text-slate-300">View Leases</span>
                   </button>
                   <button
                     onClick={() => { router.push('/maintenance'); onClose(); }}
-                    className="w-full px-3 py-2 flex items-center gap-3 text-left rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                    className="w-full px-3 py-3 sm:py-2 flex items-center gap-3 text-left rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50"
                   >
                     <Wrench className="h-5 w-5 text-slate-500" />
                     <span className="text-sm text-slate-700 dark:text-slate-300">View Maintenance</span>
                   </button>
                   <button
                     onClick={() => { router.push('/reports'); onClose(); }}
-                    className="w-full px-3 py-2 flex items-center gap-3 text-left rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                    className="w-full px-3 py-3 sm:py-2 flex items-center gap-3 text-left rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50"
                   >
                     <TrendingUp className="h-5 w-5 text-slate-500" />
                     <span className="text-sm text-slate-700 dark:text-slate-300">View Reports</span>

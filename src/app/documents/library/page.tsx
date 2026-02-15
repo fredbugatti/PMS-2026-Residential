@@ -332,7 +332,7 @@ export default function DocumentLibraryPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-4xl font-bold text-slate-900 mb-2">Document Library</h1>
+              <h1 className="text-2xl md:text-4xl font-bold text-slate-900 mb-2">Document Library</h1>
               <p className="text-slate-600">
                 Upload, organize, and manage your property management documents
               </p>
