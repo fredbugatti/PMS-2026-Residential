@@ -40,7 +40,8 @@ export default function PropertiesPage() {
     city: '',
     state: '',
     zipCode: '',
-    propertyType: 'WAREHOUSE'
+    propertyType: 'WAREHOUSE',
+    totalSquareFeet: ''
   });
 
   // Created property ID (after step 1)
