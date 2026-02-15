@@ -195,39 +195,39 @@ export default function NewWorkOrder() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center gap-4">
             <Link
               href="/maintenance"
-              className="text-gray-600 hover:text-gray-900"
+              className="text-slate-600 hover:text-slate-900"
             >
               ← Back
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Create Work Order</h1>
-              <p className="text-gray-600 mt-1">Submit a new maintenance request</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Create Work Order</h1>
+              <p className="text-slate-600 mt-1">Submit a new maintenance request</p>
             </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <div className="space-y-6">
             {/* Property & Unit Selection */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Property <span className="text-red-500">*</span>
                 </label>
                 <select
                   required
                   value={formData.propertyId}
                   onChange={(e) => setFormData({ ...formData, propertyId: e.target.value, unitId: '' })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select Property</option>
                   {properties.map((p) => (
@@ -237,14 +237,14 @@ export default function NewWorkOrder() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Unit <span className="text-red-500">*</span>
                 </label>
                 <select
                   required
                   value={formData.unitId}
                   onChange={(e) => setFormData({ ...formData, unitId: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   disabled={!formData.propertyId}
                 >
                   <option value="">Select Unit</option>
@@ -257,7 +257,7 @@ export default function NewWorkOrder() {
 
             {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Title <span className="text-red-500">*</span>
               </label>
               <input
@@ -266,13 +266,13 @@ export default function NewWorkOrder() {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="e.g., Leaky faucet in bathroom"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Description <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -281,21 +281,21 @@ export default function NewWorkOrder() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Detailed description of the issue..."
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
             {/* Category & Priority */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Category <span className="text-red-500">*</span>
                 </label>
                 <select
                   required
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="PLUMBING">Plumbing</option>
                   <option value="ELECTRICAL">Electrical</option>
@@ -307,14 +307,14 @@ export default function NewWorkOrder() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Priority <span className="text-red-500">*</span>
                 </label>
                 <select
                   required
                   value={formData.priority}
                   onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="LOW">Low</option>
                   <option value="MEDIUM">Medium</option>
@@ -325,9 +325,9 @@ export default function NewWorkOrder() {
             </div>
 
             {/* Reporter Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Reported By <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -336,12 +336,12 @@ export default function NewWorkOrder() {
                   value={formData.reportedBy}
                   onChange={(e) => setFormData({ ...formData, reportedBy: e.target.value })}
                   placeholder="Name"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Email
                 </label>
                 <input
@@ -349,7 +349,7 @@ export default function NewWorkOrder() {
                   value={formData.reportedEmail}
                   onChange={(e) => setFormData({ ...formData, reportedEmail: e.target.value })}
                   placeholder="email@example.com"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </div>
@@ -357,13 +357,13 @@ export default function NewWorkOrder() {
             {/* Assignment & Scheduling */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Assign to Vendor
                 </label>
                 <select
                   value={formData.vendorId}
                   onChange={(e) => setFormData({ ...formData, vendorId: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select vendor (optional)</option>
                   {vendors.map((v) => (
@@ -375,7 +375,7 @@ export default function NewWorkOrder() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Estimated Cost
                 </label>
                 <input
@@ -384,26 +384,26 @@ export default function NewWorkOrder() {
                   value={formData.estimatedCost}
                   onChange={(e) => setFormData({ ...formData, estimatedCost: e.target.value })}
                   placeholder="0.00"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Scheduled Date
                 </label>
                 <input
                   type="date"
                   value={formData.scheduledDate}
                   onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </div>
 
             {/* Internal Notes */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Internal Notes
               </label>
               <textarea
@@ -411,13 +411,13 @@ export default function NewWorkOrder() {
                 value={formData.internalNotes}
                 onChange={(e) => setFormData({ ...formData, internalNotes: e.target.value })}
                 placeholder="Notes for internal use (not visible to tenant)"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
             {/* Photo Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Photos
               </label>
               <div className="space-y-4">
@@ -426,7 +426,7 @@ export default function NewWorkOrder() {
                   accept="image/*"
                   multiple
                   onChange={handlePhotoUpload}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 {uploadedPhotos.length > 0 && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -435,7 +435,7 @@ export default function NewWorkOrder() {
                         <img
                           src={photo}
                           alt={`Upload ${index + 1}`}
-                          className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                          className="w-full h-32 object-cover rounded-lg border border-slate-200"
                         />
                         <button
                           type="button"
@@ -454,10 +454,10 @@ export default function NewWorkOrder() {
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
+            <div className="flex justify-end gap-4 pt-6 border-t border-slate-200">
               <Link
                 href="/maintenance/workflow"
-                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                className="px-6 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
               >
                 Cancel
               </Link>

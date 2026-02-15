@@ -1,8 +1,7 @@
 import './globals.css'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import AppLayout from '@/components/AppLayout'
-import { ThemeProvider } from '@/components/ThemeProvider'
 import { ToastProvider } from '@/components/Toast'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -12,19 +11,23 @@ export const metadata: Metadata = {
   description: 'Professional property management ledger system',
 }
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+}
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100`}>
-        <ThemeProvider>
-          <ToastProvider>
-            <AppLayout>{children}</AppLayout>
-          </ToastProvider>
-        </ThemeProvider>
+    <html lang="en">
+      <body className={`${inter.className} bg-white text-slate-900`}>
+        <ToastProvider>
+          <AppLayout>{children}</AppLayout>
+        </ToastProvider>
       </body>
     </html>
   )

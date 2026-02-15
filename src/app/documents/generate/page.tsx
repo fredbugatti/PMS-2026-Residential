@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { XCircle, FileText } from 'lucide-react';
 
 interface DocumentTemplate {
   id: string;
@@ -119,7 +120,7 @@ function GenerateDocumentContent() {
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Loading template...</p>
+              <p className="mt-4 text-slate-600">Loading template...</p>
             </div>
           </div>
         </div>
@@ -132,9 +133,9 @@ function GenerateDocumentContent() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-8">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-xl shadow-lg p-12 text-center">
-            <div className="text-6xl mb-4">❌</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Template Not Found</h2>
-            <p className="text-gray-600 mb-6">The requested template could not be found.</p>
+            <div className="mb-4"><XCircle className="h-14 w-14 text-red-400" /></div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-4">Template Not Found</h2>
+            <p className="text-slate-600 mb-6">The requested template could not be found.</p>
             <button
               onClick={() => router.push('/documents')}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -154,14 +155,14 @@ function GenerateDocumentContent() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">Generate Document</h1>
-              <p className="text-gray-600">
+              <h1 className="text-2xl md:text-4xl font-bold text-slate-900 mb-2">Generate Document</h1>
+              <p className="text-slate-600">
                 Template: <span className="font-semibold">{template.name}</span>
               </p>
             </div>
             <button
               onClick={() => router.push('/documents')}
-              className="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-6 py-3 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
             >
               Back to Templates
             </button>
@@ -175,11 +176,11 @@ function GenerateDocumentContent() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Left Sidebar - Configuration */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-lg p-6 sticky top-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Configuration</h2>
+            <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 sticky top-4 md:top-8">
+              <h2 className="text-xl font-bold text-slate-900 mb-4">Configuration</h2>
 
               {/* Template Info */}
               <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
@@ -191,13 +192,13 @@ function GenerateDocumentContent() {
 
               {/* Lease Selection */}
               <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Select Lease
                 </label>
                 <select
                   value={selectedLeaseId}
                   onChange={(e) => setSelectedLeaseId(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Choose a lease...</option>
                   {leases.map(lease => (
@@ -214,7 +215,7 @@ function GenerateDocumentContent() {
                 disabled={!selectedLeaseId || generating}
                 className={`w-full py-3 rounded-lg font-semibold transition-colors ${
                   !selectedLeaseId || generating
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
                     : 'bg-green-600 text-white hover:bg-green-700'
                 }`}
               >
@@ -234,12 +235,12 @@ function GenerateDocumentContent() {
               {/* Merge Fields Info */}
               {template.mergeFields.length > 0 && (
                 <div className="mt-6">
-                  <h3 className="font-semibold text-gray-900 mb-2">Available Merge Fields</h3>
+                  <h3 className="font-semibold text-slate-900 mb-2">Available Merge Fields</h3>
                   <div className="space-y-1 max-h-64 overflow-y-auto">
                     {template.mergeFields.map(field => (
                       <div
                         key={field}
-                        className="px-3 py-2 bg-gray-50 rounded text-sm text-gray-700 border border-gray-200"
+                        className="px-3 py-2 bg-slate-50 rounded text-sm text-slate-700 border border-slate-200"
                       >
                         {`{{${field}}}`}
                       </div>
@@ -254,9 +255,9 @@ function GenerateDocumentContent() {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
               {/* Preview Header */}
-              <div className="p-6 border-b border-gray-200 bg-gray-50">
+              <div className="p-6 border-b border-slate-200 bg-slate-50">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-gray-900">Document Preview</h2>
+                  <h2 className="text-xl font-bold text-slate-900">Document Preview</h2>
                   {generatedContent && (
                     <div className="flex gap-2">
                       <button
@@ -277,7 +278,7 @@ function GenerateDocumentContent() {
               </div>
 
               {/* Preview Content */}
-              <div className="p-8 min-h-[600px]">
+              <div className="p-8 min-h-[300px] md:min-h-[600px]">
                 {generatedContent ? (
                   <div
                     className="prose max-w-none print:text-black"
@@ -285,9 +286,9 @@ function GenerateDocumentContent() {
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center py-20">
-                    <div className="text-6xl mb-4">📄</div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No Document Generated</h3>
-                    <p className="text-gray-600">
+                    <div className="mb-4"><FileText className="h-14 w-14 text-slate-400" /></div>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-2">No Document Generated</h3>
+                    <p className="text-slate-600">
                       Select a lease and click "Generate Document" to preview the document.
                     </p>
                   </div>
@@ -327,7 +328,7 @@ export default function GenerateDocumentPage() {
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Loading...</p>
+              <p className="mt-4 text-slate-600">Loading...</p>
             </div>
           </div>
         </div>

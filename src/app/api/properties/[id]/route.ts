@@ -92,6 +92,7 @@ export async function PATCH(
         ...(body.state !== undefined && { state: body.state || null }),
         ...(body.zipCode !== undefined && { zipCode: body.zipCode || null }),
         ...(body.totalUnits !== undefined && { totalUnits: body.totalUnits ? parseInt(body.totalUnits) : null }),
+        ...(body.totalSquareFeet !== undefined && { totalSquareFeet: body.totalSquareFeet ? parseInt(body.totalSquareFeet) : null }),
         ...(body.propertyType !== undefined && { propertyType: body.propertyType || null }),
         ...(body.notes !== undefined && { notes: body.notes || null }),
         ...(body.active !== undefined && { active: body.active })

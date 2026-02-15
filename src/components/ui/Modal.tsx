@@ -62,7 +62,7 @@ export const Modal: React.FC<ModalProps> = ({
 
       {/* Modal content */}
       <div
-        className={`relative w-full ${sizeStyles[size]} bg-white dark:bg-gray-800 rounded-xl shadow-xl animate-in fade-in zoom-in-95 duration-150`}
+        className={`relative w-full ${sizeStyles[size]} bg-white rounded-xl shadow-xl animate-in fade-in zoom-in-95 duration-150`}
         role="dialog"
         aria-modal="true"
       >
@@ -84,14 +84,14 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({
   showCloseButton = true,
 }) => {
   return (
-    <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+    <div className="flex items-center justify-between p-6 border-b border-slate-200">
+      <h2 className="text-lg font-semibold text-slate-900">
         {children}
       </h2>
       {showCloseButton && onClose && (
         <button
           onClick={onClose}
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          className="text-slate-400 hover:text-slate-600 transition-colors"
           aria-label="Close modal"
         >
           <X className="h-5 w-5" />
@@ -127,7 +127,7 @@ export const ModalFooter: React.FC<ModalFooterProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700 ${className}`.trim()}>
+    <div className={`flex items-center justify-end gap-3 p-6 border-t border-slate-200 ${className}`.trim()}>
       {children}
     </div>
   );

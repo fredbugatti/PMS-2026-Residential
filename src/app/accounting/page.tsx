@@ -218,21 +218,21 @@ export default function AccountingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-slate-600">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Accounting</h1>
-              <p className="text-sm text-gray-600 mt-1">Manage finances and view reports</p>
+              <h1 className="text-2xl font-bold text-slate-900">Accounting</h1>
+              <p className="text-sm text-slate-600 mt-1">Manage finances and view reports</p>
             </div>
             <div className="flex gap-3">
               {activeTab === 'balances' && (
@@ -259,14 +259,14 @@ export default function AccountingPage() {
 
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
-          <div className="flex border-b border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 mb-6">
+          <div className="flex border-b border-slate-200">
             <button
               onClick={() => setActiveTab('balances')}
               className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
                 activeTab === 'balances'
                   ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  : 'text-slate-600 hover:bg-slate-50'
               }`}
             >
               Tenant Balances
@@ -276,7 +276,7 @@ export default function AccountingPage() {
               className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
                 activeTab === 'ledger'
                   ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  : 'text-slate-600 hover:bg-slate-50'
               }`}
             >
               Transactions
@@ -288,41 +288,41 @@ export default function AccountingPage() {
         {activeTab === 'balances' && (
           <div className="space-y-6">
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                <p className="text-sm text-gray-600">Total Tenants</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{filteredTenants.length}</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                <p className="text-sm text-slate-600">Total Tenants</p>
+                <p className="text-2xl font-bold text-slate-900 mt-1">{filteredTenants.length}</p>
               </div>
-              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                <p className="text-sm text-gray-600">Owing</p>
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                <p className="text-sm text-slate-600">Owing</p>
                 <p className="text-2xl font-bold text-red-600 mt-1">{formatCurrency(totalOwed)}</p>
               </div>
-              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                <p className="text-sm text-gray-600">Credits</p>
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                <p className="text-sm text-slate-600">Credits</p>
                 <p className="text-2xl font-bold text-green-600 mt-1">{formatCurrency(totalCredits)}</p>
               </div>
-              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                <p className="text-sm text-gray-600">Net Balance</p>
-                <p className={`text-2xl font-bold mt-1 ${totalOwed - totalCredits >= 0 ? 'text-gray-900' : 'text-green-600'}`}>
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                <p className="text-sm text-slate-600">Net Balance</p>
+                <p className={`text-2xl font-bold mt-1 ${totalOwed - totalCredits >= 0 ? 'text-slate-900' : 'text-green-600'}`}>
                   {formatCurrency(totalOwed - totalCredits)}
                 </p>
               </div>
             </div>
 
             {/* Filters */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
               <div className="flex flex-wrap gap-4 items-center">
                 <select
                   value={selectedProperty}
                   onChange={(e) => setSelectedProperty(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
                 >
                   <option value="all">All Properties</option>
                   {properties.map(p => (
                     <option key={p.id} value={p.id}>{p.name}</option>
                   ))}
                 </select>
-                <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+                <div className="flex rounded-lg border border-slate-300 overflow-hidden">
                   {(['all', 'owing', 'credit'] as const).map(f => (
                     <button
                       key={f}
@@ -330,7 +330,7 @@ export default function AccountingPage() {
                       className={`px-4 py-2 text-sm font-medium ${
                         balanceFilter === f
                           ? 'bg-blue-600 text-white'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
+                          : 'bg-white text-slate-700 hover:bg-slate-50'
                       }`}
                     >
                       {f === 'all' ? 'All' : f === 'owing' ? 'Owing' : 'Credit'}
@@ -341,34 +341,34 @@ export default function AccountingPage() {
             </div>
 
             {/* Tenant Table */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
               {filteredTenants.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">No tenants found</div>
+                <div className="text-center py-12 text-slate-500">No tenants found</div>
               ) : (
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className="bg-slate-50 border-b border-slate-200">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Tenant</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Unit</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Monthly Rent</th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Balance</th>
-                      <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Tenant</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Unit</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Monthly Rent</th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">Balance</th>
+                      <th className="px-6 py-3 text-center text-xs font-semibold text-slate-600 uppercase">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-slate-200">
                     {filteredTenants.map(t => (
-                      <tr key={t.leaseId} className="hover:bg-gray-50">
+                      <tr key={t.leaseId} className="hover:bg-slate-50">
                         <td className="px-6 py-4">
-                          <div className="font-medium text-gray-900">{t.tenantName}</div>
-                          {t.propertyName && <div className="text-sm text-gray-500">{t.propertyName}</div>}
+                          <div className="font-medium text-slate-900">{t.tenantName}</div>
+                          {t.propertyName && <div className="text-sm text-slate-500">{t.propertyName}</div>}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-900">{t.unitName}</td>
-                        <td className="px-6 py-4 text-sm text-gray-900">
+                        <td className="px-6 py-4 text-sm text-slate-900">{t.unitName}</td>
+                        <td className="px-6 py-4 text-sm text-slate-900">
                           {t.monthlyRent ? formatCurrency(t.monthlyRent) : '-'}
                         </td>
                         <td className="px-6 py-4 text-right">
                           <span className={`font-semibold ${
-                            t.balance > 0 ? 'text-red-600' : t.balance < 0 ? 'text-green-600' : 'text-gray-900'
+                            t.balance > 0 ? 'text-red-600' : t.balance < 0 ? 'text-green-600' : 'text-slate-900'
                           }`}>
                             {formatCurrency(t.balance)}
                           </span>
@@ -392,27 +392,27 @@ export default function AccountingPage() {
           <div className="space-y-6">
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                <p className="text-sm text-gray-600">Total Entries</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{entries.length}</p>
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                <p className="text-sm text-slate-600">Total Entries</p>
+                <p className="text-2xl font-bold text-slate-900 mt-1">{entries.length}</p>
               </div>
-              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                <p className="text-sm text-gray-600">Total Debits</p>
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                <p className="text-sm text-slate-600">Total Debits</p>
                 <p className="text-2xl font-bold text-blue-600 mt-1">{formatCurrency(totalDebits)}</p>
               </div>
-              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                <p className="text-sm text-gray-600">Total Credits</p>
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                <p className="text-sm text-slate-600">Total Credits</p>
                 <p className="text-2xl font-bold text-green-600 mt-1">{formatCurrency(totalCreditsLedger)}</p>
               </div>
             </div>
 
             {/* Filters */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                 <select
                   value={accountFilter}
                   onChange={(e) => setAccountFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
                 >
                   <option value="">All Accounts</option>
                   {accounts.map(a => (
@@ -422,7 +422,7 @@ export default function AccountingPage() {
                 <select
                   value={leaseFilter}
                   onChange={(e) => setLeaseFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
                 >
                   <option value="">All Tenants</option>
                   {leases.map(l => (
@@ -433,46 +433,46 @@ export default function AccountingPage() {
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
                   placeholder="Start Date"
                 />
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
                   placeholder="End Date"
                 />
               </div>
             </div>
 
             {/* Ledger Table */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
               {entries.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">No entries found</div>
+                <div className="text-center py-12 text-slate-500">No entries found</div>
               ) : (
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className="bg-slate-50 border-b border-slate-200">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Account</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Description</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Tenant</th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Debit</th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Credit</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Account</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Description</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Tenant</th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">Debit</th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">Credit</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-slate-200">
                     {entries.map(e => (
-                      <tr key={e.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 text-sm text-gray-900">
+                      <tr key={e.id} className="hover:bg-slate-50">
+                        <td className="px-6 py-4 text-sm text-slate-900">
                           {new Date(e.entryDate).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm font-medium text-gray-900">{e.accountCode}</div>
-                          <div className="text-xs text-gray-500">{e.account.name}</div>
+                          <div className="text-sm font-medium text-slate-900">{e.accountCode}</div>
+                          <div className="text-xs text-slate-500">{e.account.name}</div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
+                        <td className="px-6 py-4 text-sm text-slate-900 max-w-xs truncate">
                           {e.description}
                         </td>
                         <td className="px-6 py-4 text-sm">
@@ -481,7 +481,7 @@ export default function AccountingPage() {
                               {e.lease.tenantName}
                             </Link>
                           ) : (
-                            <span className="text-gray-400">-</span>
+                            <span className="text-slate-400">-</span>
                           )}
                         </td>
                         <td className="px-6 py-4 text-sm text-right">
@@ -497,9 +497,9 @@ export default function AccountingPage() {
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot className="bg-gray-50 border-t-2 border-gray-300">
+                  <tfoot className="bg-slate-50 border-t-2 border-slate-300">
                     <tr>
-                      <td colSpan={4} className="px-6 py-3 text-sm font-bold text-gray-900">TOTALS</td>
+                      <td colSpan={4} className="px-6 py-3 text-sm font-bold text-slate-900">TOTALS</td>
                       <td className="px-6 py-3 text-right font-bold text-blue-600">{formatCurrency(totalDebits)}</td>
                       <td className="px-6 py-3 text-right font-bold text-green-600">{formatCurrency(totalCreditsLedger)}</td>
                     </tr>
@@ -515,8 +515,8 @@ export default function AccountingPage() {
       {showBulkModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">
+            <div className="p-6 border-b border-slate-200">
+              <h2 className="text-xl font-bold text-slate-900">
                 {bulkResults ? 'Charges Posted' : 'Charge Rent'}
               </h2>
             </div>
@@ -541,26 +541,26 @@ export default function AccountingPage() {
               ) : (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Charge Date</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Charge Date</label>
                     <input
                       type="date"
                       value={chargeDate}
                       onChange={(e) => setChargeDate(e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                      className="px-3 py-2 border border-slate-300 rounded-lg"
                     />
                   </div>
                   {bulkPreview.length === 0 ? (
-                    <p className="text-gray-500 text-center py-4">No active leases with rent amounts</p>
+                    <p className="text-slate-500 text-center py-4">No active leases with rent amounts</p>
                   ) : (
-                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <div className="border border-slate-200 rounded-lg overflow-hidden">
                       <table className="w-full text-sm">
-                        <thead className="bg-gray-50">
+                        <thead className="bg-slate-50">
                           <tr>
                             <th className="px-4 py-2 text-left font-medium">Tenant</th>
                             <th className="px-4 py-2 text-right font-medium">Amount</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200">
+                        <tbody className="divide-y divide-slate-200">
                           {bulkPreview.map((c: any) => (
                             <tr key={c.leaseId}>
                               <td className="px-4 py-2">{c.tenantName}</td>
@@ -578,7 +578,7 @@ export default function AccountingPage() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => setShowBulkModal(false)}
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                      className="flex-1 px-4 py-2 border border-slate-300 rounded-lg"
                     >
                       Cancel
                     </button>

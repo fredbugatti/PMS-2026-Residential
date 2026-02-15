@@ -82,26 +82,26 @@ export default function RentIncreasesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+        <div className="text-slate-600">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="bg-white border-b border-gray-200">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between flex-col md:flex-row gap-4">
             <div>
               <nav className="flex gap-4 mb-4">
-                <a href="/" className="text-sm font-medium text-gray-600 hover:text-gray-900">Dashboard</a>
-                <a href="/leases" className="text-sm font-medium text-gray-600 hover:text-gray-900">Leases</a>
-                <a href="/reports" className="text-sm font-medium text-gray-600 hover:text-gray-900">Reports</a>
+                <a href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">Dashboard</a>
+                <a href="/leases" className="text-sm font-medium text-slate-600 hover:text-slate-900">Leases</a>
+                <a href="/reports" className="text-sm font-medium text-slate-600 hover:text-slate-900">Reports</a>
                 <a href="/rent-increases" className="text-sm font-medium text-blue-600">Rent Increases</a>
               </nav>
-              <h1 className="text-2xl font-bold text-gray-900">Rent Increases</h1>
-              <p className="text-sm text-gray-600 mt-1">Manage scheduled and historical rent increases</p>
+              <h1 className="text-2xl font-bold text-slate-900">Rent Increases</h1>
+              <p className="text-sm text-slate-600 mt-1">Manage scheduled and historical rent increases</p>
             </div>
             <button
               onClick={handleApplyPending}
@@ -121,7 +121,7 @@ export default function RentIncreasesPage() {
             className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
               filter === 'all'
                 ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
             }`}
           >
             All ({increases.length})
@@ -131,7 +131,7 @@ export default function RentIncreasesPage() {
             className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
               filter === 'SCHEDULED'
                 ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
             }`}
           >
             Scheduled ({increases.filter(i => i.status === 'SCHEDULED').length})
@@ -141,7 +141,7 @@ export default function RentIncreasesPage() {
             className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
               filter === 'APPLIED'
                 ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
             }`}
           >
             Applied ({increases.filter(i => i.status === 'APPLIED').length})
@@ -149,54 +149,54 @@ export default function RentIncreasesPage() {
         </div>
 
         {/* Rent Increases List */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200">
           {filteredIncreases.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500">No rent increases found</p>
+              <p className="text-slate-500">No rent increases found</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-200">
+            <div className="divide-y divide-slate-200">
               {filteredIncreases.map((increase) => (
                 <div key={increase.id} className="p-6">
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between flex-col md:flex-row gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibold text-slate-900">
                           {increase.lease.tenantName}
                         </h3>
                         <span className={`px-2 py-1 text-xs font-medium rounded ${
                           increase.status === 'APPLIED' ? 'bg-green-100 text-green-800' :
                           increase.status === 'SCHEDULED' ? 'bg-blue-100 text-blue-800' :
-                          'bg-gray-100 text-gray-800'
+                          'bg-slate-100 text-slate-800'
                         }`}>
                           {increase.status}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 mb-3">
+                      <p className="text-sm text-slate-600 mb-3">
                         {increase.lease.unitName} {increase.lease.propertyName && `• ${increase.lease.propertyName}`}
                       </p>
                       <div className="flex items-center gap-4 text-sm">
                         <div>
-                          <span className="text-gray-600">From:</span>{' '}
-                          <span className="font-semibold text-gray-900">{formatCurrency(increase.previousAmount)}</span>
+                          <span className="text-slate-600">From:</span>{' '}
+                          <span className="font-semibold text-slate-900">{formatCurrency(increase.previousAmount)}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">To:</span>{' '}
+                          <span className="text-slate-600">To:</span>{' '}
                           <span className="font-semibold text-green-600">{formatCurrency(increase.newAmount)}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Increase:</span>{' '}
-                          <span className="font-semibold text-gray-900">
+                          <span className="text-slate-600">Increase:</span>{' '}
+                          <span className="font-semibold text-slate-900">
                             +{formatCurrency(increase.newAmount - increase.previousAmount)} ({(((increase.newAmount - increase.previousAmount) / increase.previousAmount) * 100).toFixed(1)}%)
                           </span>
                         </div>
                       </div>
-                      <div className="mt-2 text-xs text-gray-500">
+                      <div className="mt-2 text-xs text-slate-500">
                         Effective: {new Date(increase.effectiveDate).toLocaleDateString()} •
                         Notice: {new Date(increase.noticeDate).toLocaleDateString()}
                       </div>
                       {increase.notes && (
-                        <p className="mt-2 text-sm text-gray-600">{increase.notes}</p>
+                        <p className="mt-2 text-sm text-slate-600">{increase.notes}</p>
                       )}
                     </div>
                     <div className="ml-4">

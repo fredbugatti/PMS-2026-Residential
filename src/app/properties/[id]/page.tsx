@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { useParams } from 'next/navigation';
+import { Image, FileText, Edit3, BarChart3, Paperclip, FolderOpen } from 'lucide-react';
 
 interface Property {
   id: string;
@@ -11,6 +12,7 @@ interface Property {
   state: string | null;
   zipCode: string | null;
   totalUnits: number | null;
+  totalSquareFeet: number | null;
   propertyType: string | null;
   notes: string | null;
   active: boolean;
@@ -321,7 +323,7 @@ export default function PropertyDetailPage() {
       case 'VACANT': return 'bg-green-100 text-green-800';
       case 'OCCUPIED': return 'bg-blue-100 text-blue-800';
       case 'MAINTENANCE': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-slate-100 text-slate-800';
     }
   };
 
@@ -329,9 +331,9 @@ export default function PropertyDetailPage() {
     switch (status) {
       case 'ACTIVE': return 'bg-green-100 text-green-800';
       case 'DRAFT': return 'bg-yellow-100 text-yellow-800';
-      case 'ENDED': return 'bg-gray-100 text-gray-800';
+      case 'ENDED': return 'bg-slate-100 text-slate-800';
       case 'TERMINATED': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-slate-100 text-slate-800';
     }
   };
 
@@ -343,12 +345,12 @@ export default function PropertyDetailPage() {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
 
-  const getFileIcon = (mimeType: string): string => {
-    if (mimeType.startsWith('image/')) return '🖼️';
-    if (mimeType.includes('pdf')) return '📄';
-    if (mimeType.includes('word') || mimeType.includes('document')) return '📝';
-    if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📊';
-    return '📎';
+  const getFileIcon = (mimeType: string): ReactNode => {
+    if (mimeType.startsWith('image/')) return <Image className="h-6 w-6 text-purple-600" />;
+    if (mimeType.includes('pdf')) return <FileText className="h-6 w-6 text-red-600" />;
+    if (mimeType.includes('word') || mimeType.includes('document')) return <Edit3 className="h-6 w-6 text-blue-600" />;
+    if (mimeType.includes('sheet') || mimeType.includes('excel')) return <BarChart3 className="h-6 w-6 text-green-600" />;
+    return <Paperclip className="h-6 w-6 text-slate-500" />;
   };
 
   const handleDocUpload = async () => {
@@ -395,17 +397,17 @@ export default function PropertyDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="text-gray-600">Loading property...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+        <div className="text-slate-600">Loading property...</div>
       </div>
     );
   }
 
   if (!property) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600 mb-4">Property not found</p>
+          <p className="text-slate-600 mb-4">Property not found</p>
           <a href="/properties" className="text-blue-600 hover:text-blue-700 font-medium">
             Back to Properties
           </a>
@@ -424,16 +426,23 @@ export default function PropertyDetailPage() {
       return sum + (rentCharge ? Number(rentCharge.amount) : 0);
     }, 0);
 
+  const totalSquareFeet = property.totalSquareFeet || 0;
+  const allocatedSquareFeet = property.units.reduce((sum, u) => sum + (u.squareFeet || 0), 0);
+  const remainingSquareFeet = totalSquareFeet - allocatedSquareFeet;
+  const sfAllocationPct = totalSquareFeet > 0 ? Math.min((allocatedSquareFeet / totalSquareFeet) * 100, 100) : 0;
+  const revenuePerSF = allocatedSquareFeet > 0 ? monthlyRevenue / allocatedSquareFeet : 0;
+  const annualRevenuePerSF = revenuePerSF * 12;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{property.name}</h1>
+              <h1 className="text-3xl font-bold text-slate-900">{property.name}</h1>
               {property.address && (
-                <p className="text-gray-600 mt-2">
+                <p className="text-slate-600 mt-2">
                   {property.address}
                   {property.city && `, ${property.city}`}
                   {property.state && `, ${property.state}`}
@@ -458,23 +467,40 @@ export default function PropertyDetailPage() {
 
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-600 mb-1">Total Units</p>
-            <p className="text-3xl font-bold text-gray-900">{totalUnits}</p>
+        <div className={`grid grid-cols-1 sm:grid-cols-2 ${totalSquareFeet > 0 ? 'md:grid-cols-5' : 'md:grid-cols-4'} gap-4 md:gap-6`}>
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <p className="text-sm text-slate-600 mb-1">Total Units</p>
+            <p className="text-3xl font-bold text-slate-900">{totalUnits}</p>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-600 mb-1">Occupied</p>
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <p className="text-sm text-slate-600 mb-1">Occupied</p>
             <p className="text-3xl font-bold text-blue-600">{occupiedUnits}</p>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-600 mb-1">Occupancy Rate</p>
-            <p className="text-3xl font-bold text-gray-900">{occupancyRate.toFixed(1)}%</p>
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <p className="text-sm text-slate-600 mb-1">Occupancy Rate</p>
+            <p className="text-3xl font-bold text-slate-900">{occupancyRate.toFixed(1)}%</p>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-600 mb-1">Monthly Revenue</p>
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <p className="text-sm text-slate-600 mb-1">Monthly Revenue</p>
             <p className="text-2xl font-bold text-green-600">{formatCurrency(monthlyRevenue)}</p>
           </div>
+          {totalSquareFeet > 0 && (
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+              <p className="text-sm text-slate-600 mb-1">Space Allocation</p>
+              <p className="text-2xl font-bold text-slate-900">
+                {allocatedSquareFeet.toLocaleString()} <span className="text-sm font-normal text-slate-500">/ {totalSquareFeet.toLocaleString()} sf</span>
+              </p>
+              <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
+                <div
+                  className={`h-2 rounded-full ${remainingSquareFeet < 0 ? 'bg-red-500' : remainingSquareFeet === 0 ? 'bg-green-500' : 'bg-blue-500'}`}
+                  style={{ width: `${Math.min(sfAllocationPct, 100)}%` }}
+                />
+              </div>
+              <p className="text-xs text-slate-500 mt-1">
+                {remainingSquareFeet >= 0 ? `${remainingSquareFeet.toLocaleString()} sf remaining` : `${Math.abs(remainingSquareFeet).toLocaleString()} sf over`}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Spaces Section */}
@@ -511,7 +537,7 @@ export default function PropertyDetailPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-slate-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Space' : 'Unit Number'}
@@ -525,19 +551,24 @@ export default function PropertyDetailPage() {
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Monthly' : 'Rent'}
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    {totalSquareFeet > 0 && (
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                        $/SF/Yr
+                      </th>
+                    )}
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-slate-200">
                   {property.units.map((unit) => (
-                    <tr key={unit.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={unit.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4">
-                        <div className="font-medium text-gray-900">{unit.unitNumber}</div>
+                        <div className="font-medium text-slate-900">{unit.unitNumber}</div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? (
@@ -545,7 +576,7 @@ export default function PropertyDetailPage() {
                           unit.squareFeet ? (
                             <div>{unit.squareFeet.toLocaleString()} sq ft</div>
                           ) : (
-                            <span className="text-gray-400">-</span>
+                            <span className="text-slate-400">-</span>
                           )
                         ) : (
                           /* Residential: Show beds/baths and sq ft */
@@ -556,12 +587,12 @@ export default function PropertyDetailPage() {
                               {unit.bathrooms && `${unit.bathrooms} bath`}
                             </div>
                             {unit.squareFeet && (
-                              <div className="text-gray-500">{unit.squareFeet.toLocaleString()} sq ft</div>
+                              <div className="text-slate-500">{unit.squareFeet.toLocaleString()} sq ft</div>
                             )}
                           </>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-6 py-4 text-sm text-slate-900">
                         {unit.leases.length > 0 ? (
                           <a
                             href={`/leases/${unit.leases[0].id}`}
@@ -570,14 +601,27 @@ export default function PropertyDetailPage() {
                             {unit.leases[0].tenantName}
                           </a>
                         ) : (
-                          <span className="text-gray-400">Vacant</span>
+                          <span className="text-slate-400">Vacant</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-6 py-4 text-sm text-slate-900">
                         {unit.leases.length > 0 && unit.leases[0].scheduledCharges?.[0]
                           ? formatCurrency(Number(unit.leases[0].scheduledCharges[0].amount))
                           : '-'}
                       </td>
+                      {totalSquareFeet > 0 && (
+                        <td className="px-6 py-4 text-sm text-slate-900">
+                          {(() => {
+                            const rent = unit.leases.length > 0 && unit.leases[0].scheduledCharges?.[0]
+                              ? Number(unit.leases[0].scheduledCharges[0].amount) : 0;
+                            const sf = unit.squareFeet || 0;
+                            if (rent > 0 && sf > 0) {
+                              return `$${((rent * 12) / sf).toFixed(2)}`;
+                            }
+                            return '-';
+                          })()}
+                        </td>
+                      )}
                       <td className="px-6 py-4">
                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getUnitStatusColor(unit.status)}`}>
                           {unit.status}
@@ -616,56 +660,56 @@ export default function PropertyDetailPage() {
         </div>
 
         {/* Active Leases Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900">Active Leases</h2>
-            <p className="text-sm text-gray-600 mt-1">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200">
+          <div className="p-6 border-b border-slate-200">
+            <h2 className="text-xl font-bold text-slate-900">Active Leases</h2>
+            <p className="text-sm text-slate-600 mt-1">
               {property.leases.filter(l => l.status === 'ACTIVE').length} active leases
             </p>
           </div>
 
           {property.leases.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500">No leases yet</p>
+              <p className="text-slate-500">No leases yet</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                       Tenant
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                       Unit
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                       Lease Period
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                       Monthly Rent
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-slate-200">
                   {property.leases.map((lease) => (
-                    <tr key={lease.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={lease.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4">
-                        <div className="font-medium text-gray-900">{lease.tenantName}</div>
+                        <div className="font-medium text-slate-900">{lease.tenantName}</div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-6 py-4 text-sm text-slate-900">
                         {lease.unitName}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-6 py-4 text-sm text-slate-900">
                         {formatDate(lease.startDate)} - {formatDate(lease.endDate)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-6 py-4 text-sm text-slate-900">
                         {formatCurrency(lease.scheduledCharges?.[0] ? Number(lease.scheduledCharges[0].amount) : null)}
                       </td>
                       <td className="px-6 py-4">
@@ -690,11 +734,11 @@ export default function PropertyDetailPage() {
         </div>
 
         {/* Property Documents */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200">
+          <div className="p-6 border-b border-slate-200 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Property Documents</h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <h2 className="text-xl font-bold text-slate-900">Property Documents</h2>
+              <p className="text-sm text-slate-600 mt-1">
                 Insurance, permits, inspections, photos, and other property files
               </p>
             </div>
@@ -708,8 +752,8 @@ export default function PropertyDetailPage() {
 
           {!property.libraryDocuments || property.libraryDocuments.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-4xl mb-3">📁</div>
-              <p className="text-gray-500 mb-4">No documents uploaded yet</p>
+              <div className="mb-3 flex justify-center"><FolderOpen className="h-10 w-10 text-slate-300" /></div>
+              <p className="text-slate-500 mb-4">No documents uploaded yet</p>
               <button
                 onClick={() => setShowDocModal(true)}
                 className="text-blue-600 hover:text-blue-700 font-medium"
@@ -722,22 +766,22 @@ export default function PropertyDetailPage() {
               {property.libraryDocuments.map((doc) => (
                 <div
                   key={doc.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                  className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="text-3xl">{getFileIcon(doc.mimeType)}</div>
+                    <div>{getFileIcon(doc.mimeType)}</div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-gray-900 truncate">{doc.fileName}</h4>
-                      <p className="text-sm text-gray-500">{formatFileSize(doc.fileSize)}</p>
+                      <h4 className="font-medium text-slate-900 truncate">{doc.fileName}</h4>
+                      <p className="text-sm text-slate-500">{formatFileSize(doc.fileSize)}</p>
                       {doc.category && (
                         <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">
                           {categoryLabels[doc.category] || doc.category}
                         </span>
                       )}
                       {doc.description && (
-                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">{doc.description}</p>
+                        <p className="text-sm text-slate-600 mt-1 line-clamp-2">{doc.description}</p>
                       )}
-                      <p className="text-xs text-gray-400 mt-2">
+                      <p className="text-xs text-slate-400 mt-2">
                         {new Date(doc.createdAt).toLocaleDateString()}
                       </p>
                     </div>
@@ -747,7 +791,7 @@ export default function PropertyDetailPage() {
                       href={doc.fileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 px-3 py-1.5 bg-gray-100 text-gray-700 rounded text-sm font-medium text-center hover:bg-gray-200 transition-colors"
+                      className="flex-1 px-3 py-1.5 bg-slate-100 text-slate-700 rounded text-sm font-medium text-center hover:bg-slate-200 transition-colors"
                     >
                       View
                     </a>
@@ -766,9 +810,9 @@ export default function PropertyDetailPage() {
 
         {/* Property Notes */}
         {property.notes && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-3">Notes</h2>
-            <p className="text-gray-700 whitespace-pre-wrap">{property.notes}</p>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h2 className="text-lg font-bold text-slate-900 mb-3">Notes</h2>
+            <p className="text-slate-700 whitespace-pre-wrap">{property.notes}</p>
           </div>
         )}
       </div>
@@ -778,7 +822,7 @@ export default function PropertyDetailPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             {/* Progress Header */}
-            <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+            <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-lg font-bold text-gray-900">
                   {leaseWizardStep === 1 && ((property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Company Information' : 'Tenant Information')}
@@ -787,7 +831,7 @@ export default function PropertyDetailPage() {
                 </h2>
                 <button
                   onClick={resetLeaseWizard}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-slate-400 hover:text-slate-600"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -809,7 +853,7 @@ export default function PropertyDetailPage() {
                         ? 'bg-green-500 text-white'
                         : leaseWizardStep === step
                           ? 'bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-500'
+                          : 'bg-slate-200 text-slate-500'
                     }`}>
                       {leaseWizardStep > step ? (
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -819,7 +863,7 @@ export default function PropertyDetailPage() {
                     </div>
                     {step < 3 && (
                       <div className={`flex-1 h-1 mx-2 rounded ${
-                        leaseWizardStep > step ? 'bg-green-500' : 'bg-gray-200'
+                        leaseWizardStep > step ? 'bg-green-500' : 'bg-slate-200'
                       }`} />
                     )}
                   </div>
@@ -847,7 +891,7 @@ export default function PropertyDetailPage() {
                     /* Commercial/Industrial/Warehouse: Company Name + Contact Name */
                     <>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
                           Company Name *
                         </label>
                         <input
@@ -855,33 +899,33 @@ export default function PropertyDetailPage() {
                           required
                           value={tenantForm.companyName}
                           onChange={(e) => setTenantForm({ ...tenantForm, companyName: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           placeholder="ACME Logistics Inc"
                           autoFocus
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-slate-700 mb-1">
                             Contact First Name
                           </label>
                           <input
                             type="text"
                             value={tenantForm.firstName}
                             onChange={(e) => setTenantForm({ ...tenantForm, firstName: e.target.value })}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="John"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-slate-700 mb-1">
                             Contact Last Name
                           </label>
                           <input
                             type="text"
                             value={tenantForm.lastName}
                             onChange={(e) => setTenantForm({ ...tenantForm, lastName: e.target.value })}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="Smith"
                           />
                         </div>
@@ -891,7 +935,7 @@ export default function PropertyDetailPage() {
                     /* Residential: First Name + Last Name */
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
                           First Name *
                         </label>
                         <input
@@ -899,13 +943,13 @@ export default function PropertyDetailPage() {
                           required
                           value={tenantForm.firstName}
                           onChange={(e) => setTenantForm({ ...tenantForm, firstName: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           placeholder="John"
                           autoFocus
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
                           Last Name *
                         </label>
                         <input
@@ -913,7 +957,7 @@ export default function PropertyDetailPage() {
                           required
                           value={tenantForm.lastName}
                           onChange={(e) => setTenantForm({ ...tenantForm, lastName: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           placeholder="Smith"
                         />
                       </div>
@@ -921,7 +965,7 @@ export default function PropertyDetailPage() {
                   )}
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Email
                     </label>
                     <input
@@ -934,14 +978,14 @@ export default function PropertyDetailPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Phone
                     </label>
                     <input
                       type="tel"
                       value={tenantForm.phone}
                       onChange={(e) => setTenantForm({ ...tenantForm, phone: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="(555) 123-4567"
                     />
                   </div>
@@ -953,7 +997,7 @@ export default function PropertyDetailPage() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         Start Date *
                       </label>
                       <input
@@ -961,11 +1005,11 @@ export default function PropertyDetailPage() {
                         required
                         value={leaseForm.startDate}
                         onChange={(e) => setLeaseForm({ ...leaseForm, startDate: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         End Date *
                       </label>
                       <input
@@ -973,17 +1017,17 @@ export default function PropertyDetailPage() {
                         required
                         value={leaseForm.endDate}
                         onChange={(e) => setLeaseForm({ ...leaseForm, endDate: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Monthly Rent *
                     </label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">$</span>
                       <input
                         type="number"
                         required
@@ -991,25 +1035,25 @@ export default function PropertyDetailPage() {
                         step="0.01"
                         value={leaseForm.monthlyRent}
                         onChange={(e) => setLeaseForm({ ...leaseForm, monthlyRent: e.target.value })}
-                        className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-8 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="1500"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Security Deposit
                     </label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">$</span>
                       <input
                         type="number"
                         min="0"
                         step="0.01"
                         value={leaseForm.securityDeposit}
                         onChange={(e) => setLeaseForm({ ...leaseForm, securityDeposit: e.target.value })}
-                        className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-8 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="1500"
                       />
                     </div>
@@ -1028,14 +1072,14 @@ export default function PropertyDetailPage() {
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">
                     {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Company Added!' : 'Tenant Added!'}
                   </h3>
-                  <p className="text-gray-600 mb-2">
+                  <p className="text-slate-600 mb-2">
                     <strong>
                       {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE')
                         ? tenantForm.companyName
                         : `${tenantForm.firstName} ${tenantForm.lastName}`}
                     </strong> has been added to <strong>{selectedUnit.unitNumber}</strong>.
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-slate-500">
                     Lease: {formatCurrency(parseFloat(leaseForm.monthlyRent))}/month
                   </p>
                 </div>
@@ -1043,13 +1087,13 @@ export default function PropertyDetailPage() {
             </div>
 
             {/* Footer Actions */}
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between">
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-between">
               {leaseWizardStep === 1 && (
                 <>
                   <button
                     type="button"
                     onClick={resetLeaseWizard}
-                    className="px-6 py-2 text-gray-700 hover:text-gray-900 font-medium"
+                    className="px-6 py-2 text-slate-700 hover:text-slate-900 font-medium"
                   >
                     Cancel
                   </button>
@@ -1070,7 +1114,7 @@ export default function PropertyDetailPage() {
                   <button
                     type="button"
                     onClick={() => setLeaseWizardStep(1)}
-                    className="px-6 py-2 text-gray-700 hover:text-gray-900 font-medium"
+                    className="px-6 py-2 text-slate-700 hover:text-slate-900 font-medium"
                   >
                     Back
                   </button>
@@ -1089,7 +1133,7 @@ export default function PropertyDetailPage() {
                   <button
                     type="button"
                     onClick={resetLeaseWizard}
-                    className="px-6 py-2 text-gray-700 hover:text-gray-900 font-medium"
+                    className="px-6 py-2 text-slate-700 hover:text-slate-900 font-medium"
                   >
                     Done
                   </button>
@@ -1112,24 +1156,24 @@ export default function PropertyDetailPage() {
       {showDocModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Upload Property Document</h2>
+            <div className="p-6 border-b border-slate-200">
+              <h2 className="text-xl font-bold text-slate-900">Upload Property Document</h2>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">File *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">File *</label>
                 <input
                   type="file"
                   onChange={(e) => setDocForm({ ...docForm, file: e.target.files?.[0] || null })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
                 <select
                   value={docForm.category}
                   onChange={(e) => setDocForm({ ...docForm, category: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select category...</option>
                   <option value="LEASE_AGREEMENT">Lease Agreement</option>
@@ -1140,30 +1184,30 @@ export default function PropertyDetailPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
                 <textarea
                   value={docForm.description}
                   onChange={(e) => setDocForm({ ...docForm, description: e.target.value })}
                   rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   placeholder="Brief description..."
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Tags (comma-separated)</label>
                 <input
                   type="text"
                   value={docForm.tags}
                   onChange={(e) => setDocForm({ ...docForm, tags: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   placeholder="insurance, 2024, important"
                 />
               </div>
             </div>
-            <div className="p-6 border-t border-gray-200 flex gap-3">
+            <div className="p-6 border-t border-slate-200 flex gap-3">
               <button
                 onClick={() => setShowDocModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+                className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium"
                 disabled={uploading}
               >
                 Cancel
@@ -1171,7 +1215,7 @@ export default function PropertyDetailPage() {
               <button
                 onClick={handleDocUpload}
                 disabled={!docForm.file || uploading}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:bg-gray-300"
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:bg-slate-300"
               >
                 {uploading ? 'Uploading...' : 'Upload'}
               </button>
@@ -1184,8 +1228,8 @@ export default function PropertyDetailPage() {
       {showUnitModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">
+            <div className="p-6 border-b border-slate-200">
+              <h2 className="text-xl font-bold text-slate-900">
                 {editingUnit
                   ? ((property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Edit Space' : 'Edit Unit')
                   : ((property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? 'Add New Space' : 'Add New Unit')}
@@ -1210,7 +1254,7 @@ export default function PropertyDetailPage() {
               {/* Residential: Beds, Baths, Sq Ft | Commercial/Industrial/Warehouse: Just Sq Ft */}
               {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'INDUSTRIAL' || property.propertyType === 'WAREHOUSE') ? (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     Square Feet
                   </label>
                   <input
@@ -1218,14 +1262,14 @@ export default function PropertyDetailPage() {
                     min="0"
                     value={unitForm.squareFeet}
                     onChange={(e) => setUnitForm({ ...unitForm, squareFeet: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="5000"
                   />
                 </div>
               ) : (
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Bedrooms
                     </label>
                     <input
@@ -1233,12 +1277,12 @@ export default function PropertyDetailPage() {
                       min="0"
                       value={unitForm.bedrooms}
                       onChange={(e) => setUnitForm({ ...unitForm, bedrooms: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="2"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Bathrooms
                     </label>
                     <input
@@ -1247,12 +1291,12 @@ export default function PropertyDetailPage() {
                       min="0"
                       value={unitForm.bathrooms}
                       onChange={(e) => setUnitForm({ ...unitForm, bathrooms: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="1.5"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Square Feet
                     </label>
                     <input
@@ -1260,7 +1304,7 @@ export default function PropertyDetailPage() {
                       min="0"
                       value={unitForm.squareFeet}
                       onChange={(e) => setUnitForm({ ...unitForm, squareFeet: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="850"
                     />
                   </div>
@@ -1268,14 +1312,14 @@ export default function PropertyDetailPage() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Status *
                 </label>
                 <select
                   required
                   value={unitForm.status}
                   onChange={(e) => setUnitForm({ ...unitForm, status: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="VACANT">Vacant</option>
                   <option value="OCCUPIED">Occupied</option>
@@ -1284,14 +1328,14 @@ export default function PropertyDetailPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Notes
                 </label>
                 <textarea
                   value={unitForm.notes}
                   onChange={(e) => setUnitForm({ ...unitForm, notes: e.target.value })}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Additional notes about this unit..."
                 />
               </div>
@@ -1300,7 +1344,7 @@ export default function PropertyDetailPage() {
                 <button
                   type="button"
                   onClick={() => setShowUnitModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
                 >
                   Cancel
                 </button>

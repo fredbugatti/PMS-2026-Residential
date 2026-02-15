@@ -439,7 +439,7 @@ function MaintenanceContent() {
       case 'HIGH': return 'bg-orange-500 text-white';
       case 'MEDIUM': return 'bg-yellow-500 text-white';
       case 'LOW': return 'bg-green-500 text-white';
-      default: return 'bg-gray-500 text-white';
+      default: return 'bg-slate-500 text-white';
     }
   };
 
@@ -457,14 +457,14 @@ function MaintenanceContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Maintenance</h1>
-              <p className="text-xs sm:text-sm text-gray-600 mt-1">Track work orders from request to payment</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Maintenance</h1>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1">Track work orders from request to payment</p>
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
@@ -482,7 +482,7 @@ function MaintenanceContent() {
           {/* Column 1: New */}
           <div className="space-y-3">
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-              <h2 className="font-semibold text-gray-900 text-sm">
+              <h2 className="font-semibold text-slate-900 text-sm">
                 New Requests
                 <span className="ml-2 text-xs bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded-full">
                   {groupedOrders.new.length}
@@ -494,20 +494,20 @@ function MaintenanceContent() {
                 <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityColor(wo.priority)}`}>
                   {wo.priority}
                 </span>
-                <h3 className="font-medium text-gray-900 text-sm mt-2">{wo.title}</h3>
-                <p className="text-xs text-gray-600">{wo.property.name}{wo.unit ? ` - Unit ${wo.unit.unitNumber}` : ''}</p>
-                {wo.invoiceNumber && <p className="text-xs text-gray-400 mt-1">{wo.invoiceNumber}</p>}
+                <h3 className="font-medium text-slate-900 text-sm mt-2">{wo.title}</h3>
+                <p className="text-xs text-slate-600">{wo.property.name}{wo.unit ? ` - Unit ${wo.unit.unitNumber}` : ''}</p>
+                {wo.invoiceNumber && <p className="text-xs text-slate-400 mt-1">{wo.invoiceNumber}</p>}
                 {wo.photos?.length > 0 && (
                   <div className="flex gap-1 mt-2 cursor-pointer" onClick={(e) => { e.stopPropagation(); openPhotoViewer(wo.photos, 0); }}>
                     {wo.photos.slice(0, 3).map((photo, i) => (
                       <img key={i} src={photo} alt="" className="w-8 h-8 object-cover rounded hover:opacity-80 transition-opacity" />
                     ))}
-                    {wo.photos.length > 3 && <span className="text-xs text-gray-400 self-center">+{wo.photos.length - 3}</span>}
+                    {wo.photos.length > 3 && <span className="text-xs text-slate-400 self-center">+{wo.photos.length - 3}</span>}
                   </div>
                 )}
 
                 {expandedCard === wo.id ? (
-                  <div className="mt-3 pt-3 border-t border-gray-200" onClick={(e) => e.stopPropagation()}>
+                  <div className="mt-3 pt-3 border-t border-slate-200" onClick={(e) => e.stopPropagation()}>
                     <select
                       onChange={(e) => {
                         if (e.target.value === '__new__') {
@@ -517,7 +517,7 @@ function MaintenanceContent() {
                           handleAssignVendor(wo.id, e.target.value);
                         }
                       }}
-                      className="w-full text-xs border border-gray-300 rounded px-2 py-1.5 mb-2"
+                      className="w-full text-xs border border-slate-300 rounded px-2 py-1.5 mb-2"
                     >
                       <option value="">Select vendor...</option>
                       {vendors.map(v => (
@@ -525,7 +525,7 @@ function MaintenanceContent() {
                       ))}
                       <option value="__new__">+ Create New Vendor</option>
                     </select>
-                    <button onClick={() => setExpandedCard(null)} className="text-xs text-gray-500">Cancel</button>
+                    <button onClick={() => setExpandedCard(null)} className="text-xs text-slate-500">Cancel</button>
                   </div>
                 ) : (
                   <button
@@ -538,14 +538,14 @@ function MaintenanceContent() {
               </div>
             ))}
             {groupedOrders.new.length === 0 && (
-              <div className="text-center py-8 text-xs text-gray-500">No new requests</div>
+              <div className="text-center py-8 text-xs text-slate-500">No new requests</div>
             )}
           </div>
 
           {/* Column 2: Assigned */}
           <div className="space-y-3">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <h2 className="font-semibold text-gray-900 text-sm">
+              <h2 className="font-semibold text-slate-900 text-sm">
                 Assigned
                 <span className="ml-2 text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full">
                   {groupedOrders.assigned.length}
@@ -557,9 +557,9 @@ function MaintenanceContent() {
                 <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityColor(wo.priority)}`}>
                   {wo.priority}
                 </span>
-                <h3 className="font-medium text-gray-900 text-sm mt-2">{wo.title}</h3>
-                <p className="text-xs text-gray-600">{wo.property.name}{wo.unit ? ` - Unit ${wo.unit.unitNumber}` : ''}</p>
-                {wo.invoiceNumber && <p className="text-xs text-gray-400">{wo.invoiceNumber}</p>}
+                <h3 className="font-medium text-slate-900 text-sm mt-2">{wo.title}</h3>
+                <p className="text-xs text-slate-600">{wo.property.name}{wo.unit ? ` - Unit ${wo.unit.unitNumber}` : ''}</p>
+                {wo.invoiceNumber && <p className="text-xs text-slate-400">{wo.invoiceNumber}</p>}
                 {wo.vendor && <p className="text-xs text-blue-600 font-medium mt-1">{wo.vendor.name}</p>}
                 <button
                   onClick={(e) => { e.stopPropagation(); handleStatusChange(wo.id, 'IN_PROGRESS'); }}
@@ -570,14 +570,14 @@ function MaintenanceContent() {
               </div>
             ))}
             {groupedOrders.assigned.length === 0 && (
-              <div className="text-center py-8 text-xs text-gray-500">No assigned work</div>
+              <div className="text-center py-8 text-xs text-slate-500">No assigned work</div>
             )}
           </div>
 
           {/* Column 3: In Progress */}
           <div className="space-y-3">
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-              <h2 className="font-semibold text-gray-900 text-sm">
+              <h2 className="font-semibold text-slate-900 text-sm">
                 In Progress
                 <span className="ml-2 text-xs bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full">
                   {groupedOrders.inProgress.length}
@@ -589,25 +589,25 @@ function MaintenanceContent() {
                 <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityColor(wo.priority)}`}>
                   {wo.priority}
                 </span>
-                <h3 className="font-medium text-gray-900 text-sm mt-2">{wo.title}</h3>
-                <p className="text-xs text-gray-600">{wo.property.name}{wo.unit ? ` - Unit ${wo.unit.unitNumber}` : ''}</p>
-                {wo.invoiceNumber && <p className="text-xs text-gray-400">{wo.invoiceNumber}</p>}
+                <h3 className="font-medium text-slate-900 text-sm mt-2">{wo.title}</h3>
+                <p className="text-xs text-slate-600">{wo.property.name}{wo.unit ? ` - Unit ${wo.unit.unitNumber}` : ''}</p>
+                {wo.invoiceNumber && <p className="text-xs text-slate-400">{wo.invoiceNumber}</p>}
                 {wo.vendor && <p className="text-xs text-purple-600 font-medium mt-1">{wo.vendor.name}</p>}
 
                 {editingCost === wo.id ? (
-                  <div className="mt-3 pt-3 border-t border-gray-200 space-y-2" onClick={(e) => e.stopPropagation()}>
+                  <div className="mt-3 pt-3 border-t border-slate-200 space-y-2" onClick={(e) => e.stopPropagation()}>
                     <input
                       type="number"
                       step="0.01"
                       value={costForm.actualCost}
                       onChange={(e) => setCostForm({ ...costForm, actualCost: e.target.value })}
                       placeholder="Cost"
-                      className="w-full text-xs border border-gray-300 rounded px-2 py-1.5"
+                      className="w-full text-xs border border-slate-300 rounded px-2 py-1.5"
                     />
                     <select
                       value={costForm.paidBy}
                       onChange={(e) => setCostForm({ ...costForm, paidBy: e.target.value })}
-                      className="w-full text-xs border border-gray-300 rounded px-2 py-1.5"
+                      className="w-full text-xs border border-slate-300 rounded px-2 py-1.5"
                     >
                       <option value="OWNER">Owner pays</option>
                       <option value="TENANT">Tenant pays</option>
@@ -621,7 +621,7 @@ function MaintenanceContent() {
                       </button>
                       <button
                         onClick={() => { setEditingCost(null); setCostForm({ actualCost: '', paidBy: 'OWNER' }); }}
-                        className="text-xs text-gray-500"
+                        className="text-xs text-slate-500"
                       >
                         Cancel
                       </button>
@@ -638,14 +638,14 @@ function MaintenanceContent() {
               </div>
             ))}
             {groupedOrders.inProgress.length === 0 && (
-              <div className="text-center py-8 text-xs text-gray-500">No work in progress</div>
+              <div className="text-center py-8 text-xs text-slate-500">No work in progress</div>
             )}
           </div>
 
           {/* Column 4: Ready for Payment */}
           <div className="space-y-3">
             <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-              <h2 className="font-semibold text-gray-900 text-sm">
+              <h2 className="font-semibold text-slate-900 text-sm">
                 Ready for Payment
                 <span className="ml-2 text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded-full">
                   {groupedOrders.completed.filter(wo => wo.paymentStatus === 'UNPAID').length}
@@ -657,18 +657,18 @@ function MaintenanceContent() {
                 <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityColor(wo.priority)}`}>
                   {wo.priority}
                 </span>
-                <h3 className="font-medium text-gray-900 text-sm mt-2">{wo.title}</h3>
-                <p className="text-xs text-gray-600">{wo.property.name}{wo.unit ? ` - Unit ${wo.unit.unitNumber}` : ''}</p>
-                {wo.invoiceNumber && <p className="text-xs text-gray-400">{wo.invoiceNumber}</p>}
+                <h3 className="font-medium text-slate-900 text-sm mt-2">{wo.title}</h3>
+                <p className="text-xs text-slate-600">{wo.property.name}{wo.unit ? ` - Unit ${wo.unit.unitNumber}` : ''}</p>
+                {wo.invoiceNumber && <p className="text-xs text-slate-400">{wo.invoiceNumber}</p>}
                 {wo.vendor && <p className="text-xs text-green-600 font-medium mt-1">{wo.vendor.name}</p>}
                 {wo.actualCost && (
-                  <div className="mt-2 pt-2 border-t border-gray-200">
+                  <div className="mt-2 pt-2 border-t border-slate-200">
                     <div className="flex justify-between text-xs">
-                      <span className="text-gray-600">Amount:</span>
+                      <span className="text-slate-600">Amount:</span>
                       <span className="font-bold">${Number(wo.actualCost).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-xs mt-1">
-                      <span className="text-gray-600">Paid by:</span>
+                      <span className="text-slate-600">Paid by:</span>
                       <span>{wo.paidBy}</span>
                     </div>
                   </div>
@@ -682,7 +682,7 @@ function MaintenanceContent() {
               </div>
             ))}
             {groupedOrders.completed.filter(wo => wo.paymentStatus === 'UNPAID').length === 0 && (
-              <div className="text-center py-8 text-xs text-gray-500">No pending payments</div>
+              <div className="text-center py-8 text-xs text-slate-500">No pending payments</div>
             )}
           </div>
         </div>
@@ -692,8 +692,8 @@ function MaintenanceContent() {
       {showCreateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
           <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] flex flex-col">
-            <div className="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white rounded-t-xl">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900">New Maintenance Request</h2>
+            <div className="p-4 sm:p-6 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white rounded-t-xl">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900">New Maintenance Request</h2>
               <button
                 onClick={() => {
                   setShowCreateModal(false);
@@ -701,7 +701,7 @@ function MaintenanceContent() {
                   setSelectedPhotos([]);
                   setPhotoPreviewUrls([]);
                 }}
-                className="sm:hidden p-2 -mr-2 text-gray-400 hover:text-gray-600"
+                className="sm:hidden p-2 -mr-2 text-slate-400 hover:text-slate-600"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -710,31 +710,31 @@ function MaintenanceContent() {
             </div>
             <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Title *</label>
                 <input
                   type="text"
                   value={createForm.title}
                   onChange={(e) => setCreateForm({ ...createForm, title: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                   placeholder="e.g., Leaky faucet in bathroom"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
                 <textarea
                   value={createForm.description}
                   onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                   rows={3}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
                   <select
                     value={createForm.category}
                     onChange={(e) => setCreateForm({ ...createForm, category: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                   >
                     <option value="GENERAL">General</option>
                     <option value="PLUMBING">Plumbing</option>
@@ -745,11 +745,11 @@ function MaintenanceContent() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Priority</label>
                   <select
                     value={createForm.priority}
                     onChange={(e) => setCreateForm({ ...createForm, priority: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                   >
                     <option value="LOW">Low</option>
                     <option value="MEDIUM">Medium</option>
@@ -759,11 +759,11 @@ function MaintenanceContent() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Property *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Property *</label>
                 <select
                   value={createForm.propertyId}
                   onChange={(e) => setCreateForm({ ...createForm, propertyId: e.target.value, unitId: '' })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                 >
                   <option value="">Select property...</option>
                   {properties.map(p => (
@@ -773,11 +773,11 @@ function MaintenanceContent() {
               </div>
               {selectedProperty && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Unit *</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Unit *</label>
                   <select
                     value={createForm.unitId}
                     onChange={(e) => setCreateForm({ ...createForm, unitId: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                   >
                     <option value="">Select unit...</option>
                     {selectedProperty.units?.map(u => (
@@ -788,8 +788,8 @@ function MaintenanceContent() {
               )}
               {/* Photo Upload Section */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Photos (optional)</label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                <label className="block text-sm font-medium text-slate-700 mb-1">Photos (optional)</label>
+                <div className="border-2 border-dashed border-slate-300 rounded-lg p-4">
                   <input
                     type="file"
                     accept="image/*"
@@ -800,13 +800,13 @@ function MaintenanceContent() {
                   />
                   <label
                     htmlFor="photo-upload"
-                    className="cursor-pointer flex flex-col items-center justify-center text-gray-500 hover:text-gray-700"
+                    className="cursor-pointer flex flex-col items-center justify-center text-slate-500 hover:text-slate-700"
                   >
                     <svg className="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <span className="text-sm">Click to upload photos</span>
-                    <span className="text-xs text-gray-400 mt-1">Max 5 photos, 5MB each</span>
+                    <span className="text-xs text-slate-400 mt-1">Max 5 photos, 5MB each</span>
                   </label>
                 </div>
                 {/* Photo Previews */}
@@ -817,7 +817,7 @@ function MaintenanceContent() {
                         <img
                           src={url}
                           alt={`Preview ${index + 1}`}
-                          className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                          className="w-20 h-20 object-cover rounded-lg border border-slate-200"
                         />
                         <button
                           type="button"
@@ -832,7 +832,7 @@ function MaintenanceContent() {
                 )}
               </div>
             </div>
-            <div className="p-4 sm:p-6 border-t border-gray-200 flex flex-col-reverse sm:flex-row gap-3 sticky bottom-0 bg-white">
+            <div className="p-4 sm:p-6 border-t border-slate-200 flex flex-col-reverse sm:flex-row gap-3 sticky bottom-0 bg-white">
               <button
                 onClick={() => {
                   setShowCreateModal(false);
@@ -840,7 +840,7 @@ function MaintenanceContent() {
                   setSelectedPhotos([]);
                   setPhotoPreviewUrls([]);
                 }}
-                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 rounded-lg text-sm font-medium"
+                className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 rounded-lg text-sm font-medium"
                 disabled={uploadingPhotos}
               >
                 Cancel
@@ -866,7 +866,7 @@ function MaintenanceContent() {
           {/* Close button */}
           <button
             onClick={() => setPhotoViewerOpen(false)}
-            className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+            className="absolute top-4 right-4 text-white hover:text-slate-300 z-10"
           >
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -877,7 +877,7 @@ function MaintenanceContent() {
           {viewerPhotos.length > 1 && (
             <button
               onClick={(e) => { e.stopPropagation(); prevPhoto(); }}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 bg-black bg-opacity-50 rounded-full p-2"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-slate-300 bg-black bg-opacity-50 rounded-full p-2"
             >
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -901,7 +901,7 @@ function MaintenanceContent() {
           {viewerPhotos.length > 1 && (
             <button
               onClick={(e) => { e.stopPropagation(); nextPhoto(); }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 bg-black bg-opacity-50 rounded-full p-2"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-slate-300 bg-black bg-opacity-50 rounded-full p-2"
             >
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -938,31 +938,31 @@ function MaintenanceContent() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 overflow-y-auto">
           <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl max-w-3xl w-full max-h-[95vh] sm:max-h-[90vh] flex flex-col">
             {/* Header */}
-            <div className="sticky top-0 bg-white p-4 sm:p-6 border-b border-gray-200 flex justify-between items-start z-10 rounded-t-xl">
+            <div className="sticky top-0 bg-white p-4 sm:p-6 border-b border-slate-200 flex justify-between items-start z-10 rounded-t-xl">
               <div className="flex-1 min-w-0 pr-2">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <span className={`text-xs px-2 py-0.5 rounded-full ${getPriorityColor(selectedWorkOrder.priority)}`}>
                     {selectedWorkOrder.priority}
                   </span>
-                  <span className="text-xs text-gray-400 truncate">{selectedWorkOrder.invoiceNumber}</span>
+                  <span className="text-xs text-slate-400 truncate">{selectedWorkOrder.invoiceNumber}</span>
                 </div>
                 {isEditing ? (
                   <input
                     type="text"
                     value={editForm.title || ''}
                     onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                    className="text-lg sm:text-xl font-bold text-gray-900 border border-gray-300 rounded px-2 py-1 w-full"
+                    className="text-lg sm:text-xl font-bold text-slate-900 border border-slate-300 rounded px-2 py-1 w-full"
                   />
                 ) : (
-                  <h2 className="text-lg sm:text-xl font-bold text-gray-900">{selectedWorkOrder.title}</h2>
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-900">{selectedWorkOrder.title}</h2>
                 )}
-                <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                <p className="text-xs sm:text-sm text-slate-600 mt-1">
                   {selectedWorkOrder.property.name}{selectedWorkOrder.unit ? ` - Unit ${selectedWorkOrder.unit.unitNumber}` : ''}
                 </p>
               </div>
               <button
                 onClick={() => { setShowDetailModal(false); setSelectedWorkOrder(null); setIsEditing(false); }}
-                className="text-gray-400 hover:text-gray-600 p-1 -mr-1"
+                className="text-slate-400 hover:text-slate-600 p-1 -mr-1"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -973,9 +973,9 @@ function MaintenanceContent() {
             {/* Content */}
             <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
               {/* Status and Details Row */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <div>
-                  <label className="text-xs text-gray-500 block">Status</label>
+                  <label className="text-xs text-slate-500 block">Status</label>
                   <span className={`text-sm font-medium ${
                     selectedWorkOrder.status === 'COMPLETED' ? 'text-green-600' :
                     selectedWorkOrder.status === 'IN_PROGRESS' ? 'text-purple-600' :
@@ -983,12 +983,12 @@ function MaintenanceContent() {
                   }`}>{selectedWorkOrder.status.replace('_', ' ')}</span>
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 block">Category</label>
+                  <label className="text-xs text-slate-500 block">Category</label>
                   {isEditing ? (
                     <select
                       value={editForm.category || ''}
                       onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                      className="text-sm border border-gray-300 rounded px-2 py-1 w-full"
+                      className="text-sm border border-slate-300 rounded px-2 py-1 w-full"
                     >
                       <option value="GENERAL">General</option>
                       <option value="PLUMBING">Plumbing</option>
@@ -1001,12 +1001,12 @@ function MaintenanceContent() {
                   )}
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 block">Priority</label>
+                  <label className="text-xs text-slate-500 block">Priority</label>
                   {isEditing ? (
                     <select
                       value={editForm.priority || ''}
                       onChange={(e) => setEditForm({ ...editForm, priority: e.target.value })}
-                      className="text-sm border border-gray-300 rounded px-2 py-1 w-full"
+                      className="text-sm border border-slate-300 rounded px-2 py-1 w-full"
                     >
                       <option value="LOW">Low</option>
                       <option value="MEDIUM">Medium</option>
@@ -1018,23 +1018,23 @@ function MaintenanceContent() {
                   )}
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 block">Created</label>
+                  <label className="text-xs text-slate-500 block">Created</label>
                   <span className="text-sm font-medium">{new Date(selectedWorkOrder.createdAt).toLocaleDateString()}</span>
                 </div>
               </div>
 
               {/* Description */}
               <div>
-                <label className="text-xs text-gray-500 block mb-1">Description</label>
+                <label className="text-xs text-slate-500 block mb-1">Description</label>
                 {isEditing ? (
                   <textarea
                     value={editForm.description || ''}
                     onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
                     rows={3}
                   />
                 ) : (
-                  <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">
+                  <p className="text-sm text-slate-700 bg-slate-50 rounded-lg p-3">
                     {selectedWorkOrder.description || 'No description provided'}
                   </p>
                 )}
@@ -1043,7 +1043,7 @@ function MaintenanceContent() {
               {/* Photos */}
               {selectedWorkOrder.photos?.length > 0 && (
                 <div>
-                  <label className="text-xs text-gray-500 block mb-2">Photos</label>
+                  <label className="text-xs text-slate-500 block mb-2">Photos</label>
                   <div className="flex gap-2 flex-wrap">
                     {selectedWorkOrder.photos.map((photo, i) => (
                       <img
@@ -1059,23 +1059,23 @@ function MaintenanceContent() {
               )}
 
               {/* Assignment & Cost Info */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 bg-gray-50 rounded-lg p-3 sm:p-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 bg-slate-50 rounded-lg p-3 sm:p-4">
                 <div>
-                  <label className="text-xs text-gray-500 block">Reported By</label>
+                  <label className="text-xs text-slate-500 block">Reported By</label>
                   <span className="text-sm font-medium">{selectedWorkOrder.reportedBy}</span>
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 block">Vendor</label>
+                  <label className="text-xs text-slate-500 block">Vendor</label>
                   <span className="text-sm font-medium">{selectedWorkOrder.vendor?.name || 'Not assigned'}</span>
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 block">Scheduled Date</label>
+                  <label className="text-xs text-slate-500 block">Scheduled Date</label>
                   {isEditing ? (
                     <input
                       type="date"
                       value={editForm.scheduledDate?.split('T')[0] || ''}
                       onChange={(e) => setEditForm({ ...editForm, scheduledDate: e.target.value })}
-                      className="text-sm border border-gray-300 rounded px-2 py-1 w-full"
+                      className="text-sm border border-slate-300 rounded px-2 py-1 w-full"
                     />
                   ) : (
                     <span className="text-sm font-medium">
@@ -1084,14 +1084,14 @@ function MaintenanceContent() {
                   )}
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 block">Estimated Cost</label>
+                  <label className="text-xs text-slate-500 block">Estimated Cost</label>
                   {isEditing ? (
                     <input
                       type="number"
                       step="0.01"
                       value={editForm.estimatedCost || ''}
                       onChange={(e) => setEditForm({ ...editForm, estimatedCost: parseFloat(e.target.value) || null })}
-                      className="text-sm border border-gray-300 rounded px-2 py-1 w-full"
+                      className="text-sm border border-slate-300 rounded px-2 py-1 w-full"
                       placeholder="0.00"
                     />
                   ) : (
@@ -1101,15 +1101,15 @@ function MaintenanceContent() {
                   )}
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 block">Actual Cost</label>
+                  <label className="text-xs text-slate-500 block">Actual Cost</label>
                   <span className="text-sm font-medium">
                     {selectedWorkOrder.actualCost ? `$${Number(selectedWorkOrder.actualCost).toFixed(2)}` : 'Not set'}
                   </span>
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 block">Payment</label>
+                  <label className="text-xs text-slate-500 block">Payment</label>
                   <span className={`text-sm font-medium ${
-                    selectedWorkOrder.paymentStatus === 'PAID' ? 'text-green-600' : 'text-gray-600'
+                    selectedWorkOrder.paymentStatus === 'PAID' ? 'text-green-600' : 'text-slate-600'
                   }`}>
                     {selectedWorkOrder.paymentStatus}{selectedWorkOrder.paidBy ? ` (${selectedWorkOrder.paidBy})` : ''}
                   </span>
@@ -1118,17 +1118,17 @@ function MaintenanceContent() {
 
               {/* Internal Notes */}
               <div>
-                <label className="text-xs text-gray-500 block mb-1">Internal Notes</label>
+                <label className="text-xs text-slate-500 block mb-1">Internal Notes</label>
                 {isEditing ? (
                   <textarea
                     value={editForm.internalNotes || ''}
                     onChange={(e) => setEditForm({ ...editForm, internalNotes: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
                     rows={2}
                     placeholder="Add internal notes..."
                   />
                 ) : (
-                  <p className="text-sm text-gray-700 bg-yellow-50 rounded-lg p-3 italic">
+                  <p className="text-sm text-slate-700 bg-yellow-50 rounded-lg p-3 italic">
                     {selectedWorkOrder.internalNotes || 'No internal notes'}
                   </p>
                 )}
@@ -1136,7 +1136,7 @@ function MaintenanceContent() {
 
               {/* Updates Timeline */}
               <div>
-                <label className="text-xs text-gray-500 block mb-2">Activity & Updates</label>
+                <label className="text-xs text-slate-500 block mb-2">Activity & Updates</label>
 
                 {/* Add Update Form */}
                 <div className="flex gap-2 mb-4">
@@ -1145,7 +1145,7 @@ function MaintenanceContent() {
                     value={newUpdateNote}
                     onChange={(e) => setNewUpdateNote(e.target.value)}
                     placeholder="Add a note or update..."
-                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm"
                     onKeyDown={(e) => e.key === 'Enter' && handleAddUpdate()}
                   />
                   <button
@@ -1161,24 +1161,24 @@ function MaintenanceContent() {
                 <div className="space-y-3 max-h-60 overflow-y-auto">
                   {selectedWorkOrder.updates && selectedWorkOrder.updates.length > 0 ? (
                     selectedWorkOrder.updates.map((update) => (
-                      <div key={update.id} className="flex gap-3 border-l-2 border-gray-200 pl-4 py-1">
+                      <div key={update.id} className="flex gap-3 border-l-2 border-slate-200 pl-4 py-1">
                         <div className="flex-1">
-                          <p className="text-sm text-gray-800">{update.note}</p>
-                          <p className="text-xs text-gray-400 mt-1">
+                          <p className="text-sm text-slate-800">{update.note}</p>
+                          <p className="text-xs text-slate-400 mt-1">
                             {update.updatedBy} • {new Date(update.createdAt).toLocaleString()}
                           </p>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-gray-400 italic">No updates yet</p>
+                    <p className="text-sm text-slate-400 italic">No updates yet</p>
                   )}
                 </div>
               </div>
             </div>
 
             {/* Footer Actions */}
-            <div className="sticky bottom-0 bg-gray-50 p-3 sm:p-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+            <div className="sticky bottom-0 bg-slate-50 p-3 sm:p-4 border-t border-slate-200 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
               <button
                 onClick={handleDeleteWorkOrder}
                 className="order-2 sm:order-1 px-4 py-2.5 sm:py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium"
@@ -1190,7 +1190,7 @@ function MaintenanceContent() {
                   <>
                     <button
                       onClick={() => { setIsEditing(false); setEditForm(selectedWorkOrder); }}
-                      className="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 border border-gray-300 rounded-lg text-sm font-medium"
+                      className="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 border border-slate-300 rounded-lg text-sm font-medium"
                     >
                       Cancel
                     </button>
@@ -1204,7 +1204,7 @@ function MaintenanceContent() {
                 ) : (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 bg-gray-900 text-white rounded-lg text-sm hover:bg-gray-800 font-medium"
+                    className="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 bg-slate-900 text-white rounded-lg text-sm hover:bg-slate-800 font-medium"
                   >
                     Edit
                   </button>
@@ -1219,17 +1219,17 @@ function MaintenanceContent() {
       {showVendorModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
           <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl max-w-md w-full max-h-[90vh] flex flex-col">
-            <div className="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white rounded-t-xl">
+            <div className="p-4 sm:p-6 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white rounded-t-xl">
               <div>
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900">Create New Vendor</h2>
-                <p className="text-xs sm:text-sm text-gray-500 mt-1">Add a new vendor to your list</p>
+                <h2 className="text-lg sm:text-xl font-bold text-slate-900">Create New Vendor</h2>
+                <p className="text-xs sm:text-sm text-slate-500 mt-1">Add a new vendor to your list</p>
               </div>
               <button
                 onClick={() => {
                   setShowVendorModal(false);
                   setVendorForm({ name: '', company: '', email: '', phone: '', specialties: [] });
                 }}
-                className="sm:hidden p-2 -mr-2 text-gray-400 hover:text-gray-600"
+                className="sm:hidden p-2 -mr-2 text-slate-400 hover:text-slate-600"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1238,49 +1238,49 @@ function MaintenanceContent() {
             </div>
             <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Name *</label>
                 <input
                   type="text"
                   value={vendorForm.name}
                   onChange={(e) => setVendorForm({ ...vendorForm, name: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                   placeholder="e.g., John Smith"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Company</label>
                 <input
                   type="text"
                   value={vendorForm.company}
                   onChange={(e) => setVendorForm({ ...vendorForm, company: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                   placeholder="e.g., ABC Plumbing LLC"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
                   <input
                     type="tel"
                     value={vendorForm.phone}
                     onChange={(e) => setVendorForm({ ...vendorForm, phone: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                     placeholder="(555) 123-4567"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
                   <input
                     type="email"
                     value={vendorForm.email}
                     onChange={(e) => setVendorForm({ ...vendorForm, email: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base sm:text-sm sm:py-2"
                     placeholder="vendor@email.com"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Specialties</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Specialties</label>
                 <div className="flex flex-wrap gap-2">
                   {['PLUMBING', 'ELECTRICAL', 'HVAC', 'APPLIANCE', 'GENERAL'].map(specialty => (
                     <button
@@ -1297,7 +1297,7 @@ function MaintenanceContent() {
                       className={`px-3 py-1.5 sm:py-1 text-xs rounded-full border transition-colors ${
                         vendorForm.specialties.includes(specialty)
                           ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400'
+                          : 'bg-white text-slate-600 border-slate-300 hover:border-blue-400'
                       }`}
                     >
                       {specialty}
@@ -1306,13 +1306,13 @@ function MaintenanceContent() {
                 </div>
               </div>
             </div>
-            <div className="p-4 sm:p-6 border-t border-gray-200 flex flex-col-reverse sm:flex-row gap-3 sticky bottom-0 bg-white">
+            <div className="p-4 sm:p-6 border-t border-slate-200 flex flex-col-reverse sm:flex-row gap-3 sticky bottom-0 bg-white">
               <button
                 onClick={() => {
                   setShowVendorModal(false);
                   setVendorForm({ name: '', company: '', email: '', phone: '', specialties: [] });
                 }}
-                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 rounded-lg text-sm font-medium"
+                className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 rounded-lg text-sm font-medium"
                 disabled={creatingVendor}
               >
                 Cancel
@@ -1335,8 +1335,8 @@ function MaintenanceContent() {
 export default function MaintenancePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Loading...</div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-slate-500">Loading...</div>
       </div>
     }>
       <MaintenanceContent />

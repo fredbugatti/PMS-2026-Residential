@@ -16,12 +16,12 @@ export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
     };
 
     const variantStyles = {
-      success: 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800',
-      warning: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800',
-      error: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800',
-      info: 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800',
-      draft: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700',
-      default: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700',
+      success: 'bg-green-50 text-green-700 border border-green-200',
+      warning: 'bg-amber-50 text-amber-700 border border-amber-200',
+      error: 'bg-red-50 text-red-700 border border-red-200',
+      info: 'bg-blue-50 text-blue-700 border border-blue-200',
+      draft: 'bg-slate-100 text-slate-600 border border-slate-200',
+      default: 'bg-slate-100 text-slate-700 border border-slate-200',
     };
 
     const combinedClassName = `${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]} ${className}`.trim();

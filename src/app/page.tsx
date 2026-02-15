@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { Wrench, DollarSign, AlertTriangle, TrendingUp, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { DashboardSkeleton } from '@/components/Skeleton';
 import { PullToRefresh } from '@/components/PullToRefresh';
@@ -99,8 +100,6 @@ export default function Dashboard() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showChargeModal, setShowChargeModal] = useState(false);
   const [showWorkOrderModal, setShowWorkOrderModal] = useState(false);
-  const [showQuickCreate, setShowQuickCreate] = useState(false);
-  const [quickCreateType, setQuickCreateType] = useState<string | null>(null);
 
   // Payment form
   const [paymentForm, setPaymentForm] = useState({
@@ -837,10 +836,6 @@ export default function Dashboard() {
     }).format(amount);
   };
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
-
   const getDaysUntil = (dateStr: string) => {
     const now = new Date();
     const date = new Date(dateStr);
@@ -858,16 +853,21 @@ export default function Dashboard() {
     return <DashboardSkeleton />;
   }
 
+  // Who Owes - top 5 tenants with outstanding balances
+  const tenantsWhoOwe = leases
+    .filter(l => l.balance > 0)
+    .slice(0, 5);
+
   return (
     <PullToRefresh onRefresh={handleRefresh}>
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Property management overview</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Dashboard</h1>
+              <p className="text-sm text-slate-600 mt-1">Property management overview</p>
             </div>
             {/* Quick Action Buttons */}
             <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0">
@@ -875,7 +875,7 @@ export default function Dashboard() {
                 onClick={() => setShowPaymentModal(true)}
                 className="px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
               >
-                💵 Payment
+                <DollarSign className="h-4 w-4" /> Payment
               </button>
               <button
                 onClick={() => setShowChargeModal(true)}
@@ -887,16 +887,7 @@ export default function Dashboard() {
                 onClick={() => setShowWorkOrderModal(true)}
                 className="px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
               >
-                🔧 Work Order
-              </button>
-              <button
-                onClick={() => {
-                  setQuickCreateType('expense');
-                  setShowQuickCreate(true);
-                }}
-                className="px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
-              >
-                − Expense
+                <Wrench className="h-4 w-4" /> Work Order
               </button>
             </div>
           </div>
@@ -995,7 +986,7 @@ export default function Dashboard() {
               <div className="bg-red-50 border border-red-200 rounded-xl p-3 sm:p-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-xl sm:text-2xl">⚠️</span>
+                    <AlertTriangle className="h-5 w-5" />
                     <div>
                       <p className="font-medium text-red-800 text-sm sm:text-base">Auto-posting Issue Detected</p>
                       <p className="text-xs sm:text-sm text-red-600">{cronStatus.message}</p>
@@ -1018,7 +1009,7 @@ export default function Dashboard() {
               <div className="bg-green-50 border border-green-200 rounded-xl p-3 sm:p-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <Link href="/rent-increases" className="flex items-center gap-3 flex-1 hover:opacity-80 transition-opacity">
-                    <span className="text-xl sm:text-2xl">📈</span>
+                    <TrendingUp className="h-5 w-5" />
                     <div>
                       <p className="font-medium text-green-800 text-sm sm:text-base">{pendingRentIncreases.count} Rent Increase(s) Due</p>
                       <p className="text-xs sm:text-sm text-green-600">+{formatCurrency(pendingRentIncreases.totalIncrease)}/month increase →</p>
@@ -1039,7 +1030,7 @@ export default function Dashboard() {
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <Link href="/leases" className="flex items-center gap-3 flex-1 hover:opacity-80 transition-opacity">
-                    <span className="text-xl sm:text-2xl">📅</span>
+                    <Calendar className="h-5 w-5" />
                     <div>
                       <p className="font-medium text-blue-800 text-sm sm:text-base">{pendingCharges.count} Scheduled Charges Ready</p>
                       <p className="text-xs sm:text-sm text-blue-600">Total: {formatCurrency(pendingCharges.totalAmount)} →</p>
@@ -1058,122 +1049,67 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Navigation Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-          <Link href="/properties" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-blue-300 transition-all group">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 group-hover:bg-blue-200 dark:group-hover:bg-blue-900 transition-colors">
-              🏢
-            </div>
-            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Properties</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{stats.totalProperties} properties</p>
-          </Link>
-
-          <Link href="/leases" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-green-300 transition-all group">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 group-hover:bg-green-200 dark:group-hover:bg-green-900 transition-colors">
-              📄
-            </div>
-            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Leases</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{stats.activeLeases} active</p>
-          </Link>
-
-          <Link href="/maintenance" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-orange-300 transition-all group">
-            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 transition-colors ${
-              stats.openWorkOrders > 0 ? 'bg-orange-100 dark:bg-orange-900/50 group-hover:bg-orange-200' : 'bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200'
-            }`}>
-              🔧
-            </div>
-            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Maintenance</h3>
-            <p className={`text-sm ${stats.openWorkOrders > 0 ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
-              {stats.openWorkOrders} open
-            </p>
-          </Link>
-
-          <Link href="/accounting" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-purple-300 transition-all group">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 group-hover:bg-purple-200 dark:group-hover:bg-purple-900 transition-colors">
-              💰
-            </div>
-            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Accounting</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Ledger & balances</p>
-          </Link>
-
-          <Link href="/reports" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-indigo-300 transition-all group">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 group-hover:bg-indigo-200 dark:group-hover:bg-indigo-900 transition-colors">
-              📊
-            </div>
-            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Reports</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">P&L & analytics</p>
-          </Link>
-
-          <Link href="/vendors" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-teal-300 transition-all group">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-teal-100 dark:bg-teal-900/50 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 group-hover:bg-teal-200 dark:group-hover:bg-teal-900 transition-colors">
-              👷
-            </div>
-            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Vendors</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Contractors</p>
-          </Link>
-        </div>
-
-        {/* Quick Add Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-          <button
-            onClick={() => { setQuickCreateType('property'); setShowQuickCreate(true); }}
-            className="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4 text-center hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all border border-blue-200 dark:border-blue-800"
-          >
-            <div className="text-2xl mb-1">🏢</div>
-            <p className="font-semibold text-blue-700 dark:text-blue-300">+ Property</p>
-          </button>
-          <button
-            onClick={() => { setQuickCreateType('unit'); setShowQuickCreate(true); }}
-            className="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4 text-center hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all border border-blue-200 dark:border-blue-800"
-          >
-            <div className="text-2xl mb-1">🚪</div>
-            <p className="font-semibold text-blue-700 dark:text-blue-300">+ Unit</p>
-          </button>
-          <button
-            onClick={() => { setQuickCreateType('lease'); setShowQuickCreate(true); }}
-            className="bg-green-50 dark:bg-green-900/30 rounded-xl p-4 text-center hover:bg-green-100 dark:hover:bg-green-900/50 transition-all border border-green-200 dark:border-green-800"
-          >
-            <div className="text-2xl mb-1">📝</div>
-            <p className="font-semibold text-green-700 dark:text-green-300">+ Lease</p>
-          </button>
-          <button
-            onClick={() => { setQuickCreateType('vendor'); setShowQuickCreate(true); }}
-            className="bg-teal-50 dark:bg-teal-900/30 rounded-xl p-4 text-center hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-all border border-teal-200 dark:border-teal-800"
-          >
-            <div className="text-2xl mb-1">👷</div>
-            <p className="font-semibold text-teal-700 dark:text-teal-300">+ Vendor</p>
-          </button>
-        </div>
-
-        {/* Expiring Leases - Simple List */}
-        {expiringLeases.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        {/* Who Owes - Top 5 */}
+        {tenantsWhoOwe.length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 mb-6 sm:mb-8">
+            <div className="p-3 sm:p-4 border-b border-slate-200 flex items-center justify-between">
               <div>
-                <h2 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Expiring Soon</h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Next 60 days</p>
+                <h2 className="font-semibold text-slate-900 text-sm sm:text-base">Who Owes</h2>
+                <p className="text-xs text-slate-500">Outstanding balances</p>
               </div>
-              <Link href="/leases" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+              <Link href="/reports?tab=aging" className="text-xs text-blue-600 hover:underline">
                 View All →
               </Link>
             </div>
-            <div className="divide-y divide-gray-100 dark:divide-gray-700">
+            <div className="divide-y divide-slate-100">
+              {tenantsWhoOwe.map(lease => (
+                <Link
+                  key={lease.id}
+                  href={`/leases/${lease.id}`}
+                  className="flex items-center justify-between p-3 sm:p-4 hover:bg-slate-50 transition-colors"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-slate-900 truncate">{lease.tenantName}</p>
+                    <p className="text-xs text-slate-500">{lease.unitName}</p>
+                  </div>
+                  <div className="text-right ml-3">
+                    <p className="text-sm font-semibold text-red-600">{formatCurrency(lease.balance)}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Expiring Leases - Simple List */}
+        {expiringLeases.length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200">
+            <div className="p-3 sm:p-4 border-b border-slate-200 flex items-center justify-between">
+              <div>
+                <h2 className="font-semibold text-slate-900 text-sm sm:text-base">Expiring Soon</h2>
+                <p className="text-xs text-slate-500">Next 60 days</p>
+              </div>
+              <Link href="/leases" className="text-xs text-blue-600 hover:underline">
+                View All →
+              </Link>
+            </div>
+            <div className="divide-y divide-slate-100">
               {expiringLeases.slice(0, 5).map(lease => {
                 const daysUntil = getDaysUntil(lease.endDate);
                 return (
                   <Link
                     key={lease.id}
                     href={`/leases/${lease.id}`}
-                    className="flex items-center justify-between p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between p-3 sm:p-4 hover:bg-slate-50 transition-colors"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{lease.tenantName}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{lease.unitName}</p>
+                      <p className="text-sm font-medium text-slate-900 truncate">{lease.tenantName}</p>
+                      <p className="text-xs text-slate-500">{lease.unitName}</p>
                     </div>
                     <div className={`text-right ml-3 px-2 py-1 rounded-full text-xs font-medium ${
-                      daysUntil <= 14 ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300' :
-                      daysUntil <= 30 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300' :
-                      'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                      daysUntil <= 14 ? 'bg-red-100 text-red-700' :
+                      daysUntil <= 30 ? 'bg-orange-100 text-orange-700' :
+                      'bg-slate-100 text-slate-700'
                     }`}>
                       {daysUntil} days
                     </div>
@@ -1187,27 +1123,27 @@ export default function Dashboard() {
 
       {/* Quick Payment Modal */}
       {showPaymentModal && (
-        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Record Payment</h2>
-              <button onClick={() => { setShowPaymentModal(false); setTenantSearch(''); }} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl p-1">&times;</button>
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900">Record Payment</h2>
+              <button onClick={() => { setShowPaymentModal(false); setTenantSearch(''); }} className="text-slate-500 hover:text-slate-700 text-2xl p-1">&times;</button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tenant *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Tenant *</label>
                 <input
                   type="text"
                   value={tenantSearch}
                   onChange={(e) => setTenantSearch(e.target.value)}
                   placeholder="Search tenant name..."
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-2"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm mb-2"
                   autoFocus
                 />
                 <select
                   value={paymentForm.leaseId}
                   onChange={(e) => setPaymentForm({ ...paymentForm, leaseId: e.target.value, amount: '' })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   size={Math.min(6, leases.filter(l => l.tenantName.toLowerCase().includes(tenantSearch.toLowerCase())).length + 1)}
                 >
                   <option value="">Select tenant...</option>
@@ -1244,21 +1180,21 @@ export default function Dashboard() {
                 );
               })()}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Amount *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Amount *</label>
                 <input
                   type="number"
                   value={paymentForm.amount}
                   onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   placeholder="0.00"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Payment Method</label>
                 <select
                   value={paymentForm.paymentMethod}
                   onChange={(e) => setPaymentForm({ ...paymentForm, paymentMethod: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                 >
                   <option value="CHECK">Check</option>
                   <option value="CASH">Cash</option>
@@ -1270,14 +1206,14 @@ export default function Dashboard() {
               </div>
               {(paymentForm.paymentMethod === 'CHECK' || paymentForm.paymentMethod === 'MONEY_ORDER') && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     {paymentForm.paymentMethod === 'CHECK' ? 'Check #' : 'Money Order #'} (optional)
                   </label>
                   <input
                     type="text"
                     value={paymentForm.referenceNumber}
                     onChange={(e) => setPaymentForm({ ...paymentForm, referenceNumber: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                     placeholder={paymentForm.paymentMethod === 'CHECK' ? 'Check number' : 'Money order number'}
                   />
                 </div>
@@ -1286,7 +1222,7 @@ export default function Dashboard() {
             <div className="flex flex-col-reverse sm:flex-row gap-3 mt-6">
               <button
                 onClick={() => { setShowPaymentModal(false); setTenantSearch(''); }}
-                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium"
               >
                 Cancel
               </button>
@@ -1304,19 +1240,19 @@ export default function Dashboard() {
 
       {/* Quick Charge Modal */}
       {showChargeModal && (
-        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Add Charge</h2>
-              <button onClick={() => setShowChargeModal(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl p-1">&times;</button>
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900">Add Charge</h2>
+              <button onClick={() => setShowChargeModal(false)} className="text-slate-500 hover:text-slate-700 text-2xl p-1">&times;</button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tenant *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Tenant *</label>
                 <select
                   value={chargeForm.leaseId}
                   onChange={(e) => setChargeForm({ ...chargeForm, leaseId: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   autoFocus
                 >
                   <option value="">Select tenant...</option>
@@ -1326,31 +1262,31 @@ export default function Dashboard() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Amount *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Amount *</label>
                 <input
                   type="number"
                   value={chargeForm.amount}
                   onChange={(e) => setChargeForm({ ...chargeForm, amount: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   placeholder="0.00"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Description *</label>
                 <input
                   type="text"
                   value={chargeForm.description}
                   onChange={(e) => setChargeForm({ ...chargeForm, description: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   placeholder="Late fee, utility charge, etc."
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Charge Type</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Charge Type</label>
                 <select
                   value={chargeForm.accountCode}
                   onChange={(e) => setChargeForm({ ...chargeForm, accountCode: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                 >
                   <option value="4000">Rent</option>
                   <option value="4100">Late Fee</option>
@@ -1364,7 +1300,7 @@ export default function Dashboard() {
             <div className="flex flex-col-reverse sm:flex-row gap-3 mt-6">
               <button
                 onClick={() => setShowChargeModal(false)}
-                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium"
               >
                 Cancel
               </button>
@@ -1382,19 +1318,19 @@ export default function Dashboard() {
 
       {/* Quick Work Order Modal */}
       {showWorkOrderModal && (
-        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Create Work Order</h2>
-              <button onClick={() => setShowWorkOrderModal(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl p-1">&times;</button>
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900">Create Work Order</h2>
+              <button onClick={() => setShowWorkOrderModal(false)} className="text-slate-500 hover:text-slate-700 text-2xl p-1">&times;</button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Property *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Property *</label>
                 <select
                   value={workOrderForm.propertyId}
                   onChange={(e) => setWorkOrderForm({ ...workOrderForm, propertyId: e.target.value, unitId: '' })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                 >
                   <option value="">Select property...</option>
                   {properties.map(p => (
@@ -1404,11 +1340,11 @@ export default function Dashboard() {
               </div>
               {selectedProperty && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Unit *</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Unit *</label>
                   <select
                     value={workOrderForm.unitId}
                     onChange={(e) => setWorkOrderForm({ ...workOrderForm, unitId: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   >
                     <option value="">Select unit...</option>
                     {selectedProperty.units?.map(u => (
@@ -1418,32 +1354,32 @@ export default function Dashboard() {
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Title *</label>
                 <input
                   type="text"
                   value={workOrderForm.title}
                   onChange={(e) => setWorkOrderForm({ ...workOrderForm, title: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   placeholder="Brief description of issue"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Description *</label>
                 <textarea
                   value={workOrderForm.description}
                   onChange={(e) => setWorkOrderForm({ ...workOrderForm, description: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   rows={3}
                   placeholder="Detailed description..."
                 />
               </div>
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
                   <select
                     value={workOrderForm.category}
                     onChange={(e) => setWorkOrderForm({ ...workOrderForm, category: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   >
                     <option value="GENERAL">General</option>
                     <option value="PLUMBING">Plumbing</option>
@@ -1458,11 +1394,11 @@ export default function Dashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Priority</label>
                   <select
                     value={workOrderForm.priority}
                     onChange={(e) => setWorkOrderForm({ ...workOrderForm, priority: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   >
                     <option value="LOW">Low</option>
                     <option value="MEDIUM">Medium</option>
@@ -1472,11 +1408,11 @@ export default function Dashboard() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Assign Vendor (optional)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Assign Vendor (optional)</label>
                 <select
                   value={workOrderForm.vendorId}
                   onChange={(e) => setWorkOrderForm({ ...workOrderForm, vendorId: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                 >
                   <option value="">Select vendor...</option>
                   {vendors.map(v => (
@@ -1486,7 +1422,7 @@ export default function Dashboard() {
               </div>
               {/* Photo Upload */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Photos (optional)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Photos (optional)</label>
                 <div className="space-y-3">
                   {workOrderPhotoPreviewUrls.length > 0 && (
                     <div className="flex flex-wrap gap-2">
@@ -1495,7 +1431,7 @@ export default function Dashboard() {
                           <img
                             src={url}
                             alt={`Preview ${index + 1}`}
-                            className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg border border-gray-300"
+                            className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg border border-slate-300"
                           />
                           <button
                             type="button"
@@ -1509,7 +1445,7 @@ export default function Dashboard() {
                     </div>
                   )}
                   {workOrderPhotos.length < 5 && (
-                    <label className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-3 cursor-pointer hover:border-gray-400 transition-colors">
+                    <label className="flex items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-3 cursor-pointer hover:border-slate-400 transition-colors">
                       <input
                         type="file"
                         accept="image/*"
@@ -1517,7 +1453,7 @@ export default function Dashboard() {
                         onChange={handleWorkOrderPhotoSelect}
                         className="hidden"
                       />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                      <span className="text-sm text-slate-600">
                         + Add Photos ({workOrderPhotos.length}/5)
                       </span>
                     </label>
@@ -1533,7 +1469,7 @@ export default function Dashboard() {
                   setWorkOrderPhotos([]);
                   setWorkOrderPhotoPreviewUrls([]);
                 }}
-                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium"
               >
                 Cancel
               </button>

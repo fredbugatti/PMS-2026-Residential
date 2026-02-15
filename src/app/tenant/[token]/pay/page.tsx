@@ -124,10 +124,10 @@ function NewPaymentForm({
   return (
     <form onSubmit={handleSubmit}>
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-slate-700 mb-2">
           Bank Account Details
         </label>
-        <div className="border border-gray-300 rounded-lg p-4 bg-white">
+        <div className="border border-slate-300 rounded-lg p-4 bg-white">
           <PaymentElement
             onReady={() => setReady(true)}
             onLoadError={(e) => setError(`Failed to load: ${e.error.message}`)}
@@ -147,7 +147,7 @@ function NewPaymentForm({
           type="button"
           onClick={onCancel}
           disabled={submitting}
-          className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
+          className="flex-1 px-6 py-3 border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors font-medium disabled:opacity-50"
         >
           Cancel
         </button>
@@ -282,7 +282,7 @@ export default function TenantPay() {
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="text-gray-600 font-medium">Loading...</div>
+          <div className="text-slate-600 font-medium">Loading...</div>
         </div>
       </div>
     );
@@ -292,9 +292,9 @@ export default function TenantPay() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100 flex items-center justify-center p-4">
         <div className="text-center bg-white rounded-2xl shadow-xl p-12 max-w-md">
-          <div className="text-6xl mb-4">🔒</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-gray-600 mb-4">{error}</p>
+          <div className="mb-4"><svg className="h-14 w-14 text-red-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg></div>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h1>
+          <p className="text-slate-600 mb-4">{error}</p>
         </div>
       </div>
     );
@@ -356,10 +356,10 @@ export default function TenantPay() {
 
         {/* Balance Card */}
         {!showPaymentForm && (
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 mb-6">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-4 sm:p-8 mb-6">
             <div className="text-center mb-8">
-              <div className="text-sm text-gray-600 mb-2">Current Balance Due</div>
-              <div className={`text-5xl font-bold ${hasBalance ? 'text-gray-900' : 'text-green-600'}`}>
+              <div className="text-sm text-slate-600 mb-2">Current Balance Due</div>
+              <div className={`text-3xl sm:text-5xl font-bold ${hasBalance ? 'text-slate-900' : 'text-green-600'}`}>
                 {formatCurrency(data?.currentBalance || 0)}
               </div>
               {!hasBalance && (
@@ -372,15 +372,15 @@ export default function TenantPay() {
                 {/* Pay with saved method */}
                 {data?.hasPaymentMethod && data.savedPaymentMethod && (
                   <div className="mb-6">
-                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 mb-4">
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 mb-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-sm text-gray-600">Saved Bank Account</div>
-                          <div className="font-medium text-gray-900">
+                          <div className="text-sm text-slate-600">Saved Bank Account</div>
+                          <div className="font-medium text-slate-900">
                             Account ending in {data.savedPaymentMethod.last4}
                           </div>
                           {data.savedPaymentMethod.bankName && (
-                            <div className="text-sm text-gray-500">{data.savedPaymentMethod.bankName}</div>
+                            <div className="text-sm text-slate-500">{data.savedPaymentMethod.bankName}</div>
                           )}
                         </div>
                         <button
@@ -393,7 +393,7 @@ export default function TenantPay() {
                       </div>
                     </div>
 
-                    <div className="text-center text-gray-500 text-sm mb-4">— or —</div>
+                    <div className="text-center text-slate-500 text-sm mb-4">— or —</div>
                   </div>
                 )}
 
@@ -410,14 +410,14 @@ export default function TenantPay() {
                   {submitting ? 'Loading...' : data?.hasPaymentMethod ? 'Use Different Bank Account' : 'Pay with Bank Account'}
                 </button>
 
-                <p className="text-center text-sm text-gray-500 mt-4">
+                <p className="text-center text-sm text-slate-500 mt-4">
                   Securely connect your bank account via ACH transfer
                 </p>
               </>
             )}
 
             {hasBalance && !stripeAvailable && (
-              <div className="text-center text-gray-500">
+              <div className="text-center text-slate-500">
                 Online payments are not currently available. Please contact your property manager.
               </div>
             )}
@@ -426,7 +426,7 @@ export default function TenantPay() {
               <div className="text-center">
                 <Link
                   href={`/tenant/${token}`}
-                  className="inline-block px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
+                  className="inline-block px-6 py-3 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors font-medium"
                 >
                   Return to Portal
                 </Link>
@@ -437,15 +437,15 @@ export default function TenantPay() {
 
         {/* Payment Form */}
         {showPaymentForm && clientSecret && stripePromise && (
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Pay {formatCurrency(paymentAmount)}</h2>
+              <h2 className="text-xl font-bold text-slate-900">Pay {formatCurrency(paymentAmount)}</h2>
               <button
                 onClick={() => {
                   setShowPaymentForm(false);
                   setClientSecret(null);
                 }}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-slate-400 hover:text-slate-600"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -481,12 +481,12 @@ export default function TenantPay() {
               />
             </Elements>
 
-            <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+            <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-xl">
               <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-gray-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-slate-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-slate-600">
                   <strong>ACH Payments</strong>
                   <p className="mt-1">Bank transfers typically take 3-5 business days to complete. Your payment will be marked as processing until confirmed.</p>
                 </div>

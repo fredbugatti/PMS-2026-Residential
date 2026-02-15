@@ -351,37 +351,37 @@ export default function ExpensesPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Expenses</h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <h1 className="text-2xl font-bold text-slate-900">Expenses</h1>
+        <p className="text-sm text-slate-600">
           Manage property expenses and recurring payments
         </p>
       </div>
 
       {/* Messages */}
       {error && (
-        <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg">
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
           {error}
           <button onClick={() => setError('')} className="float-right font-bold">×</button>
         </div>
       )}
       {success && (
-        <div className="mb-4 p-3 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg">
+        <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-lg">
           {success}
           <button onClick={() => setSuccess('')} className="float-right font-bold">×</button>
         </div>
       )}
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
+      <div className="border-b border-slate-200 mb-6">
         <nav className="flex gap-4">
           <button
             onClick={() => setActiveTab('one-time')}
             className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
               activeTab === 'one-time'
-                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
             One-Time Expenses
@@ -390,8 +390,8 @@ export default function ExpensesPage() {
             onClick={() => setActiveTab('recurring')}
             className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
               activeTab === 'recurring'
-                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
             Recurring Expenses
@@ -400,8 +400,8 @@ export default function ExpensesPage() {
             onClick={() => setActiveTab('pending')}
             className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors relative ${
               activeTab === 'pending'
-                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
             Pending Confirmation
@@ -418,8 +418,8 @@ export default function ExpensesPage() {
       {activeTab === 'one-time' && (
         <div>
           <div className="flex justify-between items-center mb-4">
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              Total this month: <span className="font-semibold text-gray-900 dark:text-white">
+            <div className="text-sm text-slate-600">
+              Total this month: <span className="font-semibold text-slate-900">
                 ${summary.totalExpenses.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </span>
               {' '}({summary.count} expenses)
@@ -435,19 +435,19 @@ export default function ExpensesPage() {
           {/* One-Time Form Modal */}
           {showOneTimeForm && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+                <h2 className="text-lg font-semibold text-slate-900 mb-4">
                   Record One-Time Expense
                 </h2>
                 <form onSubmit={handleOneTimeSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Expense Type *
                     </label>
                     <select
                       value={oneTimeForm.accountCode}
                       onChange={(e) => setOneTimeForm({ ...oneTimeForm, accountCode: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900"
                       required
                     >
                       {expenseAccounts.map(acc => (
@@ -456,7 +456,7 @@ export default function ExpensesPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Amount *
                     </label>
                     <input
@@ -464,53 +464,53 @@ export default function ExpensesPage() {
                       step="0.01"
                       value={oneTimeForm.amount}
                       onChange={(e) => setOneTimeForm({ ...oneTimeForm, amount: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900"
                       placeholder="0.00"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Description *
                     </label>
                     <input
                       type="text"
                       value={oneTimeForm.description}
                       onChange={(e) => setOneTimeForm({ ...oneTimeForm, description: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900"
                       placeholder="e.g., HVAC repair"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Date
                     </label>
                     <input
                       type="date"
                       value={oneTimeForm.entryDate}
                       onChange={(e) => setOneTimeForm({ ...oneTimeForm, entryDate: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900"
                     />
                   </div>
                   {!showOptionalFields ? (
                     <button
                       type="button"
                       onClick={() => setShowOptionalFields(true)}
-                      className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                      className="text-sm text-blue-600 hover:text-blue-800"
                     >
                       + Add property or vendor
                     </button>
                   ) : (
                     <>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
                           Property (optional)
                         </label>
                         <select
                           value={oneTimeForm.propertyId}
                           onChange={(e) => setOneTimeForm({ ...oneTimeForm, propertyId: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900"
                         >
                           <option value="">-- Select Property --</option>
                           {properties.map(p => (
@@ -519,13 +519,13 @@ export default function ExpensesPage() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
                           Vendor (optional)
                         </label>
                         <select
                           value={oneTimeForm.vendorId}
                           onChange={(e) => setOneTimeForm({ ...oneTimeForm, vendorId: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900"
                         >
                           <option value="">-- Select Vendor --</option>
                           {vendors.map(v => (
@@ -542,7 +542,7 @@ export default function ExpensesPage() {
                         setShowOneTimeForm(false);
                         setShowOptionalFields(false);
                       }}
-                      className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                      className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50"
                     >
                       Cancel
                     </button>
@@ -560,40 +560,40 @@ export default function ExpensesPage() {
           )}
 
           {/* Expenses Table */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-700">
+              <thead className="bg-slate-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Description</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Category</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Property</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Amount</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Date</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Description</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Category</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Property</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Amount</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="divide-y divide-slate-200">
                 {expenses.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
                       No expenses recorded this month
                     </td>
                   </tr>
                 ) : (
                   expenses.map(expense => (
-                    <tr key={expense.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                    <tr key={expense.id} className="hover:bg-slate-50">
+                      <td className="px-4 py-3 text-sm text-slate-900">
                         {new Date(expense.date).toLocaleDateString()}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                      <td className="px-4 py-3 text-sm text-slate-900">
                         {expense.description}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      <td className="px-4 py-3 text-sm text-slate-600">
                         {expense.accountName}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      <td className="px-4 py-3 text-sm text-slate-600">
                         {expense.propertyName || '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-right font-medium text-red-600 dark:text-red-400">
+                      <td className="px-4 py-3 text-sm text-right font-medium text-red-600">
                         ${expense.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </td>
                     </tr>
@@ -609,7 +609,7 @@ export default function ExpensesPage() {
       {activeTab === 'recurring' && (
         <div>
           <div className="flex justify-between items-center mb-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-slate-600">
               Set up recurring expenses that auto-post monthly
             </p>
             <button
@@ -627,19 +627,19 @@ export default function ExpensesPage() {
           {/* Scheduled Form Modal */}
           {showScheduledForm && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+                <h2 className="text-lg font-semibold text-slate-900 mb-4">
                   {editingScheduled ? 'Edit Recurring Expense' : 'Add Recurring Expense'}
                 </h2>
                 <form onSubmit={handleScheduledSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Property *
                     </label>
                     <select
                       value={scheduledForm.propertyId}
                       onChange={(e) => setScheduledForm({ ...scheduledForm, propertyId: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900"
                       required
                     >
                       <option value="">-- Select Property --</option>
@@ -649,21 +649,21 @@ export default function ExpensesPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Description *
                     </label>
                     <input
                       type="text"
                       value={scheduledForm.description}
                       onChange={(e) => setScheduledForm({ ...scheduledForm, description: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900"
                       placeholder="e.g., Monthly Landscaping"
                       required
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         Amount *
                       </label>
                       <input
@@ -671,19 +671,19 @@ export default function ExpensesPage() {
                         step="0.01"
                         value={scheduledForm.amount}
                         onChange={(e) => setScheduledForm({ ...scheduledForm, amount: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900"
                         placeholder="0.00"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         Day of Month *
                       </label>
                       <select
                         value={scheduledForm.chargeDay}
                         onChange={(e) => setScheduledForm({ ...scheduledForm, chargeDay: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900"
                         required
                       >
                         {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
@@ -693,13 +693,13 @@ export default function ExpensesPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Expense Type *
                     </label>
                     <select
                       value={scheduledForm.accountCode}
                       onChange={(e) => setScheduledForm({ ...scheduledForm, accountCode: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900"
                       required
                     >
                       {expenseAccounts.map(acc => (
@@ -708,13 +708,13 @@ export default function ExpensesPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Vendor (optional)
                     </label>
                     <select
                       value={scheduledForm.vendorId}
                       onChange={(e) => setScheduledForm({ ...scheduledForm, vendorId: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900"
                     >
                       <option value="">-- Select Vendor --</option>
                       {vendors.map(v => (
@@ -722,7 +722,7 @@ export default function ExpensesPage() {
                       ))}
                     </select>
                   </div>
-                  <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4">
+                  <div className="bg-amber-50 rounded-lg p-4">
                     <label className="flex items-start gap-3 cursor-pointer">
                       <input
                         type="checkbox"
@@ -731,8 +731,8 @@ export default function ExpensesPage() {
                         className="mt-1 w-4 h-4 text-blue-600 rounded"
                       />
                       <div>
-                        <span className="font-medium text-gray-900 dark:text-white">Requires Confirmation</span>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        <span className="font-medium text-slate-900">Requires Confirmation</span>
+                        <p className="text-sm text-slate-600 mt-1">
                           Enable this if the service might not happen (e.g., landscaping during winter).
                           You'll be asked to confirm before it posts to the ledger.
                         </p>
@@ -740,13 +740,13 @@ export default function ExpensesPage() {
                     </label>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Notes (optional)
                     </label>
                     <textarea
                       value={scheduledForm.notes}
                       onChange={(e) => setScheduledForm({ ...scheduledForm, notes: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900"
                       rows={2}
                       placeholder="Any additional notes..."
                     />
@@ -758,7 +758,7 @@ export default function ExpensesPage() {
                         setShowScheduledForm(false);
                         setEditingScheduled(null);
                       }}
-                      className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                      className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50"
                     >
                       Cancel
                     </button>
@@ -778,9 +778,9 @@ export default function ExpensesPage() {
           {/* Scheduled Expenses List */}
           <div className="space-y-4">
             {scheduledExpenses.length === 0 ? (
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-8 text-center border border-gray-200 dark:border-gray-700">
-                <p className="text-gray-500 dark:text-gray-400">No recurring expenses set up yet</p>
-                <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+              <div className="bg-white rounded-xl p-8 text-center border border-slate-200">
+                <p className="text-slate-500">No recurring expenses set up yet</p>
+                <p className="text-sm text-slate-400 mt-1">
                   Click "Add Recurring Expense" to set up automatic monthly expenses
                 </p>
               </div>
@@ -788,66 +788,66 @@ export default function ExpensesPage() {
               scheduledExpenses.map(expense => (
                 <div
                   key={expense.id}
-                  className={`bg-white dark:bg-gray-800 rounded-xl p-4 border ${
+                  className={`bg-white rounded-xl p-4 border ${
                     expense.active
-                      ? 'border-gray-200 dark:border-gray-700'
-                      : 'border-gray-200 dark:border-gray-700 opacity-60'
+                      ? 'border-slate-200'
+                      : 'border-slate-200 opacity-60'
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-medium text-gray-900 dark:text-white">
+                        <h3 className="font-medium text-slate-900">
                           {expense.description}
                         </h3>
                         {expense.requiresConfirmation && (
-                          <span className="px-2 py-0.5 text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded">
+                          <span className="px-2 py-0.5 text-xs bg-amber-100 text-amber-700 rounded">
                             Needs Confirmation
                           </span>
                         )}
                         {!expense.active && (
-                          <span className="px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">
+                          <span className="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">
                             Paused
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      <p className="text-sm text-slate-600 mt-1">
                         {expense.property.name} • Posts on day {expense.chargeDay} each month
                         {expense.vendor && ` • ${expense.vendor.name}`}
                       </p>
                       {expense.notes && (
-                        <p className="text-sm text-gray-500 dark:text-gray-500 mt-1 italic">
+                        <p className="text-sm text-slate-500 mt-1 italic">
                           {expense.notes}
                         </p>
                       )}
                     </div>
                     <div className="text-right">
-                      <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                      <div className="text-lg font-semibold text-slate-900">
                         ${Number(expense.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                      <div className="text-xs text-slate-500">
                         {expense.lastPostedDate
                           ? `Last: ${new Date(expense.lastPostedDate).toLocaleDateString()}`
                           : 'Not yet posted'}
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                  <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100">
                     <button
                       onClick={() => startEditScheduled(expense)}
-                      className="px-3 py-1.5 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
+                      className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleToggleActive(expense)}
-                      className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 rounded"
+                      className="px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 rounded"
                     >
                       {expense.active ? 'Pause' : 'Resume'}
                     </button>
                     <button
                       onClick={() => handleDeleteScheduled(expense.id)}
-                      className="px-3 py-1.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                      className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded"
                     >
                       Delete
                     </button>
@@ -862,14 +862,14 @@ export default function ExpensesPage() {
       {/* Pending Confirmation Tab */}
       {activeTab === 'pending' && (
         <div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-sm text-slate-600 mb-4">
             These expenses require your confirmation before posting to the ledger
           </p>
 
           {pendingExpenses.length === 0 ? (
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-8 text-center border border-gray-200 dark:border-gray-700">
-              <p className="text-gray-500 dark:text-gray-400">No pending expenses</p>
-              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+            <div className="bg-white rounded-xl p-8 text-center border border-slate-200">
+              <p className="text-slate-500">No pending expenses</p>
+              <p className="text-sm text-slate-400 mt-1">
                 Expenses that require confirmation will appear here
               </p>
             </div>
@@ -878,24 +878,24 @@ export default function ExpensesPage() {
               {pendingExpenses.map(expense => (
                 <div
                   key={expense.id}
-                  className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-amber-200 dark:border-amber-800"
+                  className="bg-white rounded-xl p-4 border border-amber-200"
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-medium text-gray-900 dark:text-white">
+                      <h3 className="font-medium text-slate-900">
                         {expense.description}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      <p className="text-sm text-slate-600 mt-1">
                         {expense.property.name}
                         {expense.vendor && ` • ${expense.vendor.name}`}
                         {' • Due: '}{new Date(expense.dueDate).toLocaleDateString()}
                       </p>
                     </div>
-                    <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <div className="text-lg font-semibold text-slate-900">
                       ${Number(expense.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </div>
                   </div>
-                  <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                  <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100">
                     <button
                       onClick={() => handleConfirmPending(expense.id)}
                       className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
@@ -904,7 +904,7 @@ export default function ExpensesPage() {
                     </button>
                     <button
                       onClick={() => handleSkipPending(expense.id)}
-                      className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
+                      className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 text-sm"
                     >
                       Skip This Month
                     </button>

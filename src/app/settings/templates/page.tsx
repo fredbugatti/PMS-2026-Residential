@@ -210,15 +210,15 @@ export default function TemplatesPage() {
 
   const getCategoryColor = (category: string) => {
     if (category.includes('NOTICE') || category.includes('EVICTION')) {
-      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      return 'bg-red-100 text-red-800';
     }
     if (category.includes('LEASE')) {
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      return 'bg-blue-100 text-blue-800';
     }
     if (category.includes('CHECKLIST')) {
-      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      return 'bg-green-100 text-green-800';
     }
-    return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+    return 'bg-slate-100 text-slate-800';
   };
 
   const filteredTemplates = filter === 'all'
@@ -227,22 +227,22 @@ export default function TemplatesPage() {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
-          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div className="h-8 bg-slate-200 rounded w-1/4"></div>
+          <div className="h-64 bg-slate-200 rounded"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-4 md:p-6 max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Document Templates</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-slate-900">Document Templates</h1>
+          <p className="text-sm text-slate-600 mt-1">
             Create and manage reusable document templates with merge fields
           </p>
         </div>
@@ -259,7 +259,7 @@ export default function TemplatesPage() {
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+          className="px-4 py-2 border border-slate-300 rounded-lg bg-white text-slate-900"
         >
           <option value="all">All Categories ({templates.length})</option>
           {CATEGORIES.map(cat => {
@@ -278,7 +278,7 @@ export default function TemplatesPage() {
         {filteredTemplates.map(template => (
           <div
             key={template.id}
-            className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5 ${
+            className={`bg-white rounded-xl shadow-sm border border-slate-200 p-5 ${
               !template.active ? 'opacity-50' : ''
             }`}
           >
@@ -287,20 +287,20 @@ export default function TemplatesPage() {
                 {getCategoryLabel(template.category)}
               </span>
               {template.isSystem && (
-                <span className="px-2 py-1 text-xs font-medium rounded bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                <span className="px-2 py-1 text-xs font-medium rounded bg-purple-100 text-purple-800">
                   System
                 </span>
               )}
             </div>
 
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{template.name}</h3>
+            <h3 className="font-semibold text-slate-900 mb-1">{template.name}</h3>
             {template.description && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+              <p className="text-sm text-slate-600 mb-3 line-clamp-2">
                 {template.description}
               </p>
             )}
 
-            <div className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+            <div className="text-xs text-slate-500 mb-4">
               {template.mergeFields.length} merge fields
               {!template.active && <span className="ml-2 text-red-500">(Inactive)</span>}
             </div>
@@ -308,7 +308,7 @@ export default function TemplatesPage() {
             <div className="flex gap-2">
               <button
                 onClick={() => openEditModal(template)}
-                className="flex-1 px-3 py-1.5 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors border border-blue-200 dark:border-blue-800"
+                className="flex-1 px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-blue-200"
               >
                 Edit
               </button>
@@ -318,15 +318,15 @@ export default function TemplatesPage() {
                     onClick={() => handleToggleActive(template)}
                     className={`px-3 py-1.5 text-sm rounded-lg transition-colors border ${
                       template.active
-                        ? 'text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 border-orange-200 dark:border-orange-800'
-                        : 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 border-green-200 dark:border-green-800'
+                        ? 'text-orange-600 hover:bg-orange-50 border-orange-200'
+                        : 'text-green-600 hover:bg-green-50 border-green-200'
                     }`}
                   >
                     {template.active ? 'Disable' : 'Enable'}
                   </button>
                   <button
                     onClick={() => handleDelete(template)}
-                    className="px-3 py-1.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors border border-red-200 dark:border-red-800"
+                    className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
                   >
                     Delete
                   </button>
@@ -337,11 +337,11 @@ export default function TemplatesPage() {
         ))}
 
         {filteredTemplates.length === 0 && (
-          <div className="col-span-full text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-            <p className="text-gray-500 dark:text-gray-400">No templates found</p>
+          <div className="col-span-full text-center py-12 bg-white rounded-xl border border-slate-200">
+            <p className="text-slate-500">No templates found</p>
             <button
               onClick={openCreateModal}
-              className="mt-4 text-blue-600 dark:text-blue-400 hover:underline"
+              className="mt-4 text-blue-600 hover:underline"
             >
               Create your first template
             </button>
@@ -352,14 +352,14 @@ export default function TemplatesPage() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-slate-900">
                 {editingTemplate ? 'Edit Template' : 'Create New Template'}
               </h3>
               <button
                 onClick={() => setShowMergeFields(!showMergeFields)}
-                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                className="text-sm text-blue-600 hover:underline"
               >
                 {showMergeFields ? 'Hide' : 'Show'} Merge Fields
               </button>
@@ -369,7 +369,7 @@ export default function TemplatesPage() {
               <form onSubmit={handleSubmit} className="p-6">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Template Name
                     </label>
                     <input
@@ -377,19 +377,19 @@ export default function TemplatesPage() {
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="e.g., Standard Lease Agreement"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-900"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Category
                     </label>
                     <select
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-900"
                     >
                       {CATEGORIES.map(cat => (
                         <option key={cat.value} value={cat.value}>{cat.label}</option>
@@ -399,7 +399,7 @@ export default function TemplatesPage() {
                 </div>
 
                 <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     Description
                   </label>
                   <input
@@ -407,14 +407,14 @@ export default function TemplatesPage() {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="Brief description of this template"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-900"
                   />
                 </div>
 
                 {/* Merge Fields Panel */}
                 {showMergeFields && (
-                  <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  <div className="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <h4 className="text-sm font-medium text-slate-700 mb-3">
                       Available Merge Fields (click to insert)
                     </h4>
                     <div className="flex flex-wrap gap-2">
@@ -423,7 +423,7 @@ export default function TemplatesPage() {
                           key={field}
                           type="button"
                           onClick={() => insertMergeField(field)}
-                          className="px-2 py-1 text-xs font-mono bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+                          className="px-2 py-1 text-xs font-mono bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition-colors"
                           title={description}
                         >
                           {field}
@@ -434,7 +434,7 @@ export default function TemplatesPage() {
                 )}
 
                 <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     Template Content (HTML)
                   </label>
                   <textarea
@@ -442,7 +442,7 @@ export default function TemplatesPage() {
                     onChange={(e) => setFormData({ ...formData, templateContent: e.target.value })}
                     placeholder="Enter your template content with merge fields like {{tenantName}}..."
                     rows={12}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-mono text-sm"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-900 font-mono text-sm"
                     required
                   />
                 </div>
@@ -453,9 +453,9 @@ export default function TemplatesPage() {
                     id="active"
                     checked={formData.active}
                     onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
                   />
-                  <label htmlFor="active" className="text-sm text-gray-700 dark:text-gray-300">
+                  <label htmlFor="active" className="text-sm text-slate-700">
                     Active
                   </label>
                 </div>
@@ -464,7 +464,7 @@ export default function TemplatesPage() {
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
                   >
                     Cancel
                   </button>

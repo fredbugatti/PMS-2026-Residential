@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, address, city, state, zipCode, totalUnits, propertyType, notes } = body;
+    const { name, address, city, state, zipCode, totalUnits, totalSquareFeet, propertyType, notes } = body;
 
     // Validate required fields
     if (!name) {

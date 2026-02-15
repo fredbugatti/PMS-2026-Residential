@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { HardHat } from 'lucide-react';
 
 interface Vendor {
   id: string;
@@ -105,21 +106,21 @@ export default function VendorsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Loading vendors...</div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-slate-500">Loading vendors...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Vendors</h1>
-              <p className="text-gray-600 mt-1">Manage contractors and service providers</p>
+              <h1 className="text-3xl font-bold text-slate-900">Vendors</h1>
+              <p className="text-slate-600 mt-1">Manage contractors and service providers</p>
             </div>
             <button
               onClick={() => setShowForm(true)}
@@ -134,18 +135,18 @@ export default function VendorsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="text-sm text-gray-600 mb-1">Total Vendors</div>
-            <div className="text-3xl font-bold text-gray-900">{vendors.length}</div>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="text-sm text-slate-600 mb-1">Total Vendors</div>
+            <div className="text-3xl font-bold text-slate-900">{vendors.length}</div>
           </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="text-sm text-gray-600 mb-1">Active Vendors</div>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="text-sm text-slate-600 mb-1">Active Vendors</div>
             <div className="text-3xl font-bold text-green-600">
               {vendors.filter(v => v.active).length}
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="text-sm text-gray-600 mb-1">Total Work Orders</div>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="text-sm text-slate-600 mb-1">Total Work Orders</div>
             <div className="text-3xl font-bold text-blue-600">
               {vendors.reduce((sum, v) => sum + v._count.workOrders, 0)}
             </div>
@@ -153,7 +154,7 @@ export default function VendorsPage() {
         </div>
 
         {/* Filter */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -161,48 +162,48 @@ export default function VendorsPage() {
               onChange={(e) => setShowInactive(e.target.checked)}
               className="w-4 h-4 text-blue-600 rounded"
             />
-            <span className="text-sm text-gray-700">Show inactive vendors</span>
+            <span className="text-sm text-slate-700">Show inactive vendors</span>
           </label>
         </div>
 
         {/* Vendors List */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                     Vendor
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                     Contact
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                     Specialties
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                     Payment Terms
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
                     Work Orders
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-slate-200">
                 {vendors.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-6 py-12 text-center">
                       <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <span className="text-xl">👷</span>
+                        <HardHat className="h-6 w-6 text-teal-600" />
                       </div>
-                      <p className="text-gray-900 font-medium mb-1">No vendors yet</p>
-                      <p className="text-gray-500 text-sm mb-4">Add contractors and service providers to assign to work orders.</p>
+                      <p className="text-slate-900 font-medium mb-1">No vendors yet</p>
+                      <p className="text-slate-500 text-sm mb-4">Add contractors and service providers to assign to work orders.</p>
                       <button
                         onClick={() => setShowForm(true)}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
@@ -213,7 +214,7 @@ export default function VendorsPage() {
                   </tr>
                 ) : (
                   vendors.map((vendor) => (
-                    <tr key={vendor.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={vendor.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4">
                         <Link
                           href={`/vendors/${vendor.id}`}
@@ -222,15 +223,15 @@ export default function VendorsPage() {
                           {vendor.name}
                         </Link>
                         {vendor.company && (
-                          <div className="text-xs text-gray-500">{vendor.company}</div>
+                          <div className="text-xs text-slate-500">{vendor.company}</div>
                         )}
                       </td>
                       <td className="px-6 py-4">
                         {vendor.email && (
-                          <div className="text-sm text-gray-900">{vendor.email}</div>
+                          <div className="text-sm text-slate-900">{vendor.email}</div>
                         )}
                         {vendor.phone && (
-                          <div className="text-xs text-gray-500">{vendor.phone}</div>
+                          <div className="text-xs text-slate-500">{vendor.phone}</div>
                         )}
                       </td>
                       <td className="px-6 py-4">
@@ -244,23 +245,23 @@ export default function VendorsPage() {
                             </span>
                           ))}
                           {vendor.specialties.length > 2 && (
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-slate-500">
                               +{vendor.specialties.length - 2} more
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
                         {vendor.paymentTerms?.replace('_', ' ') || '-'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-slate-900">
                         {vendor._count.workOrders}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                           vendor.active
                             ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
+                            : 'bg-slate-100 text-slate-800'
                         }`}>
                           {vendor.active ? 'Active' : 'Inactive'}
                         </span>
@@ -286,12 +287,12 @@ export default function VendorsPage() {
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-6 border-b border-slate-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Add Vendor</h2>
+                <h2 className="text-xl font-bold text-slate-900">Add Vendor</h2>
                 <button
                   onClick={() => setShowForm(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-slate-400 hover:text-slate-600"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -301,9 +302,9 @@ export default function VendorsPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
                     Vendor Name <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -311,27 +312,27 @@ export default function VendorsPage() {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="e.g., Joe's Plumbing"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Company</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Company</label>
                   <input
                     type="text"
                     value={formData.company}
                     onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Payment Terms</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Payment Terms</label>
                   <select
                     value={formData.paymentTerms}
                     onChange={(e) => setFormData({ ...formData, paymentTerms: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="">Select terms</option>
                     <option value="DUE_ON_RECEIPT">Due on Receipt</option>
@@ -342,28 +343,28 @@ export default function VendorsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
                   <input
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Phone</label>
                   <input
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Specialties</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Specialties</label>
                 <div className="flex flex-wrap gap-2">
                   {['PLUMBING', 'ELECTRICAL', 'HVAC', 'APPLIANCE', 'GENERAL', 'OTHER'].map((spec) => (
                     <button
@@ -373,7 +374,7 @@ export default function VendorsPage() {
                       className={`px-3 py-1 text-sm rounded-lg transition-colors ${
                         formData.specialties.includes(spec)
                           ? 'bg-blue-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                       }`}
                     >
                       {spec}
@@ -383,23 +384,23 @@ export default function VendorsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tax ID (for 1099)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Tax ID (for 1099)</label>
                 <input
                   type="text"
                   value={formData.taxId}
                   onChange={(e) => setFormData({ ...formData, taxId: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="XX-XXXXXXX"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Notes</label>
                 <textarea
                   rows={3}
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
@@ -407,7 +408,7 @@ export default function VendorsPage() {
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
                 >
                   Cancel
                 </button>

@@ -98,7 +98,7 @@ export function PullToRefresh({ onRefresh, children }: PullToRefreshProps) {
               </svg>
             </div>
           )}
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-slate-500">
             {isRefreshing ? 'Refreshing...' : pullProgress >= 1 ? 'Release to refresh' : 'Pull to refresh'}
           </span>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Building2 } from 'lucide-react';
 import { PropertiesListSkeleton } from '@/components/Skeleton';
 
 interface Property {
@@ -195,8 +196,8 @@ export default function PropertiesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="bg-white border-b border-gray-200">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -215,11 +216,11 @@ export default function PropertiesPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
         {properties.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 sm:p-12 text-center">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 sm:p-12 text-center">
             <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl sm:text-3xl">🏭</span>
             </div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-2">
               No properties yet
             </h3>
             <p className="text-gray-500 mb-6 text-sm sm:text-base">
@@ -337,9 +338,9 @@ export default function PropertiesPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
           <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
             {/* Progress Header */}
-            <div className="bg-gray-50 px-4 sm:px-6 py-4 border-b border-gray-200">
+            <div className="bg-slate-50 px-4 sm:px-6 py-4 border-b border-slate-200">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900">
                   {wizardStep === 1 && 'Property Details'}
                   {wizardStep === 2 && 'Add Spaces'}
                   {wizardStep === 3 && 'Setup Complete'}
@@ -349,7 +350,7 @@ export default function PropertiesPage() {
                     setShowWizard(false);
                     resetWizard();
                   }}
-                  className="text-gray-400 hover:text-gray-600 p-1"
+                  className="text-slate-400 hover:text-slate-600 p-1"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -366,7 +367,7 @@ export default function PropertiesPage() {
                         ? 'bg-green-500 text-white'
                         : wizardStep === step
                           ? 'bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-500'
+                          : 'bg-slate-200 text-slate-500'
                     }`}>
                       {wizardStep > step ? (
                         <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -376,13 +377,13 @@ export default function PropertiesPage() {
                     </div>
                     {step < 3 && (
                       <div className={`flex-1 h-1 mx-1 sm:mx-2 rounded ${
-                        wizardStep > step ? 'bg-green-500' : 'bg-gray-200'
+                        wizardStep > step ? 'bg-green-500' : 'bg-slate-200'
                       }`} />
                     )}
                   </div>
                 ))}
               </div>
-              <div className="flex justify-between mt-2 text-xs text-gray-500">
+              <div className="flex justify-between mt-2 text-xs text-slate-500">
                 <span>Property</span>
                 <span>Spaces</span>
                 <span>Done</span>
@@ -401,7 +402,7 @@ export default function PropertiesPage() {
               {wizardStep === 1 && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Property Name *
                     </label>
                     <input
@@ -443,26 +444,26 @@ export default function PropertiesPage() {
                       type="text"
                       value={propertyForm.address}
                       onChange={(e) => setPropertyForm({ ...propertyForm, address: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                       placeholder="123 Main Street"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         City
                       </label>
                       <input
                         type="text"
                         value={propertyForm.city}
                         onChange={(e) => setPropertyForm({ ...propertyForm, city: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                         placeholder="Los Angeles"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         State
                       </label>
                       <input
@@ -470,22 +471,39 @@ export default function PropertiesPage() {
                         maxLength={2}
                         value={propertyForm.state}
                         onChange={(e) => setPropertyForm({ ...propertyForm, state: e.target.value.toUpperCase() })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                         placeholder="CA"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         ZIP
                       </label>
                       <input
                         type="text"
                         value={propertyForm.zipCode}
                         onChange={(e) => setPropertyForm({ ...propertyForm, zipCode: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                         placeholder="90001"
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      Total Square Footage
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={propertyForm.totalSquareFeet}
+                      onChange={(e) => setPropertyForm({ ...propertyForm, totalSquareFeet: e.target.value })}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                      placeholder="e.g. 200000"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">
+                      Total building square footage for tracking space allocation across units.
+                    </p>
                   </div>
                 </div>
               )}
@@ -497,8 +515,31 @@ export default function PropertiesPage() {
                     Add warehouse spaces to your property. You can add more later.
                   </p>
 
+                  {totalSF > 0 && (
+                    <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="font-medium text-slate-700">Space Allocation</span>
+                        <span className="text-slate-600">
+                          {allocatedSF.toLocaleString()} / {totalSF.toLocaleString()} sq ft
+                        </span>
+                      </div>
+                      <div className="w-full bg-blue-200 rounded-full h-3 mb-2">
+                        <div
+                          className={`h-3 rounded-full transition-all ${remainingSF < 0 ? 'bg-red-500' : 'bg-blue-600'}`}
+                          style={{ width: `${Math.min(allocationPct, 100)}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-xs text-slate-500">
+                        <span>Allocated: {allocationPct.toFixed(1)}%</span>
+                        <span className={remainingSF < 0 ? 'text-red-600 font-medium' : ''}>
+                          {remainingSF >= 0 ? `${remainingSF.toLocaleString()} sq ft remaining` : `${Math.abs(remainingSF).toLocaleString()} sq ft over-allocated`}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
                   {units.map((unit, index) => (
-                    <div key={index} className="p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <div key={index} className="p-3 sm:p-4 bg-slate-50 rounded-xl border border-slate-200">
                       <div className="flex items-center justify-between mb-3">
                         <span className="font-medium text-gray-900 text-sm sm:text-base">
                           Space {index + 1}
@@ -549,7 +590,7 @@ export default function PropertiesPage() {
                           />
                         </div>
                         <div className="hidden sm:block">
-                          <label className="block text-xs text-gray-500 mb-1">Sq Ft</label>
+                          <label className="block text-xs text-slate-500 mb-1">Sq Ft</label>
                           <input
                             type="number"
                             min="0"
@@ -560,7 +601,7 @@ export default function PropertiesPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-gray-500 mb-1">Rent</label>
+                          <label className="block text-xs text-slate-500 mb-1">Rent</label>
                           <input
                             type="number"
                             min="0"
@@ -577,12 +618,13 @@ export default function PropertiesPage() {
                   <button
                     type="button"
                     onClick={addUnit}
-                    className="w-full py-3 border-2 border-dashed border-gray-300 text-gray-600 hover:border-blue-400 hover:text-blue-600 rounded-xl transition-colors font-medium text-sm sm:text-base"
+                    className="w-full py-3 border-2 border-dashed border-slate-300 text-slate-600 hover:border-blue-400 hover:text-blue-600 rounded-xl transition-colors font-medium text-sm sm:text-base"
                   >
                     + Add Another Space
                   </button>
                 </div>
-              )}
+                );
+              })()}
 
               {/* Step 3: Complete */}
               {wizardStep === 3 && (
@@ -592,13 +634,13 @@ export default function PropertiesPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">
                     Property Created!
                   </h3>
-                  <p className="text-gray-600 mb-2 text-sm sm:text-base">
+                  <p className="text-slate-600 mb-2 text-sm sm:text-base">
                     <strong>{propertyForm.name}</strong> has been set up with <strong>{units.length} {units.length !== 1 ? 'units' : 'unit'}</strong>.
                   </p>
-                  <p className="text-xs sm:text-sm text-gray-500">
+                  <p className="text-xs sm:text-sm text-slate-500">
                     You can now add tenants and leases from the property page.
                   </p>
                 </div>
@@ -606,7 +648,7 @@ export default function PropertiesPage() {
             </div>
 
             {/* Footer Actions */}
-            <div className="px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+            <div className="px-4 sm:px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
               {wizardStep === 1 && (
                 <>
                   <button
@@ -615,7 +657,7 @@ export default function PropertiesPage() {
                       setShowWizard(false);
                       resetWizard();
                     }}
-                    className="px-6 py-3 sm:py-2 text-gray-700 hover:text-gray-900 font-medium border border-gray-300 rounded-lg sm:border-0"
+                    className="px-6 py-3 sm:py-2 text-slate-700 hover:text-slate-900 font-medium border border-slate-300 rounded-lg sm:border-0"
                   >
                     Cancel
                   </button>
@@ -635,7 +677,7 @@ export default function PropertiesPage() {
                     type="button"
                     onClick={() => setWizardStep(3)}
                     disabled={submitting}
-                    className="px-6 py-3 sm:py-2 text-gray-700 hover:text-gray-900 font-medium border border-gray-300 rounded-lg sm:border-0"
+                    className="px-6 py-3 sm:py-2 text-slate-700 hover:text-slate-900 font-medium border border-slate-300 rounded-lg sm:border-0"
                   >
                     Skip for Now
                   </button>
@@ -654,7 +696,7 @@ export default function PropertiesPage() {
                   <button
                     type="button"
                     onClick={handleFinish}
-                    className="px-6 py-3 sm:py-2 text-gray-700 hover:text-gray-900 font-medium border border-gray-300 rounded-lg sm:border-0"
+                    className="px-6 py-3 sm:py-2 text-slate-700 hover:text-slate-900 font-medium border border-slate-300 rounded-lg sm:border-0"
                   >
                     Back to Properties
                   </button>

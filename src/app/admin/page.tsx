@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ReactNode } from 'react';
 import Link from 'next/link';
+import { BarChart3, Calendar, Search, Plug, Settings, Database, DollarSign, FileText, Wrench, AlertTriangle } from 'lucide-react';
 
 interface HealthCheck {
   name: string;
@@ -210,7 +211,7 @@ export default function AdminPage() {
       case 'ok': case 'SUCCESS': case 'COMPLETED': return 'bg-green-100 text-green-800 border-green-200';
       case 'warning': case 'PARTIAL': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'error': case 'FAILED': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      default: return 'bg-slate-100 text-slate-800 border-slate-200';
     }
   };
 
@@ -219,30 +220,30 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 p-4 sm:p-8 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading system status...</p>
+          <p className="text-slate-600">Loading system status...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="bg-white border-b sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-8 py-4">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 md:py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">System Admin</h1>
-              <p className="text-sm text-gray-500">Complete system monitoring and control</p>
+              <h1 className="text-2xl font-bold text-slate-900">System Admin</h1>
+              <p className="text-sm text-slate-500">Complete system monitoring and control</p>
             </div>
             <div className="flex items-center gap-4">
               <button
                 onClick={refresh}
                 disabled={refreshing}
-                className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-2"
+                className="px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 rounded flex items-center gap-2"
               >
                 {refreshing ? (
                   <span className="animate-spin">↻</span>
@@ -260,20 +261,20 @@ export default function AdminPage() {
           {/* Tabs */}
           <div className="mt-4 flex gap-1 overflow-x-auto">
             {[
-              { id: 'overview', label: 'Overview', icon: '📊' },
-              { id: 'upcoming', label: 'Upcoming', icon: '📅' },
-              { id: 'integrity', label: 'Data Integrity', icon: '🔍' },
-              { id: 'apis', label: 'API Tests', icon: '🔌' },
-              { id: 'cron', label: 'Automation', icon: '⚙️' },
-              { id: 'data', label: 'Test Data', icon: '🗄️' }
+              { id: 'overview', label: 'Overview', icon: <BarChart3 className="h-4 w-4" /> },
+              { id: 'upcoming', label: 'Upcoming', icon: <Calendar className="h-4 w-4" /> },
+              { id: 'integrity', label: 'Data Integrity', icon: <Search className="h-4 w-4" /> },
+              { id: 'apis', label: 'API Tests', icon: <Plug className="h-4 w-4" /> },
+              { id: 'cron', label: 'Automation', icon: <Settings className="h-4 w-4" /> },
+              { id: 'data', label: 'Test Data', icon: <Database className="h-4 w-4" /> }
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`px-4 py-2 rounded-t-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                className={`px-4 py-2 rounded-t-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1.5 ${
                   activeTab === tab.id
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 {tab.icon} {tab.label}
@@ -283,34 +284,34 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-8">
+      <div className="max-w-7xl mx-auto p-4 md:p-8">
         {/* OVERVIEW TAB */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
             {/* Quick Status Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
               <div className={`p-4 rounded-lg border-2 ${health?.status === 'ok' ? 'bg-green-50 border-green-300' : health?.status === 'warning' ? 'bg-yellow-50 border-yellow-300' : 'bg-red-50 border-red-300'}`}>
                 <div className="text-3xl mb-1">{getStatusIcon(health?.status || '')}</div>
                 <div className="font-semibold">System Health</div>
-                <div className="text-sm text-gray-600">{health?.checks.filter(c => c.status === 'ok').length}/{health?.checks.length} checks passed</div>
+                <div className="text-sm text-slate-600">{health?.checks.filter(c => c.status === 'ok').length}/{health?.checks.length} checks passed</div>
               </div>
 
               <div className={`p-4 rounded-lg border-2 ${(upcoming?.charges.dueNow.count || 0) > 0 ? 'bg-yellow-50 border-yellow-300' : 'bg-green-50 border-green-300'}`}>
-                <div className="text-3xl mb-1">💰</div>
+                <DollarSign className="h-8 w-8 mb-1" />
                 <div className="font-semibold">Pending Charges</div>
-                <div className="text-sm text-gray-600">{upcoming?.charges.dueNow.count || 0} due now ({formatCurrency(upcoming?.charges.dueNow.amount || 0)})</div>
+                <div className="text-sm text-slate-600">{upcoming?.charges.dueNow.count || 0} due now ({formatCurrency(upcoming?.charges.dueNow.amount || 0)})</div>
               </div>
 
               <div className={`p-4 rounded-lg border-2 ${(upcoming?.leases.expiringIn30Days || 0) > 0 ? 'bg-orange-50 border-orange-300' : 'bg-green-50 border-green-300'}`}>
-                <div className="text-3xl mb-1">📄</div>
+                <FileText className="h-8 w-8 mb-1" />
                 <div className="font-semibold">Expiring Leases</div>
-                <div className="text-sm text-gray-600">{upcoming?.leases.expiringIn30Days || 0} in 30 days, {upcoming?.leases.expiringSoon || 0} in 90 days</div>
+                <div className="text-sm text-slate-600">{upcoming?.leases.expiringIn30Days || 0} in 30 days, {upcoming?.leases.expiringSoon || 0} in 90 days</div>
               </div>
 
               <div className={`p-4 rounded-lg border-2 ${(upcoming?.workOrders.highPriority || 0) > 0 ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-300'}`}>
-                <div className="text-3xl mb-1">🔧</div>
+                <Wrench className="h-8 w-8 mb-1" />
                 <div className="font-semibold">Open Work Orders</div>
-                <div className="text-sm text-gray-600">{upcoming?.workOrders.open || 0} open, {upcoming?.workOrders.highPriority || 0} high priority</div>
+                <div className="text-sm text-slate-600">{upcoming?.workOrders.open || 0} open, {upcoming?.workOrders.highPriority || 0} high priority</div>
               </div>
             </div>
 
@@ -318,7 +319,7 @@ export default function AdminPage() {
             {stats && (
               <div className="bg-white rounded-lg shadow p-6">
                 <h2 className="text-lg font-semibold mb-4">Database Statistics</h2>
-                <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-4">
                   {[
                     { label: 'Properties', value: stats.counts.properties },
                     { label: 'Units', value: stats.counts.units },
@@ -331,9 +332,9 @@ export default function AdminPage() {
                     { label: 'Documents', value: stats.counts.documents },
                     { label: 'Monthly Revenue', value: formatCurrency(stats.financial.monthlyRevenue) },
                   ].map(stat => (
-                    <div key={stat.label} className="text-center p-3 bg-gray-50 rounded">
-                      <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                      <div className="text-xs text-gray-500">{stat.label}</div>
+                    <div key={stat.label} className="text-center p-3 bg-slate-50 rounded">
+                      <div className="text-2xl font-bold text-slate-900">{stat.value}</div>
+                      <div className="text-xs text-slate-500">{stat.label}</div>
                     </div>
                   ))}
                 </div>
@@ -357,7 +358,7 @@ export default function AdminPage() {
                       </span>
                       <div className="flex-1">
                         <span className="font-medium">{check.name}</span>
-                        <span className="text-gray-500 text-sm ml-2">— {check.message}</span>
+                        <span className="text-slate-500 text-sm ml-2">— {check.message}</span>
                       </div>
                     </div>
                   ))}
@@ -374,12 +375,12 @@ export default function AdminPage() {
             <div className="bg-white rounded-lg shadow">
               <div className="p-4 border-b">
                 <h2 className="text-lg font-semibold">Charges Due This Month</h2>
-                <p className="text-sm text-gray-500">Day {upcoming.currentDay} of the month • {upcoming.charges.pendingThisMonth} charges pending • {formatCurrency(upcoming.charges.totalAmount)} total</p>
+                <p className="text-sm text-slate-500">Day {upcoming.currentDay} of the month • {upcoming.charges.pendingThisMonth} charges pending • {formatCurrency(upcoming.charges.totalAmount)} total</p>
               </div>
 
               {upcoming.charges.dueNow.count > 0 && (
                 <div className="p-4 bg-yellow-50 border-b">
-                  <h3 className="font-medium text-yellow-800 mb-2">⚠️ {upcoming.charges.dueNow.count} charges ready to post ({formatCurrency(upcoming.charges.dueNow.amount)})</h3>
+                  <h3 className="font-medium text-yellow-800 mb-2">{upcoming.charges.dueNow.count} charges ready to post ({formatCurrency(upcoming.charges.dueNow.amount)})</h3>
                   <div className="space-y-1 text-sm">
                     {upcoming.charges.dueNow.items.slice(0, 5).map((c: UpcomingCharge) => (
                       <div key={c.id} className="flex justify-between">
@@ -388,7 +389,7 @@ export default function AdminPage() {
                       </div>
                     ))}
                     {upcoming.charges.dueNow.items.length > 5 && (
-                      <div className="text-gray-500">...and {upcoming.charges.dueNow.items.length - 5} more</div>
+                      <div className="text-slate-500">...and {upcoming.charges.dueNow.items.length - 5} more</div>
                     )}
                   </div>
                 </div>
@@ -399,7 +400,7 @@ export default function AdminPage() {
                   <h3 className="font-medium mb-2">Upcoming charges ({upcoming.charges.upcoming.count})</h3>
                   <div className="space-y-1 text-sm">
                     {upcoming.charges.upcoming.items.slice(0, 10).map((c: UpcomingCharge) => (
-                      <div key={c.id} className="flex justify-between text-gray-600">
+                      <div key={c.id} className="flex justify-between text-slate-600">
                         <span>Day {c.chargeDay}: {c.tenant} - {c.description}</span>
                         <span>{formatCurrency(c.amount)}</span>
                       </div>
@@ -409,7 +410,7 @@ export default function AdminPage() {
               )}
 
               {upcoming.charges.pendingThisMonth === 0 && (
-                <div className="p-8 text-center text-gray-500">
+                <div className="p-8 text-center text-slate-500">
                   All charges for this month have been posted ✓
                 </div>
               )}
@@ -419,7 +420,7 @@ export default function AdminPage() {
             <div className="bg-white rounded-lg shadow">
               <div className="p-4 border-b">
                 <h2 className="text-lg font-semibold">Leases Expiring Soon</h2>
-                <p className="text-sm text-gray-500">{upcoming.leases.expiringSoon} leases expiring in next 90 days</p>
+                <p className="text-sm text-slate-500">{upcoming.leases.expiringSoon} leases expiring in next 90 days</p>
               </div>
               {upcoming.leases.items.length > 0 ? (
                 <div className="divide-y">
@@ -430,22 +431,22 @@ export default function AdminPage() {
                     }`}>
                       <div>
                         <div className="font-medium">{lease.tenant}</div>
-                        <div className="text-sm text-gray-500">{lease.property} - Unit {lease.unit}</div>
+                        <div className="text-sm text-slate-500">{lease.property} - Unit {lease.unit}</div>
                       </div>
                       <div className="text-right">
                         <div className={`font-medium ${
                           lease.urgency === 'high' ? 'text-red-600' :
-                          lease.urgency === 'medium' ? 'text-yellow-600' : 'text-gray-600'
+                          lease.urgency === 'medium' ? 'text-yellow-600' : 'text-slate-600'
                         }`}>
                           {lease.daysUntilExpiry} days
                         </div>
-                        <div className="text-sm text-gray-500">{formatCurrency(lease.monthlyRent)}/mo</div>
+                        <div className="text-sm text-slate-500">{formatCurrency(lease.monthlyRent)}/mo</div>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="p-8 text-center text-gray-500">
+                <div className="p-8 text-center text-slate-500">
                   No leases expiring in the next 90 days ✓
                 </div>
               )}
@@ -455,7 +456,7 @@ export default function AdminPage() {
             <div className="bg-white rounded-lg shadow">
               <div className="p-4 border-b">
                 <h2 className="text-lg font-semibold">Open Work Orders</h2>
-                <p className="text-sm text-gray-500">{upcoming.workOrders.open} open, {upcoming.workOrders.highPriority} high priority</p>
+                <p className="text-sm text-slate-500">{upcoming.workOrders.open} open, {upcoming.workOrders.highPriority} high priority</p>
               </div>
               {upcoming.workOrders.items.length > 0 ? (
                 <div className="divide-y">
@@ -465,24 +466,24 @@ export default function AdminPage() {
                     }`}>
                       <div>
                         <div className="font-medium">{wo.title}</div>
-                        <div className="text-sm text-gray-500">{wo.property} - Unit {wo.unit} • {wo.vendor || 'No vendor'}</div>
+                        <div className="text-sm text-slate-500">{wo.property} - Unit {wo.unit} • {wo.vendor || 'No vendor'}</div>
                       </div>
                       <div className="text-right">
                         <span className={`px-2 py-1 rounded text-xs font-medium ${
                           wo.priority === 'EMERGENCY' ? 'bg-red-100 text-red-800' :
                           wo.priority === 'HIGH' ? 'bg-orange-100 text-orange-800' :
                           wo.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
+                          'bg-slate-100 text-slate-800'
                         }`}>
                           {wo.priority}
                         </span>
-                        <div className="text-sm text-gray-500 mt-1">{wo.daysSinceCreated} days old</div>
+                        <div className="text-sm text-slate-500 mt-1">{wo.daysSinceCreated} days old</div>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="p-8 text-center text-gray-500">
+                <div className="p-8 text-center text-slate-500">
                   No open work orders ✓
                 </div>
               )}
@@ -492,7 +493,7 @@ export default function AdminPage() {
             <div className="bg-white rounded-lg shadow">
               <div className="p-4 border-b">
                 <h2 className="text-lg font-semibold">Outstanding Tenant Balances</h2>
-                <p className="text-sm text-gray-500">{upcoming.receivables.tenantsWithBalance} tenants with balance • {formatCurrency(upcoming.receivables.totalOutstanding)} total</p>
+                <p className="text-sm text-slate-500">{upcoming.receivables.tenantsWithBalance} tenants with balance • {formatCurrency(upcoming.receivables.totalOutstanding)} total</p>
               </div>
               {upcoming.receivables.items.length > 0 ? (
                 <div className="divide-y">
@@ -504,7 +505,7 @@ export default function AdminPage() {
                   ))}
                 </div>
               ) : (
-                <div className="p-8 text-center text-gray-500">
+                <div className="p-8 text-center text-slate-500">
                   No outstanding balances ✓
                 </div>
               )}
@@ -519,14 +520,14 @@ export default function AdminPage() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-lg font-semibold">Data Integrity Checks</h2>
-                  <p className="text-sm text-gray-500">Verify database relationships and business rules</p>
+                  <p className="text-sm text-slate-500">Verify database relationships and business rules</p>
                 </div>
                 <button
                   onClick={runIntegrityChecks}
                   disabled={runningIntegrity}
                   className={`px-4 py-2 rounded font-medium ${
                     runningIntegrity
-                      ? 'bg-gray-300 text-gray-500'
+                      ? 'bg-slate-300 text-slate-500'
                       : 'bg-blue-600 text-white hover:bg-blue-700'
                   }`}
                 >
@@ -567,7 +568,7 @@ export default function AdminPage() {
               )}
 
               {!integrity && !runningIntegrity && (
-                <div className="text-center text-gray-500 py-8">
+                <div className="text-center text-slate-500 py-8">
                   Click "Run Integrity Checks" to verify database integrity
                 </div>
               )}
@@ -582,14 +583,14 @@ export default function AdminPage() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-lg font-semibold">API Endpoint Tests</h2>
-                  <p className="text-sm text-gray-500">Test all API routes are responding correctly</p>
+                  <p className="text-sm text-slate-500">Test all API routes are responding correctly</p>
                 </div>
                 <button
                   onClick={runApiTests}
                   disabled={runningApiTests}
                   className={`px-4 py-2 rounded font-medium ${
                     runningApiTests
-                      ? 'bg-gray-300 text-gray-500'
+                      ? 'bg-slate-300 text-slate-500'
                       : 'bg-blue-600 text-white hover:bg-blue-700'
                   }`}
                 >
@@ -628,7 +629,7 @@ export default function AdminPage() {
                               </span>
                             </td>
                             <td className="py-2 px-2 font-medium">{test.name}</td>
-                            <td className="py-2 px-2 text-gray-500 font-mono text-xs">{test.path}</td>
+                            <td className="py-2 px-2 text-slate-500 font-mono text-xs">{test.path}</td>
                             <td className="py-2 px-2 text-right">{test.httpStatus || 'ERR'}</td>
                             <td className="py-2 px-2 text-right">{test.responseTime}ms</td>
                           </tr>
@@ -640,7 +641,7 @@ export default function AdminPage() {
               )}
 
               {!apiTests && !runningApiTests && (
-                <div className="text-center text-gray-500 py-8">
+                <div className="text-center text-slate-500 py-8">
                   Click "Run API Tests" to test all endpoints
                 </div>
               )}
@@ -679,15 +680,15 @@ export default function AdminPage() {
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
                     <div className="text-2xl font-bold">{upcoming.charges.dueNow.count}</div>
-                    <div className="text-sm text-gray-600">Charges ready to post</div>
+                    <div className="text-sm text-slate-600">Charges ready to post</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold">{formatCurrency(upcoming.charges.dueNow.amount)}</div>
-                    <div className="text-sm text-gray-600">Amount pending</div>
+                    <div className="text-sm text-slate-600">Amount pending</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold">{upcoming.cron.lastRun ? formatDate(upcoming.cron.lastRun.time) : 'Never'}</div>
-                    <div className="text-sm text-gray-600">Last cron run</div>
+                    <div className="text-sm text-slate-600">Last cron run</div>
                   </div>
                 </div>
               </div>
@@ -700,7 +701,7 @@ export default function AdminPage() {
                 onClick={runManualCron}
                 disabled={testing}
                 className={`px-4 py-2 rounded font-medium ${
-                  testing ? 'bg-gray-300 text-gray-500' : 'bg-blue-600 text-white hover:bg-blue-700'
+                  testing ? 'bg-slate-300 text-slate-500' : 'bg-blue-600 text-white hover:bg-blue-700'
                 }`}
               >
                 {testing ? 'Running...' : 'Run Daily Charges Now'}
@@ -736,7 +737,7 @@ export default function AdminPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b text-left bg-gray-50">
+                      <tr className="border-b text-left bg-slate-50">
                         <th className="py-2 px-3">Date/Time</th>
                         <th className="py-2 px-3">Status</th>
                         <th className="py-2 px-3 text-right">Posted</th>
@@ -764,7 +765,7 @@ export default function AdminPage() {
                   </table>
                 </div>
               ) : (
-                <div className="p-8 text-center text-gray-500">No cron runs recorded yet</div>
+                <div className="p-8 text-center text-slate-500">No cron runs recorded yet</div>
               )}
             </div>
           </div>
@@ -775,7 +776,7 @@ export default function AdminPage() {
           <div className="space-y-6">
             <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4">
               <div className="flex items-start gap-3">
-                <span className="text-2xl">⚠️</span>
+                <AlertTriangle className="h-6 w-6 text-yellow-600" />
                 <div>
                   <p className="font-semibold text-yellow-800">Warning: Destructive Action</p>
                   <p className="text-sm text-yellow-700">
@@ -788,7 +789,7 @@ export default function AdminPage() {
             {stats && (
               <div className="bg-white rounded-lg shadow p-6">
                 <h2 className="text-lg font-semibold mb-4">Current Data</h2>
-                <div className="grid grid-cols-4 gap-4 text-sm">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-sm">
                   <div>Properties: <strong>{stats.counts.properties}</strong></div>
                   <div>Units: <strong>{stats.counts.units}</strong></div>
                   <div>Leases: <strong>{stats.counts.leases}</strong></div>
@@ -804,7 +805,7 @@ export default function AdminPage() {
             {/* Option 1: Simple Test Data */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold mb-2">Option 1: Simple Test Data</h2>
-              <p className="text-gray-600 mb-4">Creates minimal test data: 1 property, 1 unit, 1 tenant/lease, 1 vendor, 1 work order. Good for reviewing each feature.</p>
+              <p className="text-slate-600 mb-4">Creates minimal test data: 1 property, 1 unit, 1 tenant/lease, 1 vendor, 1 work order. Good for reviewing each feature.</p>
               <button
                 onClick={async () => {
                   setResetting(true);
@@ -825,7 +826,7 @@ export default function AdminPage() {
                 }}
                 disabled={resetting}
                 className={`px-4 py-2 rounded font-medium ${
-                  resetting ? 'bg-gray-300 text-gray-500' : 'bg-blue-600 text-white hover:bg-blue-700'
+                  resetting ? 'bg-slate-300 text-slate-500' : 'bg-blue-600 text-white hover:bg-blue-700'
                 }`}
               >
                 {resetting ? 'Working...' : 'Load Simple Test Data'}
@@ -835,7 +836,7 @@ export default function AdminPage() {
             {/* Option 2: Full Test Data */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold mb-2">Option 2: Full Test Data</h2>
-              <p className="text-gray-600 mb-4">Creates comprehensive test data: 3 properties, 11 units, 8 tenants/leases, 5 vendors, 4 work orders.</p>
+              <p className="text-slate-600 mb-4">Creates comprehensive test data: 3 properties, 11 units, 8 tenants/leases, 5 vendors, 4 work orders.</p>
               <button
                 onClick={async () => {
                   setResetting(true);
@@ -856,7 +857,7 @@ export default function AdminPage() {
                 }}
                 disabled={resetting}
                 className={`px-4 py-2 rounded font-medium ${
-                  resetting ? 'bg-gray-300 text-gray-500' : 'bg-blue-600 text-white hover:bg-blue-700'
+                  resetting ? 'bg-slate-300 text-slate-500' : 'bg-blue-600 text-white hover:bg-blue-700'
                 }`}
               >
                 {resetting ? 'Working...' : 'Load Full Test Data'}
@@ -866,7 +867,7 @@ export default function AdminPage() {
             {/* Option 3: Clear All */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold mb-2">Option 3: Clear All Data</h2>
-              <p className="text-gray-600 mb-4">Deletes everything so you can start fresh and create your own data from scratch.</p>
+              <p className="text-slate-600 mb-4">Deletes everything so you can start fresh and create your own data from scratch.</p>
               <button
                 onClick={async () => {
                   setResetting(true);
@@ -887,7 +888,7 @@ export default function AdminPage() {
                 }}
                 disabled={resetting}
                 className={`px-4 py-2 rounded font-medium ${
-                  resetting ? 'bg-gray-300 text-gray-500' : 'bg-red-600 text-white hover:bg-red-700'
+                  resetting ? 'bg-slate-300 text-slate-500' : 'bg-red-600 text-white hover:bg-red-700'
                 }`}
               >
                 {resetting ? 'Working...' : 'Clear All Data'}
