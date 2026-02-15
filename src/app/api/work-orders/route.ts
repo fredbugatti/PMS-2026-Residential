@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/accounting';
 import { validate, idSchema } from '@/lib/validation';
 import { handleApiError, checkRateLimit, rateLimitResponse, getClientIdentifier } from '@/lib/api-utils';
+import { parsePaginationParams, createPaginatedResponse, getPrismaPageArgs } from '@/lib/pagination';
 
 // Work order creation schema - matches Prisma required fields
 const createWorkOrderSchema = z.object({
@@ -11,7 +12,7 @@ const createWorkOrderSchema = z.object({
   leaseId: idSchema.optional(),
   title: z.string().min(1, 'Title is required').max(200),
   description: z.string().min(1, 'Description is required').max(5000),
-  category: z.enum(['PLUMBING', 'ELECTRICAL', 'HVAC', 'APPLIANCE', 'GENERAL', 'OTHER']),
+  category: z.enum(['PLUMBING', 'ELECTRICAL', 'HVAC', 'DOCK_DOOR', 'FIRE_SAFETY', 'STRUCTURAL', 'GENERAL', 'OTHER']),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'EMERGENCY']).default('MEDIUM'),
   status: z.enum(['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
   reportedBy: z.string().min(1, 'Reporter name is required').max(200),
@@ -40,46 +41,61 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const priority = searchParams.get('priority');
 
-    const workOrders = await prisma.workOrder.findMany({
-      where: {
-        ...(propertyId && { propertyId }),
-        ...(unitId && { unitId }),
-        ...(status && { status: status as any }),
-        ...(priority && { priority: priority as any })
-      },
-      include: {
-        property: {
-          select: {
-            id: true,
-            name: true
-          }
-        },
-        unit: {
-          select: {
-            id: true,
-            unitNumber: true
-          }
-        },
-        lease: {
-          select: {
-            id: true,
-            tenantName: true
-          }
-        },
-        vendor: {
-          select: {
-            id: true,
-            name: true,
-            company: true
-          }
+    const where: any = {
+      ...(propertyId && { propertyId }),
+      ...(unitId && { unitId }),
+      ...(status && { status: status as any }),
+      ...(priority && { priority: priority as any })
+    };
+
+    const include = {
+      property: {
+        select: {
+          id: true,
+          name: true
         }
       },
-      orderBy: [
-        { priority: 'desc' }, // EMERGENCY first
-        { status: 'asc' },    // OPEN first
-        { createdAt: 'desc' }
-      ]
-    });
+      unit: {
+        select: {
+          id: true,
+          unitNumber: true
+        }
+      },
+      lease: {
+        select: {
+          id: true,
+          tenantName: true
+        }
+      },
+      vendor: {
+        select: {
+          id: true,
+          name: true,
+          company: true
+        }
+      }
+    };
+
+    const orderBy = [
+      { priority: 'desc' as const }, // EMERGENCY first
+      { status: 'asc' as const },    // OPEN first
+      { createdAt: 'desc' as const }
+    ];
+
+    // Check if pagination is requested
+    const usePagination = searchParams.has('page') || searchParams.has('limit');
+
+    if (usePagination) {
+      const paginationParams = parsePaginationParams(searchParams);
+      const [total, workOrders] = await Promise.all([
+        prisma.workOrder.count({ where }),
+        prisma.workOrder.findMany({ where, include, orderBy, ...getPrismaPageArgs(paginationParams) })
+      ]);
+      return NextResponse.json(createPaginatedResponse(workOrders, total, paginationParams));
+    }
+
+    // No pagination - return all (backwards compatible)
+    const workOrders = await prisma.workOrder.findMany({ where, include, orderBy });
 
     return NextResponse.json(workOrders);
   } catch (error) {

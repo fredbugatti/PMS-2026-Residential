@@ -55,8 +55,8 @@ interface TenantPortalData {
   unit: {
     id: string;
     unitNumber: string;
-    bedrooms: number | null;
-    bathrooms: number | null;
+    dockDoors: number | null;
+    clearHeight: number | null;
   };
   workOrders: Array<{
     id: string;
@@ -528,8 +528,8 @@ export default function TenantPortal() {
                       <div className="text-sm text-slate-600 mb-1">Unit Details</div>
                       <div className="font-medium text-slate-900">
                         Unit {data.unit.unitNumber}
-                        {data.unit.bedrooms && ` • ${data.unit.bedrooms} bed`}
-                        {data.unit.bathrooms && ` • ${data.unit.bathrooms} bath`}
+                        {data.unit.dockDoors && ` • ${data.unit.dockDoors} dock door${data.unit.dockDoors > 1 ? 's' : ''}`}
+                        {data.unit.clearHeight && ` • ${data.unit.clearHeight}' clear`}
                       </div>
                     </div>
                     <div>

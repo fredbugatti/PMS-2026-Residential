@@ -183,8 +183,6 @@ async function postEntryWithTx(
   } catch (error: any) {
     // If unique constraint fails, entry already exists (safe!)
     if (error.code === 'P2002' && error.meta?.target?.includes('idempotency_key')) {
-      console.log('Entry already exists (idempotency), returning existing entry');
-
       const existingEntry = await tx.ledgerEntry.findUnique({
         where: { idempotencyKey }
       });
@@ -345,8 +343,6 @@ export async function voidLedgerEntry(params: VoidEntryParams): Promise<void> {
       description: `[VOIDED: ${reason}] ${(await prisma.ledgerEntry.findUnique({ where: { id: entryId }, select: { description: true } }))?.description || ''}`
     }
   });
-
-  console.log(`[Accounting] Voided entry ${entryId}, reason: ${reason}, voided by: ${voidedBy}`);
 }
 
 export { prisma };

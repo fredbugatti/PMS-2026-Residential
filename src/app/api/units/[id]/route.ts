@@ -13,8 +13,10 @@ export async function PATCH(
       where: { id: params.id },
       data: {
         ...(body.unitNumber !== undefined && { unitNumber: body.unitNumber }),
-        ...(body.bedrooms !== undefined && { bedrooms: body.bedrooms }),
-        ...(body.bathrooms !== undefined && { bathrooms: body.bathrooms }),
+        ...(body.dockDoors !== undefined && { dockDoors: body.dockDoors != null ? parseInt(body.dockDoors) : null }),
+        ...(body.clearHeight !== undefined && { clearHeight: body.clearHeight != null ? parseFloat(body.clearHeight) : null }),
+        ...(body.floorLevel !== undefined && { floorLevel: body.floorLevel || null }),
+        ...(body.palletPositions !== undefined && { palletPositions: body.palletPositions != null ? parseInt(body.palletPositions) : null }),
         ...(body.squareFeet !== undefined && { squareFeet: body.squareFeet }),
         ...(body.status !== undefined && { status: body.status }),
         ...(body.notes !== undefined && { notes: body.notes || null })

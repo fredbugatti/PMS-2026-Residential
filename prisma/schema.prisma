@@ -51,7 +51,17 @@ model Property {
   zipCode         String?           @map("zip_code") @db.VarChar(20)
   totalUnits      Int?              @map("total_units")
   totalSquareFeet Int?              @map("total_square_feet")
-  propertyType    String            @default("RESIDENTIAL") @map("property_type") @db.VarChar(20) // RESIDENTIAL or COMMERCIAL
+  propertyType    String            @default("WAREHOUSE") @map("property_type") @db.VarChar(20)
+  clearHeight     Decimal?          @map("clear_height") @db.Decimal(5, 1)
+  dockDoors       Int?              @map("dock_doors")
+  driveInDoors    Int?              @map("drive_in_doors")
+  loadingBays     Int?              @map("loading_bays")
+  powerCapacity   String?           @map("power_capacity") @db.VarChar(100)
+  zoning          String?           @db.VarChar(100)
+  columnSpacing   String?           @map("column_spacing") @db.VarChar(100)
+  sprinklerSystem Boolean?          @map("sprinkler_system")
+  railAccess      Boolean?          @map("rail_access")
+  yardSpace       Int?              @map("yard_space")
   notes           String?           @db.Text
   active          Boolean           @default(true)
   units             Unit[]
@@ -61,6 +71,9 @@ model Property {
   scheduledExpenses ScheduledExpense[]
   pendingExpenses   PendingExpense[]
 
+  @@index([propertyType])
+  @@index([active])
+  @@index([city, state])
   @@map("properties")
 }
 
@@ -68,10 +81,12 @@ model Unit {
   id          String      @id @default(uuid())
   createdAt   DateTime    @default(now()) @map("created_at")
   propertyId  String      @map("property_id")
-  unitNumber  String      @map("unit_number") @db.VarChar(50)
-  bedrooms    Int?
-  bathrooms   Decimal?    @db.Decimal(3, 1)
-  squareFeet  Int?        @map("square_feet")
+  unitNumber      String      @map("unit_number") @db.VarChar(50)
+  squareFeet      Int?        @map("square_feet")
+  dockDoors       Int?        @map("dock_doors")
+  clearHeight     Decimal?    @map("clear_height") @db.Decimal(5, 1)
+  floorLevel      String?     @map("floor_level") @db.VarChar(50)
+  palletPositions Int?        @map("pallet_positions")
   status      String      @default("VACANT") // VACANT, OCCUPIED, MAINTENANCE
   notes       String?     @db.Text
   property    Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
@@ -80,6 +95,7 @@ model Unit {
 
   @@unique([propertyId, unitNumber])
   @@index([propertyId])
+  @@index([status])
   @@map("units")
 }
 
@@ -137,6 +153,8 @@ model Lease {
   @@index([status]) // For filtering by lease status
   @@index([autopayEnabled, autopayDay]) // For autopay cron job
   @@index([tenantEmail]) // For tenant lookups
+  @@index([companyName])
+  @@index([endDate])
   @@map("leases")
 }
 
@@ -244,8 +262,6 @@ enum DocumentCategory {
   NOTICE_TO_VACATE
   RENT_INCREASE_NOTICE
   LEASE_RENEWAL
-  MOVE_IN_CHECKLIST
-  MOVE_OUT_CHECKLIST
   RECEIPT
   INVOICE
   VIOLATION_NOTICE
@@ -253,8 +269,10 @@ enum DocumentCategory {
   THREE_DAY_NOTICE
   EVICTION_NOTICE
   MAINTENANCE_AUTHORIZATION
-  PET_ADDENDUM
-  PARKING_AGREEMENT
+  CERTIFICATE_OF_INSURANCE
+  FIRE_INSPECTION
+  BUILDING_PERMIT
+  ENVIRONMENTAL_REPORT
   OTHER
 }
 
@@ -347,7 +365,9 @@ enum WorkOrderCategory {
   PLUMBING
   ELECTRICAL
   HVAC
-  APPLIANCE
+  DOCK_DOOR
+  FIRE_SAFETY
+  STRUCTURAL
   GENERAL
   OTHER
 }

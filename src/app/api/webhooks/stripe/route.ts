@@ -51,7 +51,6 @@ export async function POST(request: NextRequest) {
   });
 
   if (existingEvent?.processed) {
-    console.log(`[Webhook] Event ${event.id} already processed, skipping`);
     return NextResponse.json({ received: true, status: 'already_processed' });
   }
 
@@ -68,8 +67,6 @@ export async function POST(request: NextRequest) {
       status: 'received'
     }
   });
-
-  console.log(`[Webhook] Processing event: ${event.type} (${event.id})`);
 
   try {
     switch (event.type) {
@@ -95,7 +92,6 @@ export async function POST(request: NextRequest) {
           where: { id: webhookEvent.id },
           data: { status: 'ignored', processed: true, processedAt: new Date() }
         });
-        console.log(`[Webhook] Ignoring event type: ${event.type}`);
     }
 
     return NextResponse.json({ received: true });
@@ -121,10 +117,7 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent, webho
   const leaseId = paymentIntent.metadata?.leaseId;
   const amount = paymentIntent.amount / 100; // Convert from cents
 
-  console.log(`[Webhook] Payment succeeded: ${paymentIntent.id}, amount: $${amount}, leaseId: ${leaseId}`);
-
   if (!leaseId) {
-    console.log('[Webhook] No leaseId in metadata, skipping ledger update');
     await prisma.webhookEvent.update({
       where: { id: webhookEventId },
       data: {
@@ -171,7 +164,6 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent, webho
         postedBy: 'stripe_webhook'
       }
     });
-    console.log(`[Webhook] Transferred $${amount} from Transit (1001) to Operating Cash (1000)`);
   } catch (err: any) {
     console.error('[Webhook] Failed to post Transit → Cash transfer:', err.message);
     // Mark webhook as failed so it can be retried
@@ -193,8 +185,6 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent, webho
       amount
     }
   });
-
-  console.log(`[Webhook] Payment ${paymentIntent.id} confirmed successful for lease ${leaseId}`);
 }
 
 // Handle failed payment (ACH rejected by bank)
@@ -203,10 +193,7 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent, webhookE
   const amount = paymentIntent.amount / 100;
   const failureMessage = paymentIntent.last_payment_error?.message || 'Payment failed';
 
-  console.log(`[Webhook] Payment failed: ${paymentIntent.id}, amount: $${amount}, reason: ${failureMessage}`);
-
   if (!leaseId) {
-    console.log('[Webhook] No leaseId in metadata, skipping');
     await prisma.webhookEvent.update({
       where: { id: webhookEventId },
       data: {
@@ -257,8 +244,6 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent, webhookE
         postedBy: 'webhook_reversal'
       }
     });
-
-    console.log(`[Webhook] Posted reversal entries for failed payment ${paymentIntent.id}`);
   } catch (err: any) {
     console.error('[Webhook] Failed to post reversal entries:', err.message);
     // CRITICAL: Mark webhook as failed so it can be retried
@@ -286,8 +271,6 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent, webhookE
     }
   });
 
-  console.log(`[Webhook] Payment ${paymentIntent.id} failed for lease ${leaseId}, ledger reversed`);
-
   // TODO: Send email notification to admin about failed payment
 }
 
@@ -295,8 +278,6 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent, webhookE
 async function handlePaymentProcessing(paymentIntent: Stripe.PaymentIntent, webhookEventId: string) {
   const leaseId = paymentIntent.metadata?.leaseId;
   const amount = paymentIntent.amount / 100;
-
-  console.log(`[Webhook] Payment processing: ${paymentIntent.id}, amount: $${amount}`);
 
   if (leaseId) {
     await prisma.lease.update({
@@ -325,8 +306,6 @@ async function handleSetupSucceeded(setupIntent: Stripe.SetupIntent, webhookEven
   const customerId = setupIntent.customer as string;
   const paymentMethodId = setupIntent.payment_method as string;
 
-  console.log(`[Webhook] Setup succeeded for customer ${customerId}, payment method: ${paymentMethodId}`);
-
   // Find lease by customer ID and update payment method if needed
   if (customerId) {
     const lease = await prisma.lease.findUnique({
@@ -348,8 +327,6 @@ async function handleSetupSucceeded(setupIntent: Stripe.SetupIntent, webhookEven
             autopaySetupDate: new Date()
           }
         });
-
-        console.log(`[Webhook] Updated payment method for lease ${lease.id}`);
       } catch (err: any) {
         console.error('[Webhook] Failed to get payment method details:', err.message);
       }

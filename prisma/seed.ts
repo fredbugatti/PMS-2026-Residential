@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // Comprehensive Chart of Accounts for Residential Property Management
+  // Comprehensive Chart of Accounts for Warehouse Property Management
   const accounts: Array<{
     code: string;
     name: string;
@@ -87,8 +87,8 @@ async function main() {
     },
     {
       code: '2110',
-      name: 'Pet Deposits Held',
-      description: 'Refundable pet deposits from tenants. Return when they move out.',
+      name: 'Equipment Deposits Held',
+      description: 'Refundable equipment deposits from tenants. Return when lease ends.',
       type: 'LIABILITY' as AccountType,
       normalBalance: 'CR' as DebitCredit,
       active: true
@@ -159,8 +159,8 @@ async function main() {
     // ═══════════════════════════════════════════════════════════════════
     {
       code: '4000',
-      name: 'Rent Income',
-      description: 'Monthly rent charged to tenants. Your main source of income.',
+      name: 'Lease Income',
+      description: 'Monthly lease payments charged to tenants. Your main source of income.',
       type: 'INCOME' as AccountType,
       normalBalance: 'CR' as DebitCredit,
       active: true
@@ -191,8 +191,8 @@ async function main() {
     },
     {
       code: '4040',
-      name: 'Pet Fee Income',
-      description: 'Monthly pet rent or one-time non-refundable pet fees.',
+      name: 'CAM Income',
+      description: 'Common Area Maintenance charges billed to tenants (NNN leases).',
       type: 'INCOME' as AccountType,
       normalBalance: 'CR' as DebitCredit,
       active: true
@@ -215,7 +215,7 @@ async function main() {
     },
     {
       code: '4070',
-      name: 'Move-In Fee Income',
+      name: 'Onboarding Fee Income',
       description: 'One-time non-refundable fees charged at lease signing.',
       type: 'INCOME' as AccountType,
       normalBalance: 'CR' as DebitCredit,
@@ -223,8 +223,8 @@ async function main() {
     },
     {
       code: '4080',
-      name: 'Laundry Income',
-      description: 'Revenue from coin-operated or card laundry machines.',
+      name: 'Equipment Rental Income',
+      description: 'Revenue from renting equipment, forklifts, or machinery to tenants.',
       type: 'INCOME' as AccountType,
       normalBalance: 'CR' as DebitCredit,
       active: true
@@ -317,8 +317,8 @@ async function main() {
     },
     {
       code: '5040',
-      name: 'Appliance Repairs',
-      description: 'Fixing refrigerators, stoves, dishwashers, washers, dryers.',
+      name: 'Equipment Repairs',
+      description: 'Fixing dock levelers, overhead doors, conveyors, loading equipment.',
       type: 'EXPENSE' as AccountType,
       normalBalance: 'DR' as DebitCredit,
       active: true
@@ -333,8 +333,8 @@ async function main() {
     },
     {
       code: '5060',
-      name: 'Flooring Repairs',
-      description: 'Fixing carpet, tile, hardwood, vinyl flooring.',
+      name: 'Floor/Slab Repairs',
+      description: 'Fixing concrete slab, floor coatings, epoxy, joint repairs.',
       type: 'EXPENSE' as AccountType,
       normalBalance: 'DR' as DebitCredit,
       active: true
@@ -349,8 +349,8 @@ async function main() {
     },
     {
       code: '5080',
-      name: 'Window/Door Repairs',
-      description: 'Fixing windows, doors, screens, locks, weatherstripping.',
+      name: 'Door/Dock Door Repairs',
+      description: 'Fixing overhead doors, dock doors, dock levelers, bumpers.',
       type: 'EXPENSE' as AccountType,
       normalBalance: 'DR' as DebitCredit,
       active: true
@@ -399,8 +399,8 @@ async function main() {
     },
     {
       code: '5150',
-      name: 'Pool/Spa Maintenance',
-      description: 'Pool cleaning, chemicals, equipment repairs.',
+      name: 'Fire Safety/Sprinkler Maintenance',
+      description: 'Fire sprinkler inspections, alarm systems, extinguisher servicing.',
       type: 'EXPENSE' as AccountType,
       normalBalance: 'DR' as DebitCredit,
       active: true
@@ -507,8 +507,8 @@ async function main() {
     },
     {
       code: '5360',
-      name: 'HOA Fees',
-      description: 'Homeowners association fees and special assessments.',
+      name: 'Industrial Park Association Fees',
+      description: 'Industrial park or business park association fees and assessments.',
       type: 'EXPENSE' as AccountType,
       normalBalance: 'DR' as DebitCredit,
       active: true
@@ -560,7 +560,7 @@ async function main() {
     {
       code: '5500',
       name: 'Advertising & Marketing',
-      description: 'Listing fees, Zillow, Apartments.com, signs, photos.',
+      description: 'Listing fees, LoopNet, CoStar, signs, photos.',
       type: 'EXPENSE' as AccountType,
       normalBalance: 'DR' as DebitCredit,
       active: true
@@ -685,16 +685,16 @@ async function main() {
     },
     {
       code: '5810',
-      name: 'Appliance Replacement',
-      description: 'New refrigerator, stove, dishwasher, etc.',
+      name: 'Equipment Replacement',
+      description: 'New dock levelers, overhead doors, HVAC units, etc.',
       type: 'EXPENSE' as AccountType,
       normalBalance: 'DR' as DebitCredit,
       active: true
     },
     {
       code: '5820',
-      name: 'Carpet Replacement',
-      description: 'New carpet or flooring during turnover.',
+      name: 'Floor Coating/Repair',
+      description: 'Epoxy coating, concrete sealing, slab replacement during turnover.',
       type: 'EXPENSE' as AccountType,
       normalBalance: 'DR' as DebitCredit,
       active: true
@@ -728,7 +728,7 @@ async function main() {
     {
       code: '5920',
       name: 'Tenant Incentives',
-      description: 'Move-in specials, rent concessions, gift cards.',
+      description: 'Free rent periods, TI allowances, lease concessions.',
       type: 'EXPENSE' as AccountType,
       normalBalance: 'DR' as DebitCredit,
       active: true

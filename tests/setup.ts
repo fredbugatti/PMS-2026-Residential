@@ -33,8 +33,8 @@ export async function createTestLease() {
         data: {
             propertyId: property.id,
             unitNumber: 'TEST-1',
-            bedrooms: 2,
-            bathrooms: 1.5,
+            dockDoors: 2,
+            clearHeight: 24,
             squareFeet: 1000,
             status: 'OCCUPIED'
         }

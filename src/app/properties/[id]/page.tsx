@@ -36,9 +36,10 @@ interface PropertyDocument {
 interface Unit {
   id: string;
   unitNumber: string;
-  bedrooms: number | null;
-  bathrooms: number | null;
   squareFeet: number | null;
+  dockDoors: number | null;
+  clearHeight: number | null;
+  floorLevel: string | null;
   status: string;
   notes: string | null;
   leases: UnitLease[];
@@ -70,9 +71,10 @@ export default function PropertyDetailPage() {
   const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
   const [unitForm, setUnitForm] = useState({
     unitNumber: '',
-    bedrooms: '',
-    bathrooms: '',
     squareFeet: '',
+    dockDoors: '',
+    clearHeight: '',
+    floorLevel: '',
     status: 'VACANT',
     notes: ''
   });
@@ -157,9 +159,10 @@ export default function PropertyDetailPage() {
     setEditingUnit(null);
     setUnitForm({
       unitNumber: '',
-      bedrooms: '',
-      bathrooms: '',
       squareFeet: '',
+      dockDoors: '',
+      clearHeight: '',
+      floorLevel: '',
       status: 'VACANT',
       notes: ''
     });
@@ -170,9 +173,10 @@ export default function PropertyDetailPage() {
     setEditingUnit(unit);
     setUnitForm({
       unitNumber: unit.unitNumber,
-      bedrooms: unit.bedrooms?.toString() || '',
-      bathrooms: unit.bathrooms?.toString() || '',
       squareFeet: unit.squareFeet?.toString() || '',
+      dockDoors: unit.dockDoors?.toString() || '',
+      clearHeight: unit.clearHeight?.toString() || '',
+      floorLevel: unit.floorLevel || '',
       status: unit.status,
       notes: unit.notes || ''
     });
@@ -186,9 +190,10 @@ export default function PropertyDetailPage() {
       const payload = {
         propertyId,
         unitNumber: unitForm.unitNumber,
-        bedrooms: unitForm.bedrooms ? parseInt(unitForm.bedrooms) : null,
-        bathrooms: unitForm.bathrooms ? parseFloat(unitForm.bathrooms) : null,
         squareFeet: unitForm.squareFeet ? parseInt(unitForm.squareFeet) : null,
+        dockDoors: unitForm.dockDoors ? parseInt(unitForm.dockDoors) : null,
+        clearHeight: unitForm.clearHeight ? parseFloat(unitForm.clearHeight) : null,
+        floorLevel: unitForm.floorLevel || null,
         status: unitForm.status,
         notes: unitForm.notes || null
       };
@@ -272,20 +277,15 @@ export default function PropertyDetailPage() {
     setLeaseError('');
 
     try {
-      // Create lease with tenant info embedded
-      // For commercial: companyName is primary, contact name is tenantName
-      // For residential: just tenantName (first + last)
-      const isCommercial = property.propertyType === 'COMMERCIAL';
-      const tenantName = isCommercial
-        ? `${tenantForm.firstName} ${tenantForm.lastName}`.trim() || tenantForm.companyName
-        : `${tenantForm.firstName} ${tenantForm.lastName}`.trim();
+      // Company name is primary; contact name is tenantName
+      const tenantName = `${tenantForm.firstName} ${tenantForm.lastName}`.trim() || tenantForm.companyName;
 
       const leaseRes = await fetch('/api/leases', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tenantName: tenantName,
-          companyName: isCommercial ? tenantForm.companyName : null,
+          companyName: tenantForm.companyName,
           tenantEmail: tenantForm.email || null,
           tenantPhone: tenantForm.phone || null,
           unitId: selectedUnit.id,
@@ -548,16 +548,22 @@ export default function PropertyDetailPage() {
                 <thead className="bg-slate-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                      {property.propertyType === 'COMMERCIAL' ? 'Space' : 'Unit Number'}
+                      Space
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                      {property.propertyType === 'COMMERCIAL' ? 'Size' : 'Details'}
+                      Sq Ft
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                      {property.propertyType === 'COMMERCIAL' ? 'Company' : 'Tenant'}
+                      Dock Doors
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                      {property.propertyType === 'COMMERCIAL' ? 'Monthly' : 'Rent'}
+                      Clear Height
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                      Company
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                      Monthly
                     </th>
                     {totalSquareFeet > 0 && (
                       <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
@@ -579,26 +585,17 @@ export default function PropertyDetailPage() {
                         <div className="font-medium text-slate-900">{unit.unitNumber}</div>
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-900">
-                        {property.propertyType === 'COMMERCIAL' ? (
-                          /* Commercial: Just show square feet */
-                          unit.squareFeet ? (
-                            <div>{unit.squareFeet.toLocaleString()} sq ft</div>
-                          ) : (
-                            <span className="text-slate-400">-</span>
-                          )
+                        {unit.squareFeet ? (
+                          <div>{unit.squareFeet.toLocaleString()} sq ft</div>
                         ) : (
-                          /* Residential: Show beds/baths and sq ft */
-                          <>
-                            <div>
-                              {unit.bedrooms && `${unit.bedrooms} bed`}
-                              {unit.bedrooms && unit.bathrooms && ' • '}
-                              {unit.bathrooms && `${unit.bathrooms} bath`}
-                            </div>
-                            {unit.squareFeet && (
-                              <div className="text-slate-500">{unit.squareFeet.toLocaleString()} sq ft</div>
-                            )}
-                          </>
+                          <span className="text-slate-400">-</span>
                         )}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-900">
+                        {unit.dockDoors ?? '-'}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-900">
+                        {unit.clearHeight ? `${unit.clearHeight} ft` : '-'}
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-900">
                         {unit.leases.length > 0 ? (
@@ -642,7 +639,7 @@ export default function PropertyDetailPage() {
                               onClick={() => openLeaseWizard(unit)}
                               className="text-green-600 hover:text-green-800 text-sm font-medium"
                             >
-                              {property.propertyType === 'COMMERCIAL' ? 'Add Company' : 'Add Tenant'}
+                              Add Company
                             </button>
                           )}
                           <button
@@ -695,7 +692,7 @@ export default function PropertyDetailPage() {
                       Lease Period
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                      Monthly Rent
+                      Monthly Lease Payment
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                       Status
@@ -833,9 +830,9 @@ export default function PropertyDetailPage() {
             <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-lg font-bold text-slate-900">
-                  {leaseWizardStep === 1 && (property.propertyType === 'COMMERCIAL' ? 'Company Information' : 'Tenant Information')}
+                  {leaseWizardStep === 1 && 'Company Information'}
                   {leaseWizardStep === 2 && 'Lease Details'}
-                  {leaseWizardStep === 3 && (property.propertyType === 'COMMERCIAL' ? 'Company Added!' : 'Tenant Added!')}
+                  {leaseWizardStep === 3 && 'Company Added!'}
                 </h2>
                 <button
                   onClick={resetLeaseWizard}
@@ -849,7 +846,7 @@ export default function PropertyDetailPage() {
 
               {/* Unit info */}
               <div className="text-sm text-slate-600 mb-3">
-                Adding {property.propertyType === 'COMMERCIAL' ? 'company' : 'tenant'} to <span className="font-medium text-slate-900">{selectedUnit.unitNumber}</span>
+                Adding company to <span className="font-medium text-slate-900">{selectedUnit.unitNumber}</span>
               </div>
 
               {/* Step Indicator */}
@@ -878,7 +875,7 @@ export default function PropertyDetailPage() {
                 ))}
               </div>
               <div className="flex justify-between mt-2 text-xs text-slate-500">
-                <span>{property.propertyType === 'COMMERCIAL' ? 'Company' : 'Tenant'}</span>
+                <span>Company</span>
                 <span>Lease</span>
                 <span>Done</span>
               </div>
@@ -895,82 +892,46 @@ export default function PropertyDetailPage() {
               {/* Step 1: Tenant Info */}
               {leaseWizardStep === 1 && (
                 <div className="space-y-4">
-                  {property.propertyType === 'COMMERCIAL' ? (
-                    /* Commercial: Company Name + Contact Name */
-                    <>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                          Company Name *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={tenantForm.companyName}
-                          onChange={(e) => setTenantForm({ ...tenantForm, companyName: e.target.value })}
-                          className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="ACME Logistics Inc"
-                          autoFocus
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Contact First Name
-                          </label>
-                          <input
-                            type="text"
-                            value={tenantForm.firstName}
-                            onChange={(e) => setTenantForm({ ...tenantForm, firstName: e.target.value })}
-                            className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="John"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Contact Last Name
-                          </label>
-                          <input
-                            type="text"
-                            value={tenantForm.lastName}
-                            onChange={(e) => setTenantForm({ ...tenantForm, lastName: e.target.value })}
-                            className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Smith"
-                          />
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    /* Residential: First Name + Last Name */
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                          First Name *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={tenantForm.firstName}
-                          onChange={(e) => setTenantForm({ ...tenantForm, firstName: e.target.value })}
-                          className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="John"
-                          autoFocus
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                          Last Name *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={tenantForm.lastName}
-                          onChange={(e) => setTenantForm({ ...tenantForm, lastName: e.target.value })}
-                          className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="Smith"
-                        />
-                      </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      Company Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={tenantForm.companyName}
+                      onChange={(e) => setTenantForm({ ...tenantForm, companyName: e.target.value })}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="ACME Logistics Inc"
+                      autoFocus
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Contact First Name
+                      </label>
+                      <input
+                        type="text"
+                        value={tenantForm.firstName}
+                        onChange={(e) => setTenantForm({ ...tenantForm, firstName: e.target.value })}
+                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="John"
+                      />
                     </div>
-                  )}
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Contact Last Name
+                      </label>
+                      <input
+                        type="text"
+                        value={tenantForm.lastName}
+                        onChange={(e) => setTenantForm({ ...tenantForm, lastName: e.target.value })}
+                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Smith"
+                      />
+                    </div>
+                  </div>
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -981,7 +942,7 @@ export default function PropertyDetailPage() {
                       value={tenantForm.email}
                       onChange={(e) => setTenantForm({ ...tenantForm, email: e.target.value })}
                       className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder={property.propertyType === 'COMMERCIAL' ? 'contact@company.com' : 'john.smith@email.com'}
+                      placeholder="contact@company.com"
                     />
                   </div>
 
@@ -1032,7 +993,7 @@ export default function PropertyDetailPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">
-                      Monthly Rent *
+                      Monthly Lease Payment *
                     </label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">$</span>
@@ -1078,14 +1039,10 @@ export default function PropertyDetailPage() {
                     </svg>
                   </div>
                   <h3 className="text-2xl font-bold text-slate-900 mb-2">
-                    {property.propertyType === 'COMMERCIAL' ? 'Company Added!' : 'Tenant Added!'}
+                    Company Added!
                   </h3>
                   <p className="text-slate-600 mb-2">
-                    <strong>
-                      {property.propertyType === 'COMMERCIAL'
-                        ? tenantForm.companyName
-                        : `${tenantForm.firstName} ${tenantForm.lastName}`}
-                    </strong> has been added to <strong>{selectedUnit.unitNumber}</strong>.
+                    <strong>{tenantForm.companyName}</strong> has been added to <strong>{selectedUnit.unitNumber}</strong>.
                   </p>
                   <p className="text-sm text-slate-500">
                     Lease: {formatCurrency(parseFloat(leaseForm.monthlyRent))}/month
@@ -1107,9 +1064,7 @@ export default function PropertyDetailPage() {
                   </button>
                   <button
                     onClick={() => setLeaseWizardStep(2)}
-                    disabled={property.propertyType === 'COMMERCIAL'
-                      ? !tenantForm.companyName.trim()
-                      : !tenantForm.firstName.trim() || !tenantForm.lastName.trim()}
+                    disabled={!tenantForm.companyName.trim()}
                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Next: Lease Details
@@ -1238,16 +1193,14 @@ export default function PropertyDetailPage() {
           <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-slate-200">
               <h2 className="text-xl font-bold text-slate-900">
-                {editingUnit
-                  ? (property.propertyType === 'COMMERCIAL' ? 'Edit Space' : 'Edit Unit')
-                  : (property.propertyType === 'COMMERCIAL' ? 'Add New Space' : 'Add New Unit')}
+                {editingUnit ? 'Edit Space' : 'Add New Space'}
               </h2>
             </div>
 
             <form onSubmit={handleUnitSubmit} className="p-6 space-y-6">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  {property.propertyType === 'COMMERCIAL' ? 'Space Name/Description *' : 'Unit Number *'}
+                  Space Name/Number *
                 </label>
                 <input
                   type="text"
@@ -1255,12 +1208,11 @@ export default function PropertyDetailPage() {
                   value={unitForm.unitNumber}
                   onChange={(e) => setUnitForm({ ...unitForm, unitNumber: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder={property.propertyType === 'COMMERCIAL' ? '1st Floor - 5,000 SF' : '101'}
+                  placeholder="Bay A - 10,000 SF"
                 />
               </div>
 
-              {/* Residential: Beds, Baths, Sq Ft | Commercial: Just Sq Ft */}
-              {property.propertyType === 'COMMERCIAL' ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
                     Square Feet
@@ -1271,53 +1223,49 @@ export default function PropertyDetailPage() {
                     value={unitForm.squareFeet}
                     onChange={(e) => setUnitForm({ ...unitForm, squareFeet: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="5000"
+                    placeholder="10000"
                   />
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
-                      Bedrooms
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={unitForm.bedrooms}
-                      onChange={(e) => setUnitForm({ ...unitForm, bedrooms: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="2"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
-                      Bathrooms
-                    </label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      min="0"
-                      value={unitForm.bathrooms}
-                      onChange={(e) => setUnitForm({ ...unitForm, bathrooms: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="1.5"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
-                      Square Feet
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={unitForm.squareFeet}
-                      onChange={(e) => setUnitForm({ ...unitForm, squareFeet: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="850"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Dock Doors
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={unitForm.dockDoors}
+                    onChange={(e) => setUnitForm({ ...unitForm, dockDoors: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="4"
+                  />
                 </div>
-              )}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Clear Height (ft)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    value={unitForm.clearHeight}
+                    onChange={(e) => setUnitForm({ ...unitForm, clearHeight: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="32"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Floor Level
+                  </label>
+                  <input
+                    type="text"
+                    value={unitForm.floorLevel}
+                    onChange={(e) => setUnitForm({ ...unitForm, floorLevel: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Ground"
+                  />
+                </div>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">

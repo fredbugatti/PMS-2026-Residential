@@ -7,8 +7,8 @@ import { ToastProvider } from '@/components/Toast'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Sanprinon - Property Management',
-  description: 'Professional property management ledger system',
+  title: 'Sanprinon - Warehouse Management',
+  description: 'Professional warehouse management ledger system',
 }
 
 export const viewport: Viewport = {

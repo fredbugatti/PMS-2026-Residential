@@ -231,7 +231,7 @@ export async function GET() {
     const requiredAccounts = [
       { code: '1000', name: 'Operating Cash' },
       { code: '1200', name: 'Accounts Receivable' },
-      { code: '4000', name: 'Rental Income' },
+      { code: '4000', name: 'Lease Income' },
       { code: '4100', name: 'Other Income' },
       { code: '5000', name: 'Maintenance Expense' }
     ];

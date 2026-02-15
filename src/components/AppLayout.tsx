@@ -66,14 +66,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
               className="w-full flex items-center gap-2 px-3 h-9 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-400 hover:border-slate-300 transition-colors"
             >
               <Search className="h-4 w-4" />
-              <span>Search tenants, properties...</span>
+              <span>Search tenants, warehouses...</span>
               <kbd className="hidden sm:inline-flex ml-auto text-xs bg-slate-100 px-1.5 py-0.5 rounded text-slate-400">⌘K</kbd>
             </button>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="hidden sm:block text-right">
-              <p className="text-sm font-medium text-slate-900">Property Manager</p>
+              <p className="text-sm font-medium text-slate-900">Warehouse Manager</p>
               <p className="text-xs text-slate-500">Admin</p>
             </div>
             <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-sm">

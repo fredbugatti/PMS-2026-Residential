@@ -63,8 +63,6 @@ export async function logAudit(params: LogAuditParams): Promise<void> {
                 metadata: metadata ? JSON.parse(JSON.stringify(metadata)) : null
             }
         });
-
-        console.log(`[Audit] Logged: ${action} on ${entityType}:${entityId} by ${source}`);
     } catch (err: any) {
         // CRITICAL: Never throw - audit log failures must not block operations
         console.error(`[Audit] Failed to log (non-blocking): ${err.message}`);
@@ -93,7 +91,6 @@ export async function logAuditBatch(entries: LogAuditParams[]): Promise<void> {
                 });
             })
         );
-        console.log(`[Audit] Logged ${entries.length} entries`);
     } catch (err: any) {
         console.error(`[Audit] Failed to log batch (non-blocking): ${err.message}`);
     }

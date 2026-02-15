@@ -95,7 +95,17 @@ export async function PATCH(
         ...(body.totalSquareFeet !== undefined && { totalSquareFeet: body.totalSquareFeet ? parseInt(body.totalSquareFeet) : null }),
         ...(body.propertyType !== undefined && { propertyType: body.propertyType || null }),
         ...(body.notes !== undefined && { notes: body.notes || null }),
-        ...(body.active !== undefined && { active: body.active })
+        ...(body.active !== undefined && { active: body.active }),
+        ...(body.dockDoors !== undefined && { dockDoors: body.dockDoors != null ? parseInt(body.dockDoors) : null }),
+        ...(body.clearHeight !== undefined && { clearHeight: body.clearHeight != null ? parseFloat(body.clearHeight) : null }),
+        ...(body.driveInDoors !== undefined && { driveInDoors: body.driveInDoors != null ? parseInt(body.driveInDoors) : null }),
+        ...(body.loadingBays !== undefined && { loadingBays: body.loadingBays != null ? parseInt(body.loadingBays) : null }),
+        ...(body.powerCapacity !== undefined && { powerCapacity: body.powerCapacity || null }),
+        ...(body.zoning !== undefined && { zoning: body.zoning || null }),
+        ...(body.columnSpacing !== undefined && { columnSpacing: body.columnSpacing || null }),
+        ...(body.sprinklerSystem !== undefined && { sprinklerSystem: body.sprinklerSystem }),
+        ...(body.railAccess !== undefined && { railAccess: body.railAccess }),
+        ...(body.yardSpace !== undefined && { yardSpace: body.yardSpace != null ? parseFloat(body.yardSpace) : null })
       }
     });
 

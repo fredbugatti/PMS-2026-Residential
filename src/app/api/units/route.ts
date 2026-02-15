@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { propertyId, unitNumber, bedrooms, bathrooms, squareFeet, status, notes } = body;
+    const { propertyId, unitNumber, dockDoors, clearHeight, floorLevel, palletPositions, squareFeet, status, notes } = body;
 
     // Validate required fields
     if (!propertyId || !unitNumber) {
@@ -68,8 +68,10 @@ export async function POST(request: NextRequest) {
       data: {
         propertyId,
         unitNumber,
-        bedrooms: bedrooms ? parseInt(bedrooms) : null,
-        bathrooms: bathrooms ? parseFloat(bathrooms) : null,
+        dockDoors: dockDoors != null ? parseInt(dockDoors) : null,
+        clearHeight: clearHeight != null ? parseFloat(clearHeight) : null,
+        floorLevel: floorLevel || null,
+        palletPositions: palletPositions != null ? parseInt(palletPositions) : null,
         squareFeet: squareFeet ? parseInt(squareFeet) : null,
         status: status || 'VACANT',
         notes: notes || null

@@ -13,7 +13,6 @@ import {
 
 // Initialize Stripe with publishable key
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-console.log('Stripe publishable key loaded:', publishableKey ? `${publishableKey.substring(0, 20)}...` : 'NOT SET');
 
 const stripePromise = publishableKey
   ? loadStripe(publishableKey)

@@ -181,8 +181,6 @@ async function handleDailyCharges(request: NextRequest): Promise<NextResponse> {
       }
     });
 
-    console.log(`[CRON] daily-charges completed: ${posted} posted, ${skipped} skipped, ${errors} errors in ${duration}ms`);
-
     // Also trigger daily-expenses
     let expensesResult = null;
     try {
@@ -195,7 +193,6 @@ async function handleDailyCharges(request: NextRequest): Promise<NextResponse> {
         headers: CRON_SECRET ? { 'Authorization': `Bearer ${CRON_SECRET}` } : {},
       });
       expensesResult = await expensesResponse.json();
-      console.log('[CRON] daily-expenses triggered:', expensesResult?.summary || expensesResult);
     } catch (expError: any) {
       console.error('[CRON] Failed to trigger daily-expenses:', expError.message);
     }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma, postEntry } from '@/lib/accounting';
+import { parsePaginationParams, createPaginatedResponse, getPrismaPageArgs } from '@/lib/pagination';
 
 // GET /api/expenses - Get expense entries with optional filters
 export async function GET(request: NextRequest) {
@@ -47,26 +48,38 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    const expenses = await prisma.ledgerEntry.findMany({
-      where: whereClause,
-      include: {
-        account: {
-          select: {
-            name: true
-          }
-        },
-        lease: {
-          select: {
-            tenantName: true,
-            unitName: true,
-            propertyName: true
-          }
+    const include = {
+      account: {
+        select: {
+          name: true
         }
       },
-      orderBy: [
-        { entryDate: 'desc' },
-        { createdAt: 'desc' }
-      ]
+      lease: {
+        select: {
+          tenantName: true,
+          unitName: true,
+          propertyName: true
+        }
+      }
+    };
+
+    const orderBy = [
+      { entryDate: 'desc' as const },
+      { createdAt: 'desc' as const }
+    ];
+
+    // Helper to map expense entries to response shape
+    const mapExpense = (e: any) => ({
+      id: e.id,
+      date: e.entryDate,
+      accountCode: e.accountCode,
+      accountName: e.account.name,
+      description: e.description,
+      amount: Number(e.amount),
+      propertyName: e.lease?.propertyName || null,
+      unitName: e.lease?.unitName || null,
+      postedBy: e.postedBy,
+      createdAt: e.createdAt
     });
 
     // Get expense accounts for dropdown
@@ -78,22 +91,44 @@ export async function GET(request: NextRequest) {
       orderBy: { code: 'asc' }
     });
 
+    // Check if pagination is requested
+    const usePagination = searchParams.has('page') || searchParams.has('limit');
+
+    if (usePagination) {
+      const paginationParams = parsePaginationParams(searchParams);
+      const [total, expenses] = await Promise.all([
+        prisma.ledgerEntry.count({ where: whereClause }),
+        prisma.ledgerEntry.findMany({ where: whereClause, include, orderBy, ...getPrismaPageArgs(paginationParams) })
+      ]);
+
+      const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+
+      return NextResponse.json({
+        ...createPaginatedResponse(expenses.map(mapExpense), total, paginationParams),
+        expenseAccounts,
+        summary: {
+          totalExpenses,
+          count: total,
+          period: {
+            start: start.toISOString().split('T')[0],
+            end: end.toISOString().split('T')[0]
+          }
+        }
+      });
+    }
+
+    // No pagination - return all (backwards compatible)
+    const expenses = await prisma.ledgerEntry.findMany({
+      where: whereClause,
+      include,
+      orderBy
+    });
+
     // Calculate totals
     const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
 
     return NextResponse.json({
-      expenses: expenses.map(e => ({
-        id: e.id,
-        date: e.entryDate,
-        accountCode: e.accountCode,
-        accountName: e.account.name,
-        description: e.description,
-        amount: Number(e.amount),
-        propertyName: e.lease?.propertyName || null,
-        unitName: e.lease?.unitName || null,
-        postedBy: e.postedBy,
-        createdAt: e.createdAt
-      })),
+      expenses: expenses.map(mapExpense),
       expenseAccounts,
       summary: {
         totalExpenses,

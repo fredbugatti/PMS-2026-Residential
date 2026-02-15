@@ -675,7 +675,7 @@ export default function Dashboard() {
           </Link>
 
           <Link href="/reports?tab=pnl" className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 hover:shadow-md hover:border-green-300 transition-all cursor-pointer">
-            <p className="text-xs sm:text-sm text-slate-600">Rent/Month</p>
+            <p className="text-xs sm:text-sm text-slate-600">Lease/Month</p>
             <p className="text-xl sm:text-3xl font-bold text-green-600 mt-1">{formatCurrency(stats.monthlyRevenue)}</p>
             <p className="text-xs text-slate-500 mt-1">expected income →</p>
           </Link>
@@ -1001,7 +1001,7 @@ export default function Dashboard() {
                   onChange={(e) => setChargeForm({ ...chargeForm, accountCode: e.target.value })}
                   className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                 >
-                  <option value="4000">Rent</option>
+                  <option value="4000">Lease Payment</option>
                   <option value="4100">Late Fee</option>
                   <option value="4300">Parking</option>
                   <option value="4400">Pet Fee</option>

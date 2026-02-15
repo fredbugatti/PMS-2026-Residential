@@ -41,8 +41,8 @@ export async function GET() {
         return {
           unitId: unit.id,
           unitName: unit.unitNumber,
-          bedrooms: unit.bedrooms,
-          bathrooms: unit.bathrooms ? Number(unit.bathrooms) : null,
+          dockDoors: unit.dockDoors,
+          clearHeight: unit.clearHeight ? Number(unit.clearHeight) : null,
           sqft: unit.squareFeet,
           isOccupied: !!activeLease,
           tenantName: activeLease?.tenantName || null,

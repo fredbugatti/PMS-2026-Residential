@@ -98,7 +98,7 @@ export async function POST(
       },
       creditEntry: {
         entryDate: targetDate,
-        accountCode: '4000', // Rental Income
+        accountCode: '4000', // Lease Income
         amount: monthlyRentAmount,
         debitCredit: 'CR',
         description,

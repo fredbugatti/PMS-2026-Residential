@@ -229,8 +229,6 @@ async function handleDailyExpenses(request: NextRequest): Promise<NextResponse> 
       }
     });
 
-    console.log(`[CRON] daily-expenses completed: ${posted} posted, ${pendingConfirmation} pending, ${skipped} skipped, ${errors} errors in ${duration}ms`);
-
     return NextResponse.json({
       success: true,
       status,

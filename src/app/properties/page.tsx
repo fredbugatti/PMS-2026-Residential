@@ -19,8 +19,9 @@ interface Property {
 
 interface UnitForm {
   unitNumber: string;
-  bedrooms: string;
-  bathrooms: string;
+  dockDoors: string;
+  clearHeight: string;
+  floorLevel: string;
   squareFeet: string;
   rent: string;
 }
@@ -48,7 +49,7 @@ export default function PropertiesPage() {
 
   // Step 2: Units
   const [units, setUnits] = useState<UnitForm[]>([
-    { unitNumber: '1', bedrooms: '', bathrooms: '', squareFeet: '', rent: '' }
+    { unitNumber: '1', dockDoors: '', clearHeight: '', floorLevel: '', squareFeet: '', rent: '' }
   ]);
 
   useEffect(() => {
@@ -79,7 +80,7 @@ export default function PropertiesPage() {
       zipCode: '',
       totalSquareFeet: ''
     });
-    setUnits([{ unitNumber: '1', bedrooms: '', bathrooms: '', squareFeet: '', rent: '' }]);
+    setUnits([{ unitNumber: '1', dockDoors: '', clearHeight: '', floorLevel: '', squareFeet: '', rent: '' }]);
     setCreatedPropertyId(null);
     setError('');
   };
@@ -114,8 +115,9 @@ export default function PropertiesPage() {
     const nextNumber = units.length + 1;
     setUnits([...units, {
       unitNumber: nextNumber.toString(),
-      bedrooms: '',
-      bathrooms: '',
+      dockDoors: '',
+      clearHeight: '',
+      floorLevel: '',
       squareFeet: '',
       rent: ''
     }]);
@@ -150,8 +152,9 @@ export default function PropertiesPage() {
           body: JSON.stringify({
             propertyId: createdPropertyId,
             unitNumber: unit.unitNumber,
-            bedrooms: unit.bedrooms ? parseInt(unit.bedrooms) : null,
-            bathrooms: unit.bathrooms ? parseFloat(unit.bathrooms) : null,
+            dockDoors: unit.dockDoors ?? null,
+            clearHeight: unit.clearHeight ?? null,
+            floorLevel: unit.floorLevel || null,
             squareFeet: unit.squareFeet ? parseInt(unit.squareFeet) : null,
             status: 'VACANT'
           })
@@ -202,7 +205,7 @@ export default function PropertiesPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Properties</h1>
-              <p className="text-sm text-slate-600 mt-1">Manage your rental properties and units</p>
+              <p className="text-sm text-slate-600 mt-1">Manage your warehouse properties and spaces</p>
             </div>
             <button
               onClick={() => setShowWizard(true)}
@@ -375,7 +378,7 @@ export default function PropertiesPage() {
                       value={propertyForm.name}
                       onChange={(e) => setPropertyForm({ ...propertyForm, name: e.target.value })}
                       className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-lg"
-                      placeholder="Sunset Apartments"
+                      placeholder="Industrial Park West"
                       autoFocus
                     />
                   </div>
@@ -516,26 +519,36 @@ export default function PropertiesPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-slate-500 mb-1">Beds</label>
+                          <label className="block text-xs text-slate-500 mb-1">Dock Doors</label>
                           <input
                             type="number"
                             min="0"
-                            value={unit.bedrooms}
-                            onChange={(e) => updateUnit(index, 'bedrooms', e.target.value)}
+                            value={unit.dockDoors ?? ''}
+                            onChange={(e) => updateUnit(index, 'dockDoors', e.target.value)}
                             className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                             placeholder="2"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-slate-500 mb-1">Baths</label>
+                          <label className="block text-xs text-slate-500 mb-1">Clear Height (ft)</label>
                           <input
                             type="number"
                             min="0"
                             step="0.5"
-                            value={unit.bathrooms}
-                            onChange={(e) => updateUnit(index, 'bathrooms', e.target.value)}
+                            value={unit.clearHeight ?? ''}
+                            onChange={(e) => updateUnit(index, 'clearHeight', e.target.value)}
                             className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                            placeholder="1"
+                            placeholder="24"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-slate-500 mb-1">Floor Level</label>
+                          <input
+                            type="text"
+                            value={unit.floorLevel ?? ''}
+                            onChange={(e) => updateUnit(index, 'floorLevel', e.target.value)}
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            placeholder="Ground"
                           />
                         </div>
                         <div className="hidden sm:block">
@@ -590,7 +603,7 @@ export default function PropertiesPage() {
                     <strong>{propertyForm.name}</strong> has been set up with <strong>{units.length} {units.length !== 1 ? 'units' : 'unit'}</strong>.
                   </p>
                   <p className="text-xs sm:text-sm text-slate-500">
-                    You can now add tenants and leases from the property page.
+                    You can now add tenants and leases from the warehouse page.
                   </p>
                 </div>
               )}

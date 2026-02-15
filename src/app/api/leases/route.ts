@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
             leaseId: lease.id,
             description: 'Monthly Rent',
             amount: monthlyRent,
-            accountCode: '4000', // Rental Income
+            accountCode: '4000', // Lease Income
             chargeDay: 1, // First of the month
             active: true
           }

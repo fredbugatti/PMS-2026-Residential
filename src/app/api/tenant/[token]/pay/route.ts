@@ -253,8 +253,6 @@ export async function POST(
 
       if (result.success && result.paymentIntent) {
         const paymentStatus = result.paymentIntent.status;
-        console.log('Payment successful, status:', paymentStatus);
-        console.log('Posting ledger entries for lease:', lease.id, 'amount:', chargeAmount);
 
         // Post payment to ledger
         const entryDate = new Date();
@@ -289,8 +287,6 @@ export async function POST(
               postedBy: 'tenant_portal'
             }
           });
-
-          console.log('Ledger entries posted atomically');
         } catch (ledgerError: any) {
           console.error('Failed to post ledger entries:', ledgerError);
           // Still return success since payment went through, but log the error
@@ -317,7 +313,6 @@ export async function POST(
           status: paymentStatus
         });
       } else {
-        console.log('Payment failed:', result.error);
         return NextResponse.json(
           { error: result.error || 'Payment failed' },
           { status: 400 }

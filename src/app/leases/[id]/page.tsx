@@ -1907,7 +1907,7 @@ export default function LeaseDetailPage() {
             <div className="bg-slate-50 rounded-lg p-4 mb-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-600">Current Monthly Rent</p>
+                  <p className="text-sm text-slate-600">Current Monthly Lease Payment</p>
                   <p className="text-2xl font-bold text-slate-900">{formatCurrency(lease.monthlyRentAmount)}</p>
                 </div>
                 <div className="text-right">
@@ -3036,7 +3036,7 @@ export default function LeaseDetailPage() {
                   <span className="font-semibold">Tenant:</span> {lease.tenantName}
                 </p>
                 <p className="text-xs text-blue-700 mt-1">
-                  All charges will post: DR Accounts Receivable / CR Rental Income
+                  All charges will post: DR Accounts Receivable / CR Lease Income
                 </p>
               </div>
 
@@ -3084,7 +3084,7 @@ export default function LeaseDetailPage() {
                                 onChange={(e) => updateCharge(index, 'chargeType', e.target.value)}
                                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                               >
-                                <option value="rent">Monthly Rent</option>
+                                <option value="rent">Monthly Lease Payment</option>
                                 <option value="late_fee">Late Fee</option>
                                 <option value="utility">Utility</option>
                                 <option value="other">Other</option>
@@ -3683,7 +3683,7 @@ export default function LeaseDetailPage() {
                         onChange={(e) => setEditingScheduledChargeForm({ ...editingScheduledChargeForm, accountCode: e.target.value })}
                         className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                       >
-                        <option value="4000">Rental Income</option>
+                        <option value="4000">Lease Income</option>
                         <option value="4010">Late Fees</option>
                         <option value="4020">Utility Reimb.</option>
                         <option value="4030">Parking</option>
@@ -3752,7 +3752,7 @@ export default function LeaseDetailPage() {
                             onChange={(e) => handleChargeRowChange(index, 'accountCode', e.target.value)}
                             className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
                           >
-                            <option value="4000">Rental Income</option>
+                            <option value="4000">Lease Income</option>
                             <option value="4010">Late Fees</option>
                             <option value="4020">Utility Reimb.</option>
                             <option value="4030">Parking</option>
@@ -3844,7 +3844,7 @@ export default function LeaseDetailPage() {
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  New Monthly Rent *
+                  New Monthly Lease Payment *
                 </label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>

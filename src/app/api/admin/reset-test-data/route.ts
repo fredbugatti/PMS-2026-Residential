@@ -79,7 +79,7 @@ async function createSimpleTestData() {
       propertyType: 'MULTI_FAMILY',
       units: {
         create: [
-          { unitNumber: '101', bedrooms: 2, bathrooms: 1, squareFeet: 850 }
+          { unitNumber: '101', dockDoors: 2, clearHeight: 24, squareFeet: 850 }
         ]
       }
     },
@@ -177,7 +177,7 @@ async function createFullTestData() {
   // Create Properties with Units
   const property1 = await prisma.property.create({
     data: {
-      name: 'Sunset Apartments',
+      name: 'Industrial Park West',
       address: '123 Main Street',
       city: 'Los Angeles',
       state: 'CA',
@@ -185,12 +185,12 @@ async function createFullTestData() {
       propertyType: 'MULTI_FAMILY',
       units: {
         create: [
-          { unitNumber: '101', bedrooms: 1, bathrooms: 1, squareFeet: 650 },
-          { unitNumber: '102', bedrooms: 2, bathrooms: 1, squareFeet: 850 },
-          { unitNumber: '103', bedrooms: 2, bathrooms: 2, squareFeet: 950 },
-          { unitNumber: '201', bedrooms: 1, bathrooms: 1, squareFeet: 650 },
-          { unitNumber: '202', bedrooms: 2, bathrooms: 1, squareFeet: 850 },
-          { unitNumber: '203', bedrooms: 3, bathrooms: 2, squareFeet: 1200 },
+          { unitNumber: '101', dockDoors: 1, clearHeight: 20, squareFeet: 650 },
+          { unitNumber: '102', dockDoors: 2, clearHeight: 24, squareFeet: 850 },
+          { unitNumber: '103', dockDoors: 2, clearHeight: 28, squareFeet: 950 },
+          { unitNumber: '201', dockDoors: 1, clearHeight: 20, squareFeet: 650 },
+          { unitNumber: '202', dockDoors: 2, clearHeight: 24, squareFeet: 850 },
+          { unitNumber: '203', dockDoors: 3, clearHeight: 32, squareFeet: 1200 },
         ]
       }
     },
@@ -201,7 +201,7 @@ async function createFullTestData() {
 
   const property2 = await prisma.property.create({
     data: {
-      name: 'Ocean View Condos',
+      name: 'Coastal Distribution Center',
       address: '456 Beach Boulevard',
       city: 'Santa Monica',
       state: 'CA',
@@ -209,10 +209,10 @@ async function createFullTestData() {
       propertyType: 'MULTI_FAMILY',
       units: {
         create: [
-          { unitNumber: 'A1', bedrooms: 2, bathrooms: 2, squareFeet: 1100 },
-          { unitNumber: 'A2', bedrooms: 2, bathrooms: 2, squareFeet: 1100 },
-          { unitNumber: 'B1', bedrooms: 3, bathrooms: 2, squareFeet: 1400 },
-          { unitNumber: 'B2', bedrooms: 3, bathrooms: 2, squareFeet: 1400 },
+          { unitNumber: 'A1', dockDoors: 2, clearHeight: 24, squareFeet: 1100 },
+          { unitNumber: 'A2', dockDoors: 2, clearHeight: 24, squareFeet: 1100 },
+          { unitNumber: 'B1', dockDoors: 3, clearHeight: 28, squareFeet: 1400 },
+          { unitNumber: 'B2', dockDoors: 3, clearHeight: 28, squareFeet: 1400 },
         ]
       }
     },
@@ -231,7 +231,7 @@ async function createFullTestData() {
       propertyType: 'SINGLE_FAMILY',
       units: {
         create: [
-          { unitNumber: 'MAIN', bedrooms: 4, bathrooms: 3, squareFeet: 2200 },
+          { unitNumber: 'MAIN', dockDoors: 4, clearHeight: 36, squareFeet: 2200 },
         ]
       }
     },

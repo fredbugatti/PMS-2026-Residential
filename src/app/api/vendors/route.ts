@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/accounting';
+import { parsePaginationParams, createPaginatedResponse, getPrismaPageArgs } from '@/lib/pagination';
 
 // GET /api/vendors - List all vendors
 export async function GET(request: NextRequest) {
@@ -7,22 +8,37 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const active = searchParams.get('active');
 
-    const vendors = await prisma.vendor.findMany({
-      where: {
-        ...(active !== null && { active: active === 'true' })
-      },
-      include: {
-        _count: {
-          select: {
-            workOrders: true
-          }
+    const where: any = {
+      ...(active !== null && { active: active === 'true' })
+    };
+
+    const include = {
+      _count: {
+        select: {
+          workOrders: true
         }
-      },
-      orderBy: [
-        { active: 'desc' },
-        { name: 'asc' }
-      ]
-    });
+      }
+    };
+
+    const orderBy = [
+      { active: 'desc' as const },
+      { name: 'asc' as const }
+    ];
+
+    // Check if pagination is requested
+    const usePagination = searchParams.has('page') || searchParams.has('limit');
+
+    if (usePagination) {
+      const paginationParams = parsePaginationParams(searchParams);
+      const [total, vendors] = await Promise.all([
+        prisma.vendor.count({ where }),
+        prisma.vendor.findMany({ where, include, orderBy, ...getPrismaPageArgs(paginationParams) })
+      ]);
+      return NextResponse.json(createPaginatedResponse(vendors, total, paginationParams));
+    }
+
+    // No pagination - return all (backwards compatible)
+    const vendors = await prisma.vendor.findMany({ where, include, orderBy });
 
     return NextResponse.json(vendors);
   } catch (error: any) {

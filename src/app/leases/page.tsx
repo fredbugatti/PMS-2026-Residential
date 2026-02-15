@@ -246,7 +246,7 @@ export default function LeasesPage() {
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Leases</h1>
               <p className="text-sm text-slate-600 mt-1">
-                Manage tenant leases and agreements
+                Manage warehouse leases and agreements
               </p>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
@@ -285,7 +285,7 @@ export default function LeasesPage() {
             </h3>
             <p className="text-slate-500 mb-6 text-sm sm:text-base max-w-md mx-auto">
               {selectedProperty === 'all'
-                ? 'Add your first lease to start tracking rent payments and tenant information.'
+                ? 'Add your first lease to start tracking lease payments and tenant information.'
                 : 'Select a different property or create a new lease for this one.'}
             </p>
             <button

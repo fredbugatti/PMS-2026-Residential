@@ -24,8 +24,8 @@ export async function GET(
           select: {
             id: true,
             unitNumber: true,
-            bedrooms: true,
-            bathrooms: true
+            dockDoors: true,
+            clearHeight: true
           }
         },
         lease: {

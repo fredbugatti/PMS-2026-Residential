@@ -44,8 +44,8 @@ interface WorkOrder {
   unit: {
     id: string;
     unitNumber: string;
-    bedrooms: number | null;
-    bathrooms: number | null;
+    dockDoors: number | null;
+    clearHeight: number | null;
   };
   lease: {
     id: string;
@@ -532,11 +532,9 @@ export default function WorkOrderDetail() {
                 <div>
                   <dt className="text-xs text-slate-500">Unit</dt>
                   <dd className="text-sm text-slate-900">Unit {workOrder.unit.unitNumber}</dd>
-                  {(workOrder.unit.bedrooms || workOrder.unit.bathrooms) && (
+                  {workOrder.unit.dockDoors && (
                     <dd className="text-xs text-slate-500">
-                      {workOrder.unit.bedrooms && `${workOrder.unit.bedrooms} bed`}
-                      {workOrder.unit.bedrooms && workOrder.unit.bathrooms && ' • '}
-                      {workOrder.unit.bathrooms && `${workOrder.unit.bathrooms} bath`}
+                      {workOrder.unit.dockDoors} dock door{workOrder.unit.dockDoors > 1 ? 's' : ''}
                     </dd>
                   )}
                 </div>

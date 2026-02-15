@@ -68,7 +68,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           <div className="flex items-center justify-between">
             <Link href="/" className="block" onClick={handleNavClick}>
               <h1 className="text-xl font-bold">Sanprinon</h1>
-              <p className="text-xs text-slate-400 mt-1">Property Management</p>
+              <p className="text-xs text-slate-400 mt-1">Warehouse Management</p>
             </Link>
             <button onClick={onClose} className="lg:hidden p-2 text-slate-400 hover:text-white">
               <X className="h-5 w-5" />
@@ -103,7 +103,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         </nav>
 
         <div className="p-4 border-t border-slate-800 safe-bottom">
-          <p className="text-xs text-slate-500">&copy; 2026 Sanprinon PMS</p>
+          <p className="text-xs text-slate-500">&copy; 2026 Sanprinon WMS</p>
         </div>
       </div>
     </>

@@ -81,8 +81,10 @@ export const updatePropertySchema = createPropertySchema.partial();
 export const createUnitSchema = z.object({
   propertyId: idSchema,
   unitNumber: z.string().min(1, 'Unit number is required').max(50),
-  bedrooms: z.number().int().min(0).max(20).optional(),
-  bathrooms: z.number().min(0).max(20).optional(),
+  dockDoors: z.number().int().min(0).optional(),
+  clearHeight: z.number().min(0).optional(),
+  floorLevel: z.number().int().min(0).optional(),
+  palletPositions: z.number().int().min(0).optional(),
   squareFeet: z.number().int().positive().optional(),
   marketRent: positiveAmountSchema.optional()
 });

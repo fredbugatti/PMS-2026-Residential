@@ -135,7 +135,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Search tenants, properties, transactions..."
+              placeholder="Search tenants, warehouses, transactions..."
               className="flex-1 px-4 py-4 text-base bg-transparent text-slate-900 placeholder-slate-400 focus:outline-none"
             />
             {loading && (
@@ -156,7 +156,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
             {query && !loading && results.length === 0 && (
               <div className="px-4 py-8 text-center text-slate-500">
                 <p className="text-sm">No results found for &quot;{query}&quot;</p>
-                <p className="text-xs mt-1">Try searching for a tenant name, property, or transaction</p>
+                <p className="text-xs mt-1">Try searching for a tenant name, warehouse, or transaction</p>
               </div>
             )}
 
@@ -209,7 +209,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                     className="w-full px-3 py-3 sm:py-2 flex items-center gap-3 text-left rounded-lg hover:bg-slate-50"
                   >
                     <Building2 className="h-5 w-5 text-slate-500" />
-                    <span className="text-sm text-slate-700">View Properties</span>
+                    <span className="text-sm text-slate-700">View Warehouses</span>
                   </button>
                   <button
                     onClick={() => { router.push('/leases'); onClose(); }}

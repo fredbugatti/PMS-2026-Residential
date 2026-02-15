@@ -240,8 +240,8 @@ interface LedgerTransaction {
 interface RentRollUnit {
   unitId: string;
   unitName: string;
-  bedrooms: number | null;
-  bathrooms: number | null;
+  dockDoors: number | null;
+  clearHeight: number | null;
   sqft: number | null;
   isOccupied: boolean;
   tenantName: string | null;
