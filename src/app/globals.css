@@ -96,6 +96,23 @@ html {
   transition: background-color 0.2s ease;
 }
 
+/* Prevent iOS Safari input zoom — ensure 16px minimum on mobile */
+@supports (-webkit-touch-callout: none) {
+  input, select, textarea {
+    font-size: max(16px, 1em);
+  }
+}
+
+/* iOS Safari dvh support for proper viewport height */
+@supports (height: 100dvh) {
+  .h-screen {
+    height: 100dvh;
+  }
+  .min-h-screen {
+    min-height: 100dvh;
+  }
+}
+
 html.dark {
   color-scheme: dark;
 }

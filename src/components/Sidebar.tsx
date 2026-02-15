@@ -138,7 +138,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </div>
         </div>
 
-        <div className="p-4 border-t border-slate-800">
+        <div className="p-4 border-t border-slate-800 safe-bottom">
           <p className="text-xs text-slate-500">&copy; 2026 Sanprinon PMS</p>
         </div>
       </div>
