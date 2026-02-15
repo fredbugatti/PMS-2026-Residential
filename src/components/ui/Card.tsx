@@ -7,12 +7,12 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ children, variant = 'default', className = '', ...props }, ref) => {
-    const baseStyles = 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm';
+    const baseStyles = 'bg-white border border-slate-200 rounded-xl shadow-sm';
 
     const variantStyles = {
       default: 'p-5',
       metric: 'p-6',
-      clickable: 'p-5 cursor-pointer transition-all hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600',
+      clickable: 'p-5 cursor-pointer transition-all hover:shadow-md hover:border-slate-300',
     };
 
     const combinedClassName = `${baseStyles} ${variantStyles[variant]} ${className}`.trim();
@@ -50,7 +50,7 @@ export interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement>
 
 export const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
   ({ children, as: Component = 'h3', className = '', ...props }, ref) => {
-    const baseStyles = 'font-medium text-slate-900 dark:text-slate-100';
+    const baseStyles = 'font-medium text-slate-900';
     const sizeStyles = {
       h1: 'text-2xl font-semibold',
       h2: 'text-lg font-semibold',
@@ -93,7 +93,7 @@ export interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {
 export const CardFooter = React.forwardRef<HTMLDivElement, CardFooterProps>(
   ({ children, className = '', ...props }, ref) => {
     return (
-      <div ref={ref} className={`mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 ${className}`.trim()} {...props}>
+      <div ref={ref} className={`mt-4 pt-4 border-t border-slate-200 ${className}`.trim()} {...props}>
         {children}
       </div>
     );

@@ -26,74 +26,27 @@
     --status-info-bg: 239 246 255;
   }
 
-  .dark {
-    --background: 15 23 42; /* slate-900 */
-    --foreground: 241 245 249; /* slate-100 */
-    --surface: 30 41 59; /* slate-800 */
-    --border: 51 65 85; /* slate-700 */
-    --card: 30 41 59;
-    --card-foreground: 241 245 249;
-    --input: 51 65 85;
-    --muted: 30 41 59;
-    --muted-foreground: 148 163 184; /* slate-400 */
-    --text-primary: 241 245 249;
-    --text-secondary: 148 163 184;
-    --text-muted: 100 116 139;
-    --status-success: 34 197 94;
-    --status-success-bg: 20 83 45;
-    --status-warning: 251 191 36;
-    --status-warning-bg: 120 53 15;
-    --status-error: 239 68 68;
-    --status-error-bg: 127 29 29;
-    --status-info: 59 130 246;
-    --status-info-bg: 30 58 138;
-  }
-
   body {
-    @apply bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100;
-  }
-
-  .dark input,
-  .dark select,
-  .dark textarea {
-    @apply bg-slate-700 border-slate-600 text-slate-100 placeholder-slate-400;
-  }
-
-  .dark input:focus,
-  .dark select:focus,
-  .dark textarea:focus {
-    @apply ring-blue-500 border-blue-500;
-  }
-
-  .dark option {
-    @apply bg-slate-700 text-slate-100;
-  }
-
-  .dark label {
-    @apply text-slate-300;
+    @apply bg-slate-50 text-slate-900;
   }
 }
 
 @layer components {
   .card {
-    @apply bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700;
+    @apply bg-white border-slate-200;
   }
 
   .input {
-    @apply bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500;
+    @apply bg-white border-slate-300 text-slate-900 placeholder-slate-400;
   }
 
   .modal-overlay {
-    @apply bg-black/50 dark:bg-black/70;
+    @apply bg-black/50;
   }
 
   .modal-content {
-    @apply bg-white dark:bg-slate-800;
+    @apply bg-white;
   }
-}
-
-html {
-  transition: background-color 0.2s ease;
 }
 
 /* Prevent iOS Safari input zoom — ensure 16px minimum on mobile */
@@ -111,28 +64,6 @@ html {
   .min-h-screen {
     min-height: 100dvh;
   }
-}
-
-html.dark {
-  color-scheme: dark;
-}
-
-.dark ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.dark ::-webkit-scrollbar-track {
-  background: #1e293b;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #475569;
-  border-radius: 4px;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
 }
 
 @layer utilities {

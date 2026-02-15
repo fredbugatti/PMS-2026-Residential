@@ -158,8 +158,8 @@ export default function BillsDuePage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Bills Due</h1>
-            <p className="text-slate-600 dark:text-slate-400 mt-1">
+            <h1 className="text-2xl font-bold text-slate-900">Bills Due</h1>
+            <p className="text-slate-600 mt-1">
               Track and pay vendor invoices from work orders
             </p>
           </div>
@@ -168,30 +168,30 @@ export default function BillsDuePage() {
         {/* Summary Cards */}
         {summary && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
-              <div className="text-sm text-slate-600 dark:text-slate-400">Total Unpaid</div>
-              <div className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+              <div className="text-sm text-slate-600">Total Unpaid</div>
+              <div className="text-2xl font-bold text-slate-900 mt-1">
                 {formatCurrency(summary.totalUnpaid)}
               </div>
               <div className="text-xs text-slate-500 mt-1">{summary.totalCount} bills</div>
             </div>
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
-              <div className="text-sm text-slate-600 dark:text-slate-400">Overdue</div>
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+              <div className="text-sm text-slate-600">Overdue</div>
               <div className="text-2xl font-bold text-red-600 mt-1">
                 {formatCurrency(summary.totalOverdue)}
               </div>
               <div className="text-xs text-slate-500 mt-1">{summary.overdueCount} bills</div>
             </div>
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
-              <div className="text-sm text-slate-600 dark:text-slate-400">Due This Week</div>
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+              <div className="text-sm text-slate-600">Due This Week</div>
               <div className="text-2xl font-bold text-yellow-600 mt-1">
                 {summary.dueSoonCount}
               </div>
               <div className="text-xs text-slate-500 mt-1">bills</div>
             </div>
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
-              <div className="text-sm text-slate-600 dark:text-slate-400">Average Bill</div>
-              <div className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+              <div className="text-sm text-slate-600">Average Bill</div>
+              <div className="text-2xl font-bold text-slate-900 mt-1">
                 {summary.totalCount > 0
                   ? formatCurrency(summary.totalUnpaid / summary.totalCount)
                   : '$0'}
@@ -201,7 +201,7 @@ export default function BillsDuePage() {
         )}
 
         {/* Filter Tabs */}
-        <div className="flex gap-2 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex gap-2 border-b border-slate-200">
           {[
             { id: 'unpaid', label: 'Unpaid' },
             { id: 'overdue', label: 'Overdue' },
@@ -213,7 +213,7 @@ export default function BillsDuePage() {
               className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
                 filter === tab.id
                   ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
               }`}
             >
               {tab.label}
@@ -227,7 +227,7 @@ export default function BillsDuePage() {
         </div>
 
         {/* Bills List */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           {loading ? (
             <div className="p-8 text-center text-slate-500">Loading bills...</div>
           ) : bills.length === 0 ? (
@@ -235,7 +235,7 @@ export default function BillsDuePage() {
               <div className="flex justify-center mb-2">
                 {filter === 'overdue' ? <PartyPopper className="h-10 w-10 text-green-500" /> : <ClipboardList className="h-10 w-10 text-slate-400" />}
               </div>
-              <div className="text-slate-600 dark:text-slate-400">
+              <div className="text-slate-600">
                 {filter === 'overdue'
                   ? 'No overdue bills!'
                   : filter === 'unpaid'
@@ -246,38 +246,38 @@ export default function BillsDuePage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+                <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       Work Order
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       Vendor
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       Property
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       Invoice #
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       Due Date
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
                       Amount
                     </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
                       Action
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                <tbody className="divide-y divide-slate-200">
                   {bills.map((bill) => {
                     const dueDateStatus = getDueDateStatus(bill.dueDate);
                     return (
-                      <tr key={bill.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                      <tr key={bill.id} className="hover:bg-slate-50">
                         <td className="px-4 py-3">
-                          <div className="font-medium text-slate-900 dark:text-white">
+                          <div className="font-medium text-slate-900">
                             {bill.title}
                           </div>
                           <div className="text-sm text-slate-500 truncate max-w-xs">
@@ -287,7 +287,7 @@ export default function BillsDuePage() {
                         <td className="px-4 py-3">
                           {bill.vendor ? (
                             <div>
-                              <div className="text-slate-900 dark:text-white">
+                              <div className="text-slate-900">
                                 {bill.vendor.name}
                               </div>
                               {bill.vendor.company && (
@@ -301,18 +301,18 @@ export default function BillsDuePage() {
                           )}
                         </td>
                         <td className="px-4 py-3">
-                          <div className="text-slate-900 dark:text-white">
+                          <div className="text-slate-900">
                             {bill.property.name}
                           </div>
                           <div className="text-sm text-slate-500">
                             Unit {bill.unit.unitNumber}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-slate-900 dark:text-white">
+                        <td className="px-4 py-3 text-slate-900">
                           {bill.invoiceNumber || '-'}
                         </td>
                         <td className="px-4 py-3">
-                          <div className="text-slate-900 dark:text-white">
+                          <div className="text-slate-900">
                             {formatDate(bill.dueDate)}
                           </div>
                           <div className={`text-sm ${dueDateStatus.color}`}>
@@ -320,13 +320,13 @@ export default function BillsDuePage() {
                           </div>
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <div className="font-medium text-slate-900 dark:text-white">
+                          <div className="font-medium text-slate-900">
                             {formatCurrency(bill.actualCost)}
                           </div>
                         </td>
                         <td className="px-4 py-3 text-center">
                           {bill.paymentStatus === 'PAID' ? (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                               Paid
                             </span>
                           ) : (
@@ -351,18 +351,18 @@ export default function BillsDuePage() {
       {/* Payment Modal */}
       {showPayModal && selectedBill && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">
               Record Payment
             </h3>
 
             <div className="space-y-4">
-              <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-3">
-                <div className="text-sm text-slate-600 dark:text-slate-400">Work Order</div>
-                <div className="font-medium text-slate-900 dark:text-white">
+              <div className="bg-slate-50 rounded-lg p-3">
+                <div className="text-sm text-slate-600">Work Order</div>
+                <div className="font-medium text-slate-900">
                   {selectedBill.title}
                 </div>
-                <div className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                <div className="text-lg font-bold text-slate-900 mt-1">
                   {formatCurrency(selectedBill.actualCost)}
                 </div>
                 {selectedBill.vendor && (
@@ -373,13 +373,13 @@ export default function BillsDuePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Payment Method
                 </label>
                 <select
                   value={paymentData.paymentMethod}
                   onChange={(e) => setPaymentData({ ...paymentData, paymentMethod: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select method...</option>
                   <option value="CHECK">Check</option>
@@ -394,7 +394,7 @@ export default function BillsDuePage() {
 
               {paymentData.paymentMethod === 'CHECK' && (
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     Check Number
                   </label>
                   <input
@@ -402,25 +402,25 @@ export default function BillsDuePage() {
                     value={paymentData.checkNumber}
                     onChange={(e) => setPaymentData({ ...paymentData, checkNumber: e.target.value })}
                     placeholder="e.g., 1234"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Payment Date
                 </label>
                 <input
                   type="date"
                   value={paymentData.paidDate}
                   onChange={(e) => setPaymentData({ ...paymentData, paidDate: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Notes (optional)
                 </label>
                 <textarea
@@ -428,7 +428,7 @@ export default function BillsDuePage() {
                   onChange={(e) => setPaymentData({ ...paymentData, notes: e.target.value })}
                   rows={2}
                   placeholder="Any additional notes..."
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -436,7 +436,7 @@ export default function BillsDuePage() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowPayModal(false)}
-                className="flex-1 px-4 py-2 text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                className="flex-1 px-4 py-2 text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
               >
                 Cancel
               </button>

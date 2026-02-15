@@ -2,7 +2,6 @@ import './globals.css'
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import AppLayout from '@/components/AppLayout'
-import { ThemeProvider } from '@/components/ThemeProvider'
 import { ToastProvider } from '@/components/Toast'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -24,13 +23,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100`}>
-        <ThemeProvider>
-          <ToastProvider>
-            <AppLayout>{children}</AppLayout>
-          </ToastProvider>
-        </ThemeProvider>
+    <html lang="en">
+      <body className={`${inter.className} bg-white text-slate-900`}>
+        <ToastProvider>
+          <AppLayout>{children}</AppLayout>
+        </ToastProvider>
       </body>
     </html>
   )

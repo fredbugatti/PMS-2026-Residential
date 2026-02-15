@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ReportsPageSkeleton } from '@/components/Skeleton';
 
@@ -222,7 +222,15 @@ interface RentRollData {
   };
 }
 
-export default function ReportsPage() {
+export default function ReportsPageWrapper() {
+  return (
+    <Suspense fallback={<ReportsPageSkeleton />}>
+      <ReportsPage />
+    </Suspense>
+  );
+}
+
+function ReportsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [data, setData] = useState<ReportData | null>(null);

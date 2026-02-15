@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useTheme } from './ThemeProvider';
 import {
   Home,
   DollarSign,
@@ -17,9 +16,6 @@ import {
   FolderOpen,
   Settings,
   ShieldCheck,
-  Sun,
-  Monitor,
-  Moon,
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -47,7 +43,6 @@ const navigation = [
 
 export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
 
   const isActive = (path: string) => {
     if (path === '/' && pathname === '/') return true;
@@ -108,35 +103,6 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             );
           })}
         </nav>
-
-        <div className="px-4 py-3 border-t border-slate-800">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400">Theme</span>
-            <div className="flex gap-1 bg-slate-800 rounded-lg p-1">
-              <button
-                onClick={() => setTheme('light')}
-                className={cn('p-2 sm:p-1.5 rounded transition-colors', theme === 'light' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white')}
-                title="Light mode"
-              >
-                <Sun className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => setTheme('system')}
-                className={cn('p-2 sm:p-1.5 rounded transition-colors', theme === 'system' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white')}
-                title="System"
-              >
-                <Monitor className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => setTheme('dark')}
-                className={cn('p-2 sm:p-1.5 rounded transition-colors', theme === 'dark' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white')}
-                title="Dark mode"
-              >
-                <Moon className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </div>
 
         <div className="p-4 border-t border-slate-800 safe-bottom">
           <p className="text-xs text-slate-500">&copy; 2026 Sanprinon PMS</p>

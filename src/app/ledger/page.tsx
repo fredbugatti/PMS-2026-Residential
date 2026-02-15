@@ -152,14 +152,14 @@ export default function LedgerPage() {
     .reduce((sum, e) => sum + parseFloat(e.amount), 0);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Ledger</h1>
-              <p className="text-sm text-slate-600 dark:text-slate-400">All accounting entries</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Ledger</h1>
+              <p className="text-sm text-slate-600">All accounting entries</p>
             </div>
             <button
               onClick={exportToCSV}
@@ -177,22 +177,22 @@ export default function LedgerPage() {
       <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 space-y-4">
         {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-3 sm:p-5">
-            <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Entries</div>
-            <div className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white">{entries.length}</div>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-3 sm:p-5">
+            <div className="text-xs sm:text-sm text-slate-600">Entries</div>
+            <div className="text-lg sm:text-2xl font-bold text-slate-900">{entries.length}</div>
           </div>
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-3 sm:p-5">
-            <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Debits</div>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-3 sm:p-5">
+            <div className="text-xs sm:text-sm text-slate-600">Debits</div>
             <div className="text-lg sm:text-2xl font-bold text-blue-600">${totalDebits.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
           </div>
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-3 sm:p-5">
-            <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Credits</div>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-3 sm:p-5">
+            <div className="text-xs sm:text-sm text-slate-600">Credits</div>
             <div className="text-lg sm:text-2xl font-bold text-green-600">${totalCredits.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
           </div>
         </div>
 
         {/* Filters - Collapsible on mobile */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200">
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="w-full px-4 py-3 flex items-center justify-between sm:hidden"
@@ -201,7 +201,7 @@ export default function LedgerPage() {
               <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
-              <span className="font-medium text-slate-900 dark:text-white">Filters</span>
+              <span className="font-medium text-slate-900">Filters</span>
               {hasActiveFilters && (
                 <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">Active</span>
               )}
@@ -213,7 +213,7 @@ export default function LedgerPage() {
 
           <div className={`${showFilters ? 'block' : 'hidden'} sm:block p-4`}>
             <div className="hidden sm:flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-slate-900 dark:text-white">Filters</h2>
+              <h2 className="font-semibold text-slate-900">Filters</h2>
               {hasActiveFilters && (
                 <button onClick={clearFilters} className="text-sm text-blue-600 hover:text-blue-800">
                   Clear All
@@ -223,11 +223,11 @@ export default function LedgerPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Account</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Account</label>
                 <select
                   value={accountFilter}
                   onChange={(e) => setAccountFilter(e.target.value)}
-                  className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 dark:text-white"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm bg-white"
                 >
                   <option value="">All</option>
                   {accounts.map((account) => (
@@ -237,11 +237,11 @@ export default function LedgerPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Tenant</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Tenant</label>
                 <select
                   value={leaseFilter}
                   onChange={(e) => setLeaseFilter(e.target.value)}
-                  className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 dark:text-white"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm bg-white"
                 >
                   <option value="">All</option>
                   {leases.map((lease) => (
@@ -251,11 +251,11 @@ export default function LedgerPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Type</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Type</label>
                 <select
                   value={debitCreditFilter}
                   onChange={(e) => setDebitCreditFilter(e.target.value)}
-                  className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 dark:text-white"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm bg-white"
                 >
                   <option value="">All</option>
                   <option value="DR">Debits</option>
@@ -264,22 +264,22 @@ export default function LedgerPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">From</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">From</label>
                 <input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 dark:text-white"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm bg-white"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">To</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">To</label>
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 dark:text-white"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm bg-white"
                 />
               </div>
             </div>
@@ -296,26 +296,26 @@ export default function LedgerPage() {
         </div>
 
         {/* Ledger Entries */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="text-slate-500 dark:text-slate-400">Loading...</div>
+              <div className="text-slate-500">Loading...</div>
             </div>
           ) : entries.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4">
-              <div className="text-slate-900 dark:text-white font-medium mb-1">No entries found</div>
-              <div className="text-slate-500 dark:text-slate-400 text-sm text-center">Try adjusting your filters</div>
+              <div className="text-slate-900 font-medium mb-1">No entries found</div>
+              <div className="text-slate-500 text-sm text-center">Try adjusting your filters</div>
             </div>
           ) : (
             <>
               {/* Mobile Card View */}
-              <div className="sm:hidden divide-y divide-slate-200 dark:divide-slate-700">
+              <div className="sm:hidden divide-y divide-slate-200">
                 {entries.map((entry) => (
                   <div key={entry.id} className="p-4 space-y-2">
                     <div className="flex items-start justify-between">
                       <div>
-                        <div className="font-medium text-slate-900 dark:text-white text-sm">{entry.description}</div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        <div className="font-medium text-slate-900 text-sm">{entry.description}</div>
+                        <div className="text-xs text-slate-500 mt-0.5">
                           {entry.accountCode} · {entry.account.name}
                         </div>
                       </div>
@@ -324,7 +324,7 @@ export default function LedgerPage() {
                         <span className="text-xs ml-1">{entry.debitCredit}</span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                    <div className="flex items-center justify-between text-xs text-slate-500">
                       <span>{new Date(entry.entryDate).toLocaleDateString()}</span>
                       {entry.lease ? (
                         <Link href={`/leases/${entry.lease.id}`} className="text-blue-600">
@@ -338,17 +338,17 @@ export default function LedgerPage() {
                 ))}
 
                 {/* Mobile Totals */}
-                <div className="p-4 bg-slate-50 dark:bg-slate-900/50 space-y-2">
+                <div className="p-4 bg-slate-50 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-400">Total Debits</span>
+                    <span className="text-slate-600">Total Debits</span>
                     <span className="font-bold text-blue-600">${totalDebits.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-400">Total Credits</span>
+                    <span className="text-slate-600">Total Credits</span>
                     <span className="font-bold text-green-600">${totalCredits.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                   </div>
-                  <div className="flex justify-between text-sm pt-2 border-t border-slate-200 dark:border-slate-700">
-                    <span className="text-slate-900 dark:text-white font-medium">Balance</span>
+                  <div className="flex justify-between text-sm pt-2 border-t border-slate-200">
+                    <span className="text-slate-900 font-medium">Balance</span>
                     <span className={`font-bold ${totalDebits - totalCredits >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
                       ${Math.abs(totalDebits - totalCredits).toLocaleString('en-US', { minimumFractionDigits: 2 })} {totalDebits >= totalCredits ? 'DR' : 'CR'}
                     </span>
@@ -359,27 +359,27 @@ export default function LedgerPage() {
               {/* Desktop Table View */}
               <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                  <thead className="bg-slate-50 border-b border-slate-200">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Date</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Account</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Description</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Tenant</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Debit</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Credit</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Date</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Account</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Description</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Tenant</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Debit</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Credit</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                  <tbody className="divide-y divide-slate-200">
                     {entries.map((entry) => (
-                      <tr key={entry.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-900 dark:text-white">
+                      <tr key={entry.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-900">
                           {new Date(entry.entryDate).toLocaleDateString()}
                         </td>
                         <td className="px-4 py-3 text-sm">
-                          <div className="font-medium text-slate-900 dark:text-white">{entry.accountCode}</div>
-                          <div className="text-xs text-slate-500 dark:text-slate-400">{entry.account.name}</div>
+                          <div className="font-medium text-slate-900">{entry.accountCode}</div>
+                          <div className="text-xs text-slate-500">{entry.account.name}</div>
                         </td>
-                        <td className="px-4 py-3 text-sm text-slate-900 dark:text-white max-w-xs truncate">
+                        <td className="px-4 py-3 text-sm text-slate-900 max-w-xs truncate">
                           {entry.description}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm">
@@ -408,9 +408,9 @@ export default function LedgerPage() {
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot className="bg-slate-50 dark:bg-slate-900/50 border-t-2 border-slate-300 dark:border-slate-600">
+                  <tfoot className="bg-slate-50 border-t-2 border-slate-300">
                     <tr>
-                      <td colSpan={4} className="px-4 py-3 text-sm font-bold text-slate-900 dark:text-white">TOTALS</td>
+                      <td colSpan={4} className="px-4 py-3 text-sm font-bold text-slate-900">TOTALS</td>
                       <td className="px-4 py-3 text-sm text-right font-bold text-blue-600">
                         ${totalDebits.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </td>
@@ -419,7 +419,7 @@ export default function LedgerPage() {
                       </td>
                     </tr>
                     <tr>
-                      <td colSpan={4} className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300">Balance (DR - CR)</td>
+                      <td colSpan={4} className="px-4 py-2 text-sm text-slate-700">Balance (DR - CR)</td>
                       <td colSpan={2} className={`px-4 py-2 text-sm text-right font-bold ${totalDebits - totalCredits >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
                         ${Math.abs(totalDebits - totalCredits).toLocaleString('en-US', { minimumFractionDigits: 2 })} {totalDebits >= totalCredits ? 'DR' : 'CR'}
                       </td>
