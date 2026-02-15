@@ -138,7 +138,7 @@ export default function Dashboard() {
 
   // Quick create forms
   const [propertyForm, setPropertyForm] = useState({ name: '', address: '' });
-  const [unitForm, setUnitForm] = useState({ propertyId: '', unitNumber: '', bedrooms: '1', bathrooms: '1', rent: '' });
+  const [unitForm, setUnitForm] = useState({ propertyId: '', unitNumber: '', bedrooms: '0', bathrooms: '0', rent: '' });
   const [leaseForm, setLeaseForm] = useState({
     propertyId: '',
     unitId: '',
@@ -666,8 +666,8 @@ export default function Dashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...unitForm,
-          bedrooms: parseInt(unitForm.bedrooms) || 1,
-          bathrooms: parseFloat(unitForm.bathrooms) || 1,
+          bedrooms: parseInt(unitForm.bedrooms) || 0,
+          bathrooms: parseFloat(unitForm.bathrooms) || 0,
           marketRent: unitForm.rent ? parseFloat(unitForm.rent) : undefined
         })
       });
@@ -678,7 +678,7 @@ export default function Dashboard() {
       }
 
       showSuccess('Unit created! Now add a tenant.');
-      setUnitForm({ propertyId: '', unitNumber: '', bedrooms: '1', bathrooms: '1', rent: '' });
+      setUnitForm({ propertyId: '', unitNumber: '', bedrooms: '0', bathrooms: '0', rent: '' });
       setQuickCreateType('lease');
       fetchAllData();
     } catch (error: any) {
@@ -1661,7 +1661,7 @@ export default function Dashboard() {
                     value={propertyForm.name}
                     onChange={(e) => setPropertyForm({ ...propertyForm, name: e.target.value })}
                     className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="e.g., Sunset Apartments"
+                    placeholder="e.g., Industrial Park West"
                     autoFocus
                   />
                 </div>

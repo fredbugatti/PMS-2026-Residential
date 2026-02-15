@@ -50,7 +50,7 @@ model Property {
   state           String?           @db.VarChar(50)
   zipCode         String?           @map("zip_code") @db.VarChar(20)
   totalUnits      Int?              @map("total_units")
-  propertyType    String            @default("RESIDENTIAL") @map("property_type") @db.VarChar(20) // RESIDENTIAL or COMMERCIAL
+  propertyType    String            @default("WAREHOUSE") @map("property_type") @db.VarChar(20) // WAREHOUSE, INDUSTRIAL, COMMERCIAL, etc.
   notes           String?           @db.Text
   active          Boolean           @default(true)
   units             Unit[]
@@ -68,8 +68,8 @@ model Unit {
   createdAt   DateTime    @default(now()) @map("created_at")
   propertyId  String      @map("property_id")
   unitNumber  String      @map("unit_number") @db.VarChar(50)
-  bedrooms    Int?
-  bathrooms   Decimal?    @db.Decimal(3, 1)
+  bedrooms    Int?        // Optional: For office spaces within warehouse. Set to 0 for warehouse bays.
+  bathrooms   Decimal?    @db.Decimal(3, 1) // Optional: For office spaces. Minimal for warehouse bays.
   squareFeet  Int?        @map("square_feet")
   status      String      @default("VACANT") // VACANT, OCCUPIED, MAINTENANCE
   notes       String?     @db.Text

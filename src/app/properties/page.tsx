@@ -410,7 +410,7 @@ export default function PropertiesPage() {
                       value={propertyForm.name}
                       onChange={(e) => setPropertyForm({ ...propertyForm, name: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-lg"
-                      placeholder="Sunset Apartments"
+                      placeholder="Industrial Park West"
                       autoFocus
                     />
                   </div>
