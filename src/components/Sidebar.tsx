@@ -4,18 +4,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Home,
-  DollarSign,
-  BookOpen,
   BarChart3,
   Receipt,
-  FileText,
   Building2,
   ScrollText,
   Wrench,
   HardHat,
-  FolderOpen,
   Settings,
-  ShieldCheck,
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -25,20 +20,20 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-const navigation = [
+type NavItem = { name: string; path: string; icon: typeof Home } | 'divider';
+
+const navigation: NavItem[] = [
   { name: 'Dashboard', path: '/', icon: Home },
   { name: 'Properties', path: '/properties', icon: Building2 },
   { name: 'Leases', path: '/leases', icon: ScrollText },
-  { name: 'Balances', path: '/accounting', icon: DollarSign },
-  { name: 'Ledger', path: '/ledger', icon: BookOpen },
+  'divider',
   { name: 'Expenses', path: '/expenses', icon: Receipt },
-  { name: 'Bills Due', path: '/bills-due', icon: FileText },
   { name: 'Reports', path: '/reports', icon: BarChart3 },
+  'divider',
   { name: 'Maintenance', path: '/maintenance', icon: Wrench },
   { name: 'Vendors', path: '/vendors', icon: HardHat },
-  { name: 'Documents', path: '/documents', icon: FolderOpen },
+  'divider',
   { name: 'Settings', path: '/settings', icon: Settings },
-  { name: 'Admin', path: '/admin', icon: ShieldCheck },
 ];
 
 export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
@@ -82,7 +77,10 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         </div>
 
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          {navigation.map((item) => {
+          {navigation.map((item, index) => {
+            if (item === 'divider') {
+              return <div key={`div-${index}`} className="h-px bg-slate-800 my-3" />;
+            }
             const active = isActive(item.path);
             const Icon = item.icon;
             return (

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { BarChart3, FileText } from 'lucide-react';
+import { BarChart3, FileText, ShieldCheck } from 'lucide-react';
 import { ReactNode } from 'react';
 
 const settingsLinks: { title: string; description: string; href: string; icon: ReactNode; color: string }[] = [
@@ -18,6 +18,13 @@ const settingsLinks: { title: string; description: string; href: string; icon: R
     href: '/settings/templates',
     icon: <FileText className="h-6 w-6 text-green-600" />,
     color: 'bg-green-100',
+  },
+  {
+    title: 'Admin',
+    description: 'System administration, cron jobs, and database tools',
+    href: '/admin',
+    icon: <ShieldCheck className="h-6 w-6 text-slate-600" />,
+    color: 'bg-slate-100',
   },
 ];
 
