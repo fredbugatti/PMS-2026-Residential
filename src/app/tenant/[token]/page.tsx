@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { Image, FileText, Edit3, BarChart3, Package, Paperclip, Lock, ClipboardList, DollarSign, Calendar, Wrench, Banknote, RefreshCw, Tag, FolderOpen } from 'lucide-react';
 
 interface LedgerEntry {
   id: string;
@@ -114,7 +115,7 @@ export default function TenantPortal() {
       case 'ASSIGNED': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'IN_PROGRESS': return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'COMPLETED': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      default: return 'bg-slate-100 text-slate-800 border-slate-200';
     }
   };
 
@@ -124,7 +125,7 @@ export default function TenantPortal() {
       case 'HIGH': return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'MEDIUM': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'LOW': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      default: return 'bg-slate-100 text-slate-800 border-slate-200';
     }
   };
 
@@ -164,13 +165,13 @@ export default function TenantPortal() {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
 
-  const getFileIcon = (mimeType: string) => {
-    if (mimeType.startsWith('image/')) return '🖼️';
-    if (mimeType.includes('pdf')) return '📄';
-    if (mimeType.includes('word') || mimeType.includes('document')) return '📝';
-    if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📊';
-    if (mimeType.includes('zip') || mimeType.includes('rar')) return '📦';
-    return '📎';
+  const getFileIcon = (mimeType: string): ReactNode => {
+    if (mimeType.startsWith('image/')) return <Image className="h-6 w-6" />;
+    if (mimeType.includes('pdf')) return <FileText className="h-6 w-6" />;
+    if (mimeType.includes('word') || mimeType.includes('document')) return <Edit3 className="h-6 w-6" />;
+    if (mimeType.includes('sheet') || mimeType.includes('excel')) return <BarChart3 className="h-6 w-6" />;
+    if (mimeType.includes('zip') || mimeType.includes('rar')) return <Package className="h-6 w-6" />;
+    return <Paperclip className="h-6 w-6" />;
   };
 
   const getCategoryLabel = (category: string) => {
@@ -196,7 +197,7 @@ export default function TenantPortal() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="text-gray-600 font-medium">Loading your portal...</div>
+          <div className="text-slate-600 font-medium">Loading your portal...</div>
         </div>
       </div>
     );
@@ -206,10 +207,10 @@ export default function TenantPortal() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100 flex items-center justify-center p-4">
         <div className="text-center bg-white rounded-2xl shadow-xl p-12 max-w-md">
-          <div className="text-6xl mb-4">🔒</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-gray-600 mb-4">{error || 'Invalid portal link'}</p>
-          <p className="text-sm text-gray-500">Please contact your property manager for assistance.</p>
+          <div className="mb-4"><Lock className="h-14 w-14 text-red-400" /></div>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h1>
+          <p className="text-slate-600 mb-4">{error || 'Invalid portal link'}</p>
+          <p className="text-sm text-slate-500">Please contact your property manager for assistance.</p>
         </div>
       </div>
     );
@@ -249,7 +250,7 @@ export default function TenantPortal() {
                     <p className="text-white/90 text-lg">Amount Owed</p>
                     <Link
                       href={`/tenant/${params.token}/pay`}
-                      className="px-6 py-2 bg-white text-red-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors shadow-md"
+                      className="px-6 py-2 bg-white text-red-600 rounded-lg font-semibold hover:bg-slate-100 transition-colors shadow-md"
                     >
                       Pay Now
                     </Link>
@@ -274,16 +275,16 @@ export default function TenantPortal() {
         </div>
 
         {/* Account Statement - Most Important Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 mb-8">
-          <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
+        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 mb-8">
+          <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
-                  <span className="text-2xl">📋</span>
+                  <ClipboardList className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Account Statement</h2>
-                  <p className="text-sm text-gray-600">Your complete transaction history</p>
+                  <h2 className="text-xl font-bold text-slate-900">Account Statement</h2>
+                  <p className="text-sm text-slate-600">Your complete transaction history</p>
                 </div>
               </div>
               <div className={`px-5 py-3 rounded-xl font-bold text-lg ${
@@ -291,7 +292,7 @@ export default function TenantPortal() {
                   ? 'bg-red-100 text-red-800 border-2 border-red-200'
                   : data.balance < 0
                   ? 'bg-green-100 text-green-800 border-2 border-green-200'
-                  : 'bg-gray-100 text-gray-800 border-2 border-gray-200'
+                  : 'bg-slate-100 text-slate-800 border-2 border-slate-200'
               }`}>
                 Balance: {formatCurrency(Math.abs(data.balance))} {data.balance > 0 ? 'Due' : data.balance < 0 ? 'Credit' : ''}
               </div>
@@ -300,30 +301,30 @@ export default function TenantPortal() {
 
           <div className="p-6">
             {data.ledgerEntries.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <div className="text-5xl mb-4">📋</div>
+              <div className="text-center py-8 text-slate-500">
+                <div className="mb-4"><ClipboardList className="h-12 w-12 text-slate-400" /></div>
                 <p className="text-lg">No transactions yet</p>
                 <p className="text-sm mt-2">Charges and payments will appear here</p>
               </div>
             ) : (
               <>
                 {/* Summary Row */}
-                <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
+                <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-slate-50 rounded-xl">
                   <div className="text-center">
-                    <div className="text-sm text-gray-600 mb-1">Total Charged</div>
+                    <div className="text-sm text-slate-600 mb-1">Total Charged</div>
                     <div className="text-xl font-bold text-red-600">
                       {formatCurrency(data.ledgerEntries.filter(e => e.accountCode === '1200' && e.debitCredit === 'DR').reduce((sum, e) => sum + Number(e.amount), 0))}
                     </div>
                   </div>
-                  <div className="text-center border-x border-gray-200">
-                    <div className="text-sm text-gray-600 mb-1">Total Paid</div>
+                  <div className="text-center border-x border-slate-200">
+                    <div className="text-sm text-slate-600 mb-1">Total Paid</div>
                     <div className="text-xl font-bold text-green-600">
                       {formatCurrency(data.ledgerEntries.filter(e => e.accountCode === '1200' && e.debitCredit === 'CR').reduce((sum, e) => sum + Number(e.amount), 0))}
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-sm text-gray-600 mb-1">Current Balance</div>
-                    <div className={`text-xl font-bold ${data.balance > 0 ? 'text-red-600' : data.balance < 0 ? 'text-green-600' : 'text-gray-900'}`}>
+                    <div className="text-sm text-slate-600 mb-1">Current Balance</div>
+                    <div className={`text-xl font-bold ${data.balance > 0 ? 'text-red-600' : data.balance < 0 ? 'text-green-600' : 'text-slate-900'}`}>
                       {formatCurrency(Math.abs(data.balance))}
                     </div>
                   </div>
@@ -332,11 +333,11 @@ export default function TenantPortal() {
                 {/* Transaction List - Only show AR entries (1200) to tenant */}
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {data.ledgerEntries.filter(e => e.accountCode === '1200').map((entry) => (
-                    <div key={entry.id} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors border border-gray-200">
+                    <div key={entry.id} className="bg-slate-50 rounded-lg p-4 hover:bg-slate-100 transition-colors border border-slate-200">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
-                          <div className="font-medium text-gray-900">{entry.description}</div>
-                          <div className="text-sm text-gray-600 mt-1">
+                          <div className="font-medium text-slate-900">{entry.description}</div>
+                          <div className="text-sm text-slate-600 mt-1">
                             {new Date(entry.entryDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                           </div>
                         </div>
@@ -366,14 +367,14 @@ export default function TenantPortal() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 hover:shadow-lg transition-shadow">
+          <div className="bg-white rounded-xl shadow-md border border-slate-100 p-6 hover:shadow-lg transition-shadow">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">💰</span>
+                <DollarSign className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <div className="text-sm text-gray-600">Monthly Rent</div>
-                <div className="text-2xl font-bold text-gray-900">
+                <div className="text-sm text-slate-600">Monthly Rent</div>
+                <div className="text-2xl font-bold text-slate-900">
                   {formatCurrency(Number(data.lease.monthlyRentAmount))}
                 </div>
               </div>
@@ -381,27 +382,27 @@ export default function TenantPortal() {
           </div>
 
           {daysUntilEnd && daysUntilEnd > 0 && (
-            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 hover:shadow-lg transition-shadow">
+            <div className="bg-white rounded-xl shadow-md border border-slate-100 p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl">📅</span>
+                  <Calendar className="h-6 w-6 text-purple-600" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600">Lease Expires</div>
-                  <div className="text-2xl font-bold text-gray-900">{daysUntilEnd} days</div>
+                  <div className="text-sm text-slate-600">Lease Expires</div>
+                  <div className="text-2xl font-bold text-slate-900">{daysUntilEnd} days</div>
                 </div>
               </div>
             </div>
           )}
 
-          <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 hover:shadow-lg transition-shadow">
+          <div className="bg-white rounded-xl shadow-md border border-slate-100 p-6 hover:shadow-lg transition-shadow">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">🔧</span>
+                <Wrench className="h-6 w-6 text-orange-600" />
               </div>
               <div>
-                <div className="text-sm text-gray-600">Active Requests</div>
-                <div className="text-2xl font-bold text-gray-900">
+                <div className="text-sm text-slate-600">Active Requests</div>
+                <div className="text-2xl font-bold text-slate-900">
                   {data.workOrders.filter(wo => wo.status !== 'COMPLETED').length}
                 </div>
               </div>
@@ -410,15 +411,15 @@ export default function TenantPortal() {
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 mb-8">
-          <div className="border-b border-gray-200">
+        <div className="bg-white rounded-xl shadow-md border border-slate-100 mb-8">
+          <div className="border-b border-slate-200">
             <nav className="flex -mb-px">
               <button
                 onClick={() => setActiveTab('overview')}
                 className={`px-8 py-4 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === 'overview'
                     ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                 }`}
               >
                 Lease Details
@@ -428,7 +429,7 @@ export default function TenantPortal() {
                 className={`px-8 py-4 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === 'maintenance'
                     ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                 }`}
               >
                 Maintenance
@@ -438,7 +439,7 @@ export default function TenantPortal() {
                 className={`px-8 py-4 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === 'documents'
                     ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                 }`}
               >
                 Documents
@@ -457,8 +458,8 @@ export default function TenantPortal() {
                       className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl p-6 hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg block"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center text-3xl">
-                          💵
+                        <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+                          <Banknote className="h-8 w-8" />
                         </div>
                         <div className="text-left">
                           <div className="font-semibold text-lg">Pay Balance</div>
@@ -475,8 +476,8 @@ export default function TenantPortal() {
                     className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl p-6 hover:from-blue-600 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center text-3xl">
-                        🔧
+                      <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+                        <Wrench className="h-8 w-8" />
                       </div>
                       <div className="text-left">
                         <div className="font-semibold text-lg">Maintenance Request</div>
@@ -493,8 +494,8 @@ export default function TenantPortal() {
                     } text-white rounded-xl p-6 transition-all shadow-md hover:shadow-lg block`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center text-3xl">
-                        {data.autopay?.enabled ? '✓' : '🔄'}
+                      <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+                        {data.autopay?.enabled ? '✓' : <RefreshCw className="h-8 w-8" />}
                       </div>
                       <div className="text-left">
                         <div className="font-semibold text-lg">
@@ -511,12 +512,12 @@ export default function TenantPortal() {
                 </div>
 
                 {/* Lease Information */}
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Lease Details</h3>
+                <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4">Lease Details</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <div className="text-sm text-gray-600 mb-1">Property Address</div>
-                      <div className="font-medium text-gray-900">
+                      <div className="text-sm text-slate-600 mb-1">Property Address</div>
+                      <div className="font-medium text-slate-900">
                         {data.property.address}
                         {data.property.city && `, ${data.property.city}`}
                         {data.property.state && `, ${data.property.state}`}
@@ -524,24 +525,24 @@ export default function TenantPortal() {
                       </div>
                     </div>
                     <div>
-                      <div className="text-sm text-gray-600 mb-1">Unit Details</div>
-                      <div className="font-medium text-gray-900">
+                      <div className="text-sm text-slate-600 mb-1">Unit Details</div>
+                      <div className="font-medium text-slate-900">
                         Unit {data.unit.unitNumber}
                         {data.unit.bedrooms && ` • ${data.unit.bedrooms} bed`}
                         {data.unit.bathrooms && ` • ${data.unit.bathrooms} bath`}
                       </div>
                     </div>
                     <div>
-                      <div className="text-sm text-gray-600 mb-1">Lease Term</div>
-                      <div className="font-medium text-gray-900">
+                      <div className="text-sm text-slate-600 mb-1">Lease Term</div>
+                      <div className="font-medium text-slate-900">
                         {data.lease.startDate && new Date(data.lease.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         {' '} to {' '}
                         {data.lease.endDate && new Date(data.lease.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
                     </div>
                     <div>
-                      <div className="text-sm text-gray-600 mb-1">Security Deposit</div>
-                      <div className="font-medium text-gray-900">
+                      <div className="text-sm text-slate-600 mb-1">Security Deposit</div>
+                      <div className="font-medium text-slate-900">
                         {formatCurrency(Number(data.lease.securityDepositAmount || 0))}
                       </div>
                     </div>
@@ -553,7 +554,7 @@ export default function TenantPortal() {
             {activeTab === 'maintenance' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Maintenance Requests</h3>
+                  <h3 className="text-lg font-semibold text-slate-900">Maintenance Requests</h3>
                   <button
                     onClick={() => setShowNewRequest(true)}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
@@ -563,8 +564,8 @@ export default function TenantPortal() {
                 </div>
 
                 {data.workOrders.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    <div className="text-5xl mb-4">🔧</div>
+                  <div className="text-center py-12 text-slate-500">
+                    <div className="mb-4"><Wrench className="h-12 w-12 text-slate-400" /></div>
                     <p>No maintenance requests yet</p>
                     <button
                       onClick={() => setShowNewRequest(true)}
@@ -576,11 +577,11 @@ export default function TenantPortal() {
                 ) : (
                   <div className="space-y-4">
                     {data.workOrders.map((request) => (
-                      <div key={request.id} className="bg-gray-50 rounded-lg p-6 hover:bg-gray-100 transition-colors border border-gray-200">
+                      <div key={request.id} className="bg-slate-50 rounded-lg p-6 hover:bg-slate-100 transition-colors border border-slate-200">
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex-1">
-                            <h4 className="font-semibold text-gray-900 text-lg">{request.title}</h4>
-                            <p className="text-gray-600 mt-2">{request.description}</p>
+                            <h4 className="font-semibold text-slate-900 text-lg">{request.title}</h4>
+                            <p className="text-slate-600 mt-2">{request.description}</p>
                           </div>
                           <div className="flex gap-2 ml-4">
                             <span className={`text-xs px-3 py-1 rounded-full font-medium border ${getPriorityColor(request.priority)}`}>
@@ -592,16 +593,16 @@ export default function TenantPortal() {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-6 text-sm text-gray-500 mt-4">
+                        <div className="flex items-center gap-6 text-sm text-slate-500 mt-4">
                           <span className="flex items-center gap-1">
-                            📅 {new Date(request.createdAt).toLocaleDateString()}
+                            <Calendar className="h-4 w-4" /> {new Date(request.createdAt).toLocaleDateString()}
                           </span>
                           <span className="flex items-center gap-1">
-                            🏷️ {request.category}
+                            <Tag className="h-4 w-4" /> {request.category}
                           </span>
                           {request.scheduledDate && (
                             <span className="flex items-center gap-1 text-blue-600 font-medium">
-                              🔧 Scheduled: {new Date(request.scheduledDate).toLocaleDateString()}
+                              <Wrench className="h-4 w-4" /> Scheduled: {new Date(request.scheduledDate).toLocaleDateString()}
                             </span>
                           )}
                         </div>
@@ -613,11 +614,11 @@ export default function TenantPortal() {
                                 key={idx}
                                 src={photo}
                                 alt={`Photo ${idx + 1}`}
-                                className="w-24 h-24 object-cover rounded-lg border-2 border-gray-200"
+                                className="w-24 h-24 object-cover rounded-lg border-2 border-slate-200"
                               />
                             ))}
                             {request.photos.length > 4 && (
-                              <div className="w-24 h-24 bg-gray-200 rounded-lg border-2 border-gray-300 flex items-center justify-center text-gray-600 font-medium">
+                              <div className="w-24 h-24 bg-slate-200 rounded-lg border-2 border-slate-300 flex items-center justify-center text-slate-600 font-medium">
                                 +{request.photos.length - 4}
                               </div>
                             )}
@@ -633,39 +634,39 @@ export default function TenantPortal() {
             {activeTab === 'documents' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Lease Documents</h3>
-                  <div className="text-sm text-gray-600">
+                  <h3 className="text-lg font-semibold text-slate-900">Lease Documents</h3>
+                  <div className="text-sm text-slate-600">
                     {data.documents.length} {data.documents.length === 1 ? 'document' : 'documents'}
                   </div>
                 </div>
 
                 {data.documents.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    <div className="text-5xl mb-4">📁</div>
+                  <div className="text-center py-12 text-slate-500">
+                    <div className="mb-4"><FolderOpen className="h-12 w-12 text-slate-400" /></div>
                     <p>No documents available yet</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 gap-4">
                     {data.documents.map((doc) => (
-                      <div key={doc.id} className="bg-gray-50 rounded-lg p-6 hover:bg-gray-100 transition-colors border border-gray-200">
+                      <div key={doc.id} className="bg-slate-50 rounded-lg p-6 hover:bg-slate-100 transition-colors border border-slate-200">
                         <div className="flex items-start gap-4">
-                          <div className="text-4xl">{getFileIcon(doc.mimeType)}</div>
+                          <div>{getFileIcon(doc.mimeType)}</div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-4">
                               <div className="flex-1 min-w-0">
-                                <h4 className="font-semibold text-gray-900 truncate">{doc.fileName}</h4>
+                                <h4 className="font-semibold text-slate-900 truncate">{doc.fileName}</h4>
                                 {doc.description && (
-                                  <p className="text-sm text-gray-600 mt-1">{doc.description}</p>
+                                  <p className="text-sm text-slate-600 mt-1">{doc.description}</p>
                                 )}
-                                <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
+                                <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-slate-500">
                                   <span className="flex items-center gap-1">
-                                    🏷️ {getCategoryLabel(doc.category)}
+                                    <Tag className="h-4 w-4" /> {getCategoryLabel(doc.category)}
                                   </span>
                                   <span className="flex items-center gap-1">
-                                    📦 {formatFileSize(doc.fileSize)}
+                                    <Package className="h-4 w-4" /> {formatFileSize(doc.fileSize)}
                                   </span>
                                   <span className="flex items-center gap-1">
-                                    📅 {new Date(doc.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                    <Calendar className="h-4 w-4" /> {new Date(doc.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                   </span>
                                 </div>
                               </div>
@@ -681,7 +682,7 @@ export default function TenantPortal() {
                                 <a
                                   href={doc.fileUrl}
                                   download={doc.fileName}
-                                  className="px-4 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 transition-colors font-medium"
+                                  className="px-4 py-2 bg-slate-600 text-white text-sm rounded-lg hover:bg-slate-700 transition-colors font-medium"
                                 >
                                   Download
                                 </a>
@@ -712,12 +713,12 @@ export default function TenantPortal() {
       {showNewRequest && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-6 border-b border-slate-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">Submit Maintenance Request</h2>
+                <h2 className="text-2xl font-bold text-slate-900">Submit Maintenance Request</h2>
                 <button
                   onClick={() => setShowNewRequest(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-slate-400 hover:text-slate-600 transition-colors"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -726,7 +727,7 @@ export default function TenantPortal() {
               </div>
             </div>
             <div className="p-6">
-              <p className="text-gray-600 mb-6">
+              <p className="text-slate-600 mb-6">
                 You'll be redirected to submit a new maintenance request with detailed information about the issue.
               </p>
               <Link

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Building2 } from 'lucide-react';
 import { PropertiesListSkeleton } from '@/components/Skeleton';
 
 interface Property {
@@ -193,13 +194,13 @@ export default function PropertiesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="bg-white border-b border-gray-200">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Properties</h1>
-              <p className="text-sm text-gray-600 mt-1">Manage your rental properties and units</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Properties</h1>
+              <p className="text-sm text-slate-600 mt-1">Manage your rental properties and units</p>
             </div>
             <button
               onClick={() => setShowWizard(true)}
@@ -213,14 +214,14 @@ export default function PropertiesPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
         {properties.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 sm:p-12 text-center">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 sm:p-12 text-center">
             <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl sm:text-3xl">🏠</span>
+              <Building2 className="h-8 w-8 text-blue-600" />
             </div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-2">
               No properties yet
             </h3>
-            <p className="text-gray-500 mb-6 text-sm sm:text-base">
+            <p className="text-slate-500 mb-6 text-sm sm:text-base">
               Get started by adding your first property
             </p>
             <button
@@ -236,14 +237,14 @@ export default function PropertiesPage() {
               <div
                 key={property.id}
                 onClick={() => window.location.href = `/properties/${property.id}`}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
               >
                 <div className="p-4 sm:p-6">
                   <div className="flex items-start justify-between mb-3 sm:mb-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 truncate">{property.name}</h3>
+                      <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-1 truncate">{property.name}</h3>
                       {property.address && (
-                        <p className="text-xs sm:text-sm text-gray-600 truncate">
+                        <p className="text-xs sm:text-sm text-slate-600 truncate">
                           {property.address}
                           {property.city && `, ${property.city}`}
                           {property.state && `, ${property.state}`}
@@ -255,10 +256,10 @@ export default function PropertiesPage() {
                   <div className="space-y-3">
                     <div>
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-600 text-xs sm:text-sm">Occupancy</span>
-                        <span className="font-semibold text-gray-900 text-xs sm:text-sm">{property.occupancyRate}%</span>
+                        <span className="text-slate-600 text-xs sm:text-sm">Occupancy</span>
+                        <span className="font-semibold text-slate-900 text-xs sm:text-sm">{property.occupancyRate}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-slate-200 rounded-full h-2">
                         <div
                           className={`h-2 rounded-full ${
                             property.occupancyRate >= 90 ? 'bg-green-500' :
@@ -269,13 +270,13 @@ export default function PropertiesPage() {
                           style={{ width: `${property.occupancyRate}%` }}
                         ></div>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-slate-500 mt-1">
                         {property.occupiedUnits} / {property.totalUnits} units occupied
                       </p>
                     </div>
 
-                    <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-                      <span className="text-xs sm:text-sm text-gray-600">Monthly Revenue</span>
+                    <div className="flex justify-between items-center pt-3 border-t border-slate-200">
+                      <span className="text-xs sm:text-sm text-slate-600">Monthly Revenue</span>
                       <span className="text-base sm:text-lg font-bold text-green-600">
                         {formatCurrency(property.monthlyRevenue)}
                       </span>
@@ -283,7 +284,7 @@ export default function PropertiesPage() {
                   </div>
                 </div>
 
-                <div className="border-t border-gray-200 bg-gray-50 px-4 sm:px-6 py-3">
+                <div className="border-t border-slate-200 bg-slate-50 px-4 sm:px-6 py-3">
                   <span className="text-sm font-medium text-blue-600">
                     View Details →
                   </span>
@@ -299,9 +300,9 @@ export default function PropertiesPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
           <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
             {/* Progress Header */}
-            <div className="bg-gray-50 px-4 sm:px-6 py-4 border-b border-gray-200">
+            <div className="bg-slate-50 px-4 sm:px-6 py-4 border-b border-slate-200">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900">
                   {wizardStep === 1 && 'Property Details'}
                   {wizardStep === 2 && 'Add Units'}
                   {wizardStep === 3 && 'Setup Complete'}
@@ -311,7 +312,7 @@ export default function PropertiesPage() {
                     setShowWizard(false);
                     resetWizard();
                   }}
-                  className="text-gray-400 hover:text-gray-600 p-1"
+                  className="text-slate-400 hover:text-slate-600 p-1"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -328,7 +329,7 @@ export default function PropertiesPage() {
                         ? 'bg-green-500 text-white'
                         : wizardStep === step
                           ? 'bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-500'
+                          : 'bg-slate-200 text-slate-500'
                     }`}>
                       {wizardStep > step ? (
                         <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -338,13 +339,13 @@ export default function PropertiesPage() {
                     </div>
                     {step < 3 && (
                       <div className={`flex-1 h-1 mx-1 sm:mx-2 rounded ${
-                        wizardStep > step ? 'bg-green-500' : 'bg-gray-200'
+                        wizardStep > step ? 'bg-green-500' : 'bg-slate-200'
                       }`} />
                     )}
                   </div>
                 ))}
               </div>
-              <div className="flex justify-between mt-2 text-xs text-gray-500">
+              <div className="flex justify-between mt-2 text-xs text-slate-500">
                 <span>Property</span>
                 <span>Units</span>
                 <span>Done</span>
@@ -363,7 +364,7 @@ export default function PropertiesPage() {
               {wizardStep === 1 && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Property Name *
                     </label>
                     <input
@@ -371,40 +372,40 @@ export default function PropertiesPage() {
                       required
                       value={propertyForm.name}
                       onChange={(e) => setPropertyForm({ ...propertyForm, name: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-lg"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-lg"
                       placeholder="Sunset Apartments"
                       autoFocus
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Address
                     </label>
                     <input
                       type="text"
                       value={propertyForm.address}
                       onChange={(e) => setPropertyForm({ ...propertyForm, address: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                       placeholder="123 Main Street"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         City
                       </label>
                       <input
                         type="text"
                         value={propertyForm.city}
                         onChange={(e) => setPropertyForm({ ...propertyForm, city: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                         placeholder="Los Angeles"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         State
                       </label>
                       <input
@@ -412,19 +413,19 @@ export default function PropertiesPage() {
                         maxLength={2}
                         value={propertyForm.state}
                         onChange={(e) => setPropertyForm({ ...propertyForm, state: e.target.value.toUpperCase() })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                         placeholder="CA"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
                         ZIP
                       </label>
                       <input
                         type="text"
                         value={propertyForm.zipCode}
                         onChange={(e) => setPropertyForm({ ...propertyForm, zipCode: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                         placeholder="90001"
                       />
                     </div>
@@ -435,14 +436,14 @@ export default function PropertiesPage() {
               {/* Step 2: Add Units */}
               {wizardStep === 2 && (
                 <div className="space-y-4">
-                  <p className="text-gray-600 mb-4 text-sm sm:text-base">
+                  <p className="text-slate-600 mb-4 text-sm sm:text-base">
                     Add units to your property. You can add more later.
                   </p>
 
                   {units.map((unit, index) => (
-                    <div key={index} className="p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <div key={index} className="p-3 sm:p-4 bg-slate-50 rounded-xl border border-slate-200">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="font-medium text-gray-900 text-sm sm:text-base">
+                        <span className="font-medium text-slate-900 text-sm sm:text-base">
                           Unit {index + 1}
                         </span>
                         {units.length > 1 && (
@@ -458,57 +459,57 @@ export default function PropertiesPage() {
 
                       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
                         <div className="col-span-3 sm:col-span-1">
-                          <label className="block text-xs text-gray-500 mb-1">Unit #</label>
+                          <label className="block text-xs text-slate-500 mb-1">Unit #</label>
                           <input
                             type="text"
                             value={unit.unitNumber}
                             onChange={(e) => updateUnit(index, 'unitNumber', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                             placeholder="1A"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-gray-500 mb-1">Beds</label>
+                          <label className="block text-xs text-slate-500 mb-1">Beds</label>
                           <input
                             type="number"
                             min="0"
                             value={unit.bedrooms}
                             onChange={(e) => updateUnit(index, 'bedrooms', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                             placeholder="2"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-gray-500 mb-1">Baths</label>
+                          <label className="block text-xs text-slate-500 mb-1">Baths</label>
                           <input
                             type="number"
                             min="0"
                             step="0.5"
                             value={unit.bathrooms}
                             onChange={(e) => updateUnit(index, 'bathrooms', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                             placeholder="1"
                           />
                         </div>
                         <div className="hidden sm:block">
-                          <label className="block text-xs text-gray-500 mb-1">Sq Ft</label>
+                          <label className="block text-xs text-slate-500 mb-1">Sq Ft</label>
                           <input
                             type="number"
                             min="0"
                             value={unit.squareFeet}
                             onChange={(e) => updateUnit(index, 'squareFeet', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                             placeholder="850"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-gray-500 mb-1">Rent</label>
+                          <label className="block text-xs text-slate-500 mb-1">Rent</label>
                           <input
                             type="number"
                             min="0"
                             value={unit.rent}
                             onChange={(e) => updateUnit(index, 'rent', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                             placeholder="1500"
                           />
                         </div>
@@ -519,7 +520,7 @@ export default function PropertiesPage() {
                   <button
                     type="button"
                     onClick={addUnit}
-                    className="w-full py-3 border-2 border-dashed border-gray-300 text-gray-600 hover:border-blue-400 hover:text-blue-600 rounded-xl transition-colors font-medium text-sm sm:text-base"
+                    className="w-full py-3 border-2 border-dashed border-slate-300 text-slate-600 hover:border-blue-400 hover:text-blue-600 rounded-xl transition-colors font-medium text-sm sm:text-base"
                   >
                     + Add Another Unit
                   </button>
@@ -534,13 +535,13 @@ export default function PropertiesPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">
                     Property Created!
                   </h3>
-                  <p className="text-gray-600 mb-2 text-sm sm:text-base">
+                  <p className="text-slate-600 mb-2 text-sm sm:text-base">
                     <strong>{propertyForm.name}</strong> has been set up with <strong>{units.length} {units.length !== 1 ? 'units' : 'unit'}</strong>.
                   </p>
-                  <p className="text-xs sm:text-sm text-gray-500">
+                  <p className="text-xs sm:text-sm text-slate-500">
                     You can now add tenants and leases from the property page.
                   </p>
                 </div>
@@ -548,7 +549,7 @@ export default function PropertiesPage() {
             </div>
 
             {/* Footer Actions */}
-            <div className="px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+            <div className="px-4 sm:px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
               {wizardStep === 1 && (
                 <>
                   <button
@@ -557,7 +558,7 @@ export default function PropertiesPage() {
                       setShowWizard(false);
                       resetWizard();
                     }}
-                    className="px-6 py-3 sm:py-2 text-gray-700 hover:text-gray-900 font-medium border border-gray-300 rounded-lg sm:border-0"
+                    className="px-6 py-3 sm:py-2 text-slate-700 hover:text-slate-900 font-medium border border-slate-300 rounded-lg sm:border-0"
                   >
                     Cancel
                   </button>
@@ -577,7 +578,7 @@ export default function PropertiesPage() {
                     type="button"
                     onClick={() => setWizardStep(3)}
                     disabled={submitting}
-                    className="px-6 py-3 sm:py-2 text-gray-700 hover:text-gray-900 font-medium border border-gray-300 rounded-lg sm:border-0"
+                    className="px-6 py-3 sm:py-2 text-slate-700 hover:text-slate-900 font-medium border border-slate-300 rounded-lg sm:border-0"
                   >
                     Skip for Now
                   </button>
@@ -596,7 +597,7 @@ export default function PropertiesPage() {
                   <button
                     type="button"
                     onClick={handleFinish}
-                    className="px-6 py-3 sm:py-2 text-gray-700 hover:text-gray-900 font-medium border border-gray-300 rounded-lg sm:border-0"
+                    className="px-6 py-3 sm:py-2 text-slate-700 hover:text-slate-900 font-medium border border-slate-300 rounded-lg sm:border-0"
                   >
                     Back to Properties
                   </button>

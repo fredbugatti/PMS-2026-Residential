@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
         title: lease.tenantName,
         subtitle: unitInfo,
         href: `/leases/${lease.id}`,
-        icon: '👤',
+        icon: 'user',
       });
     }
 
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
         title: property.name,
         subtitle: property.address ? `${property.address}, ${property.city || ''}` : 'No address',
         href: `/properties/${property.id}`,
-        icon: '🏢',
+        icon: 'building',
       });
     }
 
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
         title: entry.description,
         subtitle: `${amount} - ${entry.lease?.tenantName || 'Unknown tenant'}`,
         href: `/accounting?search=${entry.id}`,
-        icon: entry.debitCredit === 'CR' ? '💵' : '📝',
+        icon: entry.debitCredit === 'CR' ? 'dollar' : 'document',
       });
     }
 
@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
         title: wo.title,
         subtitle: `${wo.property.name}${wo.unit ? ` - ${wo.unit.unitNumber}` : ''} (${wo.status})`,
         href: `/maintenance?workorder=${wo.id}`,
-        icon: '🔧',
+        icon: 'wrench',
       });
     }
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { Building2, FileText, Wrench, Wallet, BarChart3, HardHat, DollarSign, Receipt, TrendingUp, Calendar, AlertTriangle, Plus, Minus, DoorOpen } from 'lucide-react';
 import Link from 'next/link';
 import { DashboardSkeleton } from '@/components/Skeleton';
 import { PullToRefresh } from '@/components/PullToRefresh';
@@ -857,14 +858,14 @@ export default function Dashboard() {
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Property management overview</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Property management overview</p>
             </div>
             {/* Quick Action Buttons */}
             <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0">
@@ -872,7 +873,7 @@ export default function Dashboard() {
                 onClick={() => setShowPaymentModal(true)}
                 className="px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
               >
-                💵 Payment
+                <DollarSign className="h-4 w-4" /> Payment
               </button>
               <button
                 onClick={() => setShowChargeModal(true)}
@@ -884,7 +885,7 @@ export default function Dashboard() {
                 onClick={() => setShowWorkOrderModal(true)}
                 className="px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
               >
-                🔧 Work Order
+                <Wrench className="h-4 w-4" /> Work Order
               </button>
               <button
                 onClick={() => {
@@ -893,7 +894,7 @@ export default function Dashboard() {
                 }}
                 className="px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0 shadow-sm"
               >
-                − Expense
+                <Minus className="h-4 w-4" /> Expense
               </button>
             </div>
           </div>
@@ -903,31 +904,31 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         {/* Key Metrics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <Link href="/properties" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer">
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Units</p>
-            <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.totalUnits}</p>
+          <Link href="/properties" className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Units</p>
+            <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1">{stats.totalUnits}</p>
             <p className="text-xs text-blue-500 dark:text-blue-400 mt-1">{stats.totalProperties} properties →</p>
           </Link>
 
-          <Link href="/leases" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-green-300 dark:hover:border-green-600 transition-all cursor-pointer">
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Occupied</p>
+          <Link href="/leases" className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-green-300 dark:hover:border-green-600 transition-all cursor-pointer">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Occupied</p>
             <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400 mt-1">{stats.occupiedUnits}</p>
             <p className="text-xs text-green-500 dark:text-green-400 mt-1">{occupancyRate}% full →</p>
           </Link>
 
-          <Link href="/reports?tab=pnl" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-green-300 dark:hover:border-green-600 transition-all cursor-pointer">
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Rent/Month</p>
+          <Link href="/reports?tab=pnl" className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-green-300 dark:hover:border-green-600 transition-all cursor-pointer">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Rent/Month</p>
             <p className="text-xl sm:text-3xl font-bold text-green-600 dark:text-green-400 mt-1">{formatCurrency(stats.monthlyRevenue)}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">expected income →</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">expected income →</p>
           </Link>
 
-          <Link href="/reports?tab=aging" className={`bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border hover:shadow-md transition-all cursor-pointer ${stats.totalOwed > 0 ? 'border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-600' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}`}>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Owed</p>
-            <p className={`text-xl sm:text-3xl font-bold mt-1 ${stats.totalOwed > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
+          <Link href="/reports?tab=aging" className={`bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 shadow-sm border hover:shadow-md transition-all cursor-pointer ${stats.totalOwed > 0 ? 'border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-600' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'}`}>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Owed</p>
+            <p className={`text-xl sm:text-3xl font-bold mt-1 ${stats.totalOwed > 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-white'}`}>
               {formatCurrency(stats.totalOwed)}
             </p>
             <p className={`text-xs mt-1 ${stats.tenantsOwing > 0 ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400'}`}>
-              {stats.tenantsOwing > 0 ? `${stats.tenantsOwing} unpaid →` : 'all paid ✓'}
+              {stats.tenantsOwing > 0 ? `${stats.tenantsOwing} unpaid →` : 'all paid'}
             </p>
           </Link>
         </div>
@@ -940,7 +941,7 @@ export default function Dashboard() {
               <div className="bg-red-50 border border-red-200 rounded-xl p-3 sm:p-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-xl sm:text-2xl">⚠️</span>
+                    <AlertTriangle className="h-5 w-5" />
                     <div>
                       <p className="font-medium text-red-800 text-sm sm:text-base">Auto-posting Issue Detected</p>
                       <p className="text-xs sm:text-sm text-red-600">{cronStatus.message}</p>
@@ -963,7 +964,7 @@ export default function Dashboard() {
               <div className="bg-green-50 border border-green-200 rounded-xl p-3 sm:p-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <Link href="/rent-increases" className="flex items-center gap-3 flex-1 hover:opacity-80 transition-opacity">
-                    <span className="text-xl sm:text-2xl">📈</span>
+                    <TrendingUp className="h-5 w-5" />
                     <div>
                       <p className="font-medium text-green-800 text-sm sm:text-base">{pendingRentIncreases.count} Rent Increase(s) Due</p>
                       <p className="text-xs sm:text-sm text-green-600">+{formatCurrency(pendingRentIncreases.totalIncrease)}/month increase →</p>
@@ -984,7 +985,7 @@ export default function Dashboard() {
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <Link href="/leases" className="flex items-center gap-3 flex-1 hover:opacity-80 transition-opacity">
-                    <span className="text-xl sm:text-2xl">📅</span>
+                    <Calendar className="h-5 w-5" />
                     <div>
                       <p className="font-medium text-blue-800 text-sm sm:text-base">{pendingCharges.count} Scheduled Charges Ready</p>
                       <p className="text-xs sm:text-sm text-blue-600">Total: {formatCurrency(pendingCharges.totalAmount)} →</p>
@@ -1005,56 +1006,56 @@ export default function Dashboard() {
 
         {/* Navigation Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-          <Link href="/properties" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-blue-300 transition-all group">
+          <Link href="/properties" className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-blue-300 transition-all group">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 group-hover:bg-blue-200 dark:group-hover:bg-blue-900 transition-colors">
-              🏢
+<Building2 className="h-6 w-6" />
             </div>
-            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Properties</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{stats.totalProperties} properties</p>
+            <h3 className="font-semibold text-slate-900 dark:text-white text-base sm:text-lg">Properties</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400">{stats.totalProperties} properties</p>
           </Link>
 
-          <Link href="/leases" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-green-300 transition-all group">
+          <Link href="/leases" className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-green-300 transition-all group">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 group-hover:bg-green-200 dark:group-hover:bg-green-900 transition-colors">
-              📄
+<FileText className="h-6 w-6" />
             </div>
-            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Leases</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{stats.activeLeases} active</p>
+            <h3 className="font-semibold text-slate-900 dark:text-white text-base sm:text-lg">Leases</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400">{stats.activeLeases} active</p>
           </Link>
 
-          <Link href="/maintenance" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-orange-300 transition-all group">
+          <Link href="/maintenance" className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-orange-300 transition-all group">
             <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 transition-colors ${
-              stats.openWorkOrders > 0 ? 'bg-orange-100 dark:bg-orange-900/50 group-hover:bg-orange-200' : 'bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200'
+              stats.openWorkOrders > 0 ? 'bg-orange-100 dark:bg-orange-900/50 group-hover:bg-orange-200' : 'bg-slate-100 dark:bg-slate-700 group-hover:bg-slate-200'
             }`}>
-              🔧
+<Wrench className="h-6 w-6" />
             </div>
-            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Maintenance</h3>
-            <p className={`text-sm ${stats.openWorkOrders > 0 ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
+            <h3 className="font-semibold text-slate-900 dark:text-white text-base sm:text-lg">Maintenance</h3>
+            <p className={`text-sm ${stats.openWorkOrders > 0 ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-slate-600 dark:text-slate-400'}`}>
               {stats.openWorkOrders} open
             </p>
           </Link>
 
-          <Link href="/accounting" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-purple-300 transition-all group">
+          <Link href="/accounting" className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-purple-300 transition-all group">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 group-hover:bg-purple-200 dark:group-hover:bg-purple-900 transition-colors">
-              💰
+<Wallet className="h-6 w-6" />
             </div>
-            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Accounting</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Ledger & balances</p>
+            <h3 className="font-semibold text-slate-900 dark:text-white text-base sm:text-lg">Accounting</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400">Ledger & balances</p>
           </Link>
 
-          <Link href="/reports" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-indigo-300 transition-all group">
+          <Link href="/reports" className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-indigo-300 transition-all group">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 group-hover:bg-indigo-200 dark:group-hover:bg-indigo-900 transition-colors">
-              📊
+<BarChart3 className="h-6 w-6" />
             </div>
-            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Reports</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">P&L & analytics</p>
+            <h3 className="font-semibold text-slate-900 dark:text-white text-base sm:text-lg">Reports</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400">P&L & analytics</p>
           </Link>
 
-          <Link href="/vendors" className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-teal-300 transition-all group">
+          <Link href="/vendors" className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-teal-300 transition-all group">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-teal-100 dark:bg-teal-900/50 rounded-lg flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 group-hover:bg-teal-200 dark:group-hover:bg-teal-900 transition-colors">
-              👷
+<HardHat className="h-6 w-6" />
             </div>
-            <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg">Vendors</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Contractors</p>
+            <h3 className="font-semibold text-slate-900 dark:text-white text-base sm:text-lg">Vendors</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400">Contractors</p>
           </Link>
         </div>
 
@@ -1064,61 +1065,61 @@ export default function Dashboard() {
             onClick={() => { setQuickCreateType('property'); setShowQuickCreate(true); }}
             className="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4 text-center hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all border border-blue-200 dark:border-blue-800"
           >
-            <div className="text-2xl mb-1">🏢</div>
+            <Building2 className="h-6 w-6" />
             <p className="font-semibold text-blue-700 dark:text-blue-300">+ Property</p>
           </button>
           <button
             onClick={() => { setQuickCreateType('unit'); setShowQuickCreate(true); }}
             className="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4 text-center hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all border border-blue-200 dark:border-blue-800"
           >
-            <div className="text-2xl mb-1">🚪</div>
+            <DoorOpen className="h-7 w-7 text-blue-600 mb-1" />
             <p className="font-semibold text-blue-700 dark:text-blue-300">+ Unit</p>
           </button>
           <button
             onClick={() => { setQuickCreateType('lease'); setShowQuickCreate(true); }}
             className="bg-green-50 dark:bg-green-900/30 rounded-xl p-4 text-center hover:bg-green-100 dark:hover:bg-green-900/50 transition-all border border-green-200 dark:border-green-800"
           >
-            <div className="text-2xl mb-1">📝</div>
+            <FileText className="h-6 w-6" />
             <p className="font-semibold text-green-700 dark:text-green-300">+ Lease</p>
           </button>
           <button
             onClick={() => { setQuickCreateType('vendor'); setShowQuickCreate(true); }}
             className="bg-teal-50 dark:bg-teal-900/30 rounded-xl p-4 text-center hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-all border border-teal-200 dark:border-teal-800"
           >
-            <div className="text-2xl mb-1">👷</div>
+            <HardHat className="h-6 w-6" />
             <p className="font-semibold text-teal-700 dark:text-teal-300">+ Vendor</p>
           </button>
         </div>
 
         {/* Expiring Leases - Simple List */}
         {expiringLeases.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+            <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
               <div>
-                <h2 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">Expiring Soon</h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Next 60 days</p>
+                <h2 className="font-semibold text-slate-900 dark:text-white text-sm sm:text-base">Expiring Soon</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Next 60 days</p>
               </div>
               <Link href="/leases" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
                 View All →
               </Link>
             </div>
-            <div className="divide-y divide-gray-100 dark:divide-gray-700">
+            <div className="divide-y divide-slate-100 dark:divide-slate-700">
               {expiringLeases.slice(0, 5).map(lease => {
                 const daysUntil = getDaysUntil(lease.endDate);
                 return (
                   <Link
                     key={lease.id}
                     href={`/leases/${lease.id}`}
-                    className="flex items-center justify-between p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between p-3 sm:p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{lease.tenantName}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{lease.unitName}</p>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{lease.tenantName}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{lease.unitName}</p>
                     </div>
                     <div className={`text-right ml-3 px-2 py-1 rounded-full text-xs font-medium ${
                       daysUntil <= 14 ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300' :
                       daysUntil <= 30 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300' :
-                      'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                      'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
                     }`}>
                       {daysUntil} days
                     </div>
@@ -1133,26 +1134,26 @@ export default function Dashboard() {
       {/* Quick Payment Modal */}
       {showPaymentModal && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-800 rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Record Payment</h2>
-              <button onClick={() => { setShowPaymentModal(false); setTenantSearch(''); }} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl p-1">&times;</button>
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Record Payment</h2>
+              <button onClick={() => { setShowPaymentModal(false); setTenantSearch(''); }} className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 text-2xl p-1">&times;</button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tenant *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Tenant *</label>
                 <input
                   type="text"
                   value={tenantSearch}
                   onChange={(e) => setTenantSearch(e.target.value)}
                   placeholder="Search tenant name..."
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-2"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm mb-2"
                   autoFocus
                 />
                 <select
                   value={paymentForm.leaseId}
                   onChange={(e) => setPaymentForm({ ...paymentForm, leaseId: e.target.value, amount: '' })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   size={Math.min(6, leases.filter(l => l.tenantName.toLowerCase().includes(tenantSearch.toLowerCase())).length + 1)}
                 >
                   <option value="">Select tenant...</option>
@@ -1189,21 +1190,21 @@ export default function Dashboard() {
                 );
               })()}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Amount *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Amount *</label>
                 <input
                   type="number"
                   value={paymentForm.amount}
                   onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   placeholder="0.00"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Payment Method</label>
                 <select
                   value={paymentForm.paymentMethod}
                   onChange={(e) => setPaymentForm({ ...paymentForm, paymentMethod: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                 >
                   <option value="CHECK">Check</option>
                   <option value="CASH">Cash</option>
@@ -1215,14 +1216,14 @@ export default function Dashboard() {
               </div>
               {(paymentForm.paymentMethod === 'CHECK' || paymentForm.paymentMethod === 'MONEY_ORDER') && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     {paymentForm.paymentMethod === 'CHECK' ? 'Check #' : 'Money Order #'} (optional)
                   </label>
                   <input
                     type="text"
                     value={paymentForm.referenceNumber}
                     onChange={(e) => setPaymentForm({ ...paymentForm, referenceNumber: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                     placeholder={paymentForm.paymentMethod === 'CHECK' ? 'Check number' : 'Money order number'}
                   />
                 </div>
@@ -1231,7 +1232,7 @@ export default function Dashboard() {
             <div className="flex flex-col-reverse sm:flex-row gap-3 mt-6">
               <button
                 onClick={() => { setShowPaymentModal(false); setTenantSearch(''); }}
-                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-medium"
               >
                 Cancel
               </button>
@@ -1250,18 +1251,18 @@ export default function Dashboard() {
       {/* Quick Charge Modal */}
       {showChargeModal && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-800 rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Add Charge</h2>
-              <button onClick={() => setShowChargeModal(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl p-1">&times;</button>
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Add Charge</h2>
+              <button onClick={() => setShowChargeModal(false)} className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 text-2xl p-1">&times;</button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tenant *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Tenant *</label>
                 <select
                   value={chargeForm.leaseId}
                   onChange={(e) => setChargeForm({ ...chargeForm, leaseId: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   autoFocus
                 >
                   <option value="">Select tenant...</option>
@@ -1271,31 +1272,31 @@ export default function Dashboard() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Amount *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Amount *</label>
                 <input
                   type="number"
                   value={chargeForm.amount}
                   onChange={(e) => setChargeForm({ ...chargeForm, amount: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   placeholder="0.00"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Description *</label>
                 <input
                   type="text"
                   value={chargeForm.description}
                   onChange={(e) => setChargeForm({ ...chargeForm, description: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   placeholder="Late fee, utility charge, etc."
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Charge Type</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Charge Type</label>
                 <select
                   value={chargeForm.accountCode}
                   onChange={(e) => setChargeForm({ ...chargeForm, accountCode: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                 >
                   <option value="4000">Rent</option>
                   <option value="4100">Late Fee</option>
@@ -1309,7 +1310,7 @@ export default function Dashboard() {
             <div className="flex flex-col-reverse sm:flex-row gap-3 mt-6">
               <button
                 onClick={() => setShowChargeModal(false)}
-                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-medium"
               >
                 Cancel
               </button>
@@ -1328,18 +1329,18 @@ export default function Dashboard() {
       {/* Quick Work Order Modal */}
       {showWorkOrderModal && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-800 rounded-t-xl sm:rounded-xl w-full sm:max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Create Work Order</h2>
-              <button onClick={() => setShowWorkOrderModal(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl p-1">&times;</button>
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Create Work Order</h2>
+              <button onClick={() => setShowWorkOrderModal(false)} className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 text-2xl p-1">&times;</button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Property *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Property *</label>
                 <select
                   value={workOrderForm.propertyId}
                   onChange={(e) => setWorkOrderForm({ ...workOrderForm, propertyId: e.target.value, unitId: '' })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                 >
                   <option value="">Select property...</option>
                   {properties.map(p => (
@@ -1349,11 +1350,11 @@ export default function Dashboard() {
               </div>
               {selectedProperty && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Unit *</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Unit *</label>
                   <select
                     value={workOrderForm.unitId}
                     onChange={(e) => setWorkOrderForm({ ...workOrderForm, unitId: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   >
                     <option value="">Select unit...</option>
                     {selectedProperty.units?.map(u => (
@@ -1363,32 +1364,32 @@ export default function Dashboard() {
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Title *</label>
                 <input
                   type="text"
                   value={workOrderForm.title}
                   onChange={(e) => setWorkOrderForm({ ...workOrderForm, title: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   placeholder="Brief description of issue"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Description *</label>
                 <textarea
                   value={workOrderForm.description}
                   onChange={(e) => setWorkOrderForm({ ...workOrderForm, description: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   rows={3}
                   placeholder="Detailed description..."
                 />
               </div>
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
                   <select
                     value={workOrderForm.category}
                     onChange={(e) => setWorkOrderForm({ ...workOrderForm, category: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   >
                     <option value="GENERAL">General</option>
                     <option value="PLUMBING">Plumbing</option>
@@ -1403,11 +1404,11 @@ export default function Dashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Priority</label>
                   <select
                     value={workOrderForm.priority}
                     onChange={(e) => setWorkOrderForm({ ...workOrderForm, priority: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                   >
                     <option value="LOW">Low</option>
                     <option value="MEDIUM">Medium</option>
@@ -1417,11 +1418,11 @@ export default function Dashboard() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Assign Vendor (optional)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Assign Vendor (optional)</label>
                 <select
                   value={workOrderForm.vendorId}
                   onChange={(e) => setWorkOrderForm({ ...workOrderForm, vendorId: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base"
                 >
                   <option value="">Select vendor...</option>
                   {vendors.map(v => (
@@ -1431,7 +1432,7 @@ export default function Dashboard() {
               </div>
               {/* Photo Upload */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Photos (optional)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Photos (optional)</label>
                 <div className="space-y-3">
                   {workOrderPhotoPreviewUrls.length > 0 && (
                     <div className="flex flex-wrap gap-2">
@@ -1440,7 +1441,7 @@ export default function Dashboard() {
                           <img
                             src={url}
                             alt={`Preview ${index + 1}`}
-                            className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg border border-gray-300"
+                            className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg border border-slate-300"
                           />
                           <button
                             type="button"
@@ -1454,7 +1455,7 @@ export default function Dashboard() {
                     </div>
                   )}
                   {workOrderPhotos.length < 5 && (
-                    <label className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-3 cursor-pointer hover:border-gray-400 transition-colors">
+                    <label className="flex items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-3 cursor-pointer hover:border-slate-400 transition-colors">
                       <input
                         type="file"
                         accept="image/*"
@@ -1462,7 +1463,7 @@ export default function Dashboard() {
                         onChange={handleWorkOrderPhotoSelect}
                         className="hidden"
                       />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                      <span className="text-sm text-slate-600 dark:text-slate-400">
                         + Add Photos ({workOrderPhotos.length}/5)
                       </span>
                     </label>
@@ -1478,7 +1479,7 @@ export default function Dashboard() {
                   setWorkOrderPhotos([]);
                   setWorkOrderPhotoPreviewUrls([]);
                 }}
-                className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-medium"
               >
                 Cancel
               </button>
@@ -1506,11 +1507,11 @@ export default function Dashboard() {
       {/* Quick Create Modal */}
       {showQuickCreate && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-t-xl sm:rounded-xl w-full sm:max-w-lg p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-800 rounded-t-xl sm:rounded-xl w-full sm:max-w-lg p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+                <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
                   {!quickCreateType ? 'Quick Create' :
                    quickCreateType === 'property' ? 'New Property' :
                    quickCreateType === 'unit' ? 'New Unit' :
@@ -1520,12 +1521,12 @@ export default function Dashboard() {
                    'Quick Create'}
                 </h2>
                 {!quickCreateType && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">What would you like to create?</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">What would you like to create?</p>
                 )}
               </div>
               <button
                 onClick={() => { setShowQuickCreate(false); setQuickCreateType(null); }}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl p-1"
+                className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 text-2xl p-1"
               >
                 &times;
               </button>
@@ -1536,59 +1537,59 @@ export default function Dashboard() {
               <div className="grid grid-cols-3 gap-3">
                 <button
                   onClick={() => setQuickCreateType('property')}
-                  className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+                  className="flex flex-col items-center p-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
                 >
-                  <span className="text-2xl mb-1">🏢</span>
-                  <span className="font-medium text-gray-900 dark:text-white text-sm">Property</span>
+                  <Building2 className="h-6 w-6" />
+                  <span className="font-medium text-slate-900 dark:text-white text-sm">Property</span>
                 </button>
                 <button
                   onClick={() => setQuickCreateType('unit')}
-                  className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+                  className="flex flex-col items-center p-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
                 >
-                  <span className="text-2xl mb-1">🚪</span>
-                  <span className="font-medium text-gray-900 dark:text-white text-sm">Unit</span>
+                  <DoorOpen className="h-7 w-7 text-blue-600 mb-1" />
+                  <span className="font-medium text-slate-900 dark:text-white text-sm">Unit</span>
                 </button>
                 <button
                   onClick={() => setQuickCreateType('lease')}
-                  className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all"
+                  className="flex flex-col items-center p-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all"
                 >
-                  <span className="text-2xl mb-1">📄</span>
-                  <span className="font-medium text-gray-900 dark:text-white text-sm">Lease</span>
+                  <FileText className="h-6 w-6" />
+                  <span className="font-medium text-slate-900 dark:text-white text-sm">Lease</span>
                 </button>
                 <button
                   onClick={() => { setShowQuickCreate(false); setShowPaymentModal(true); }}
-                  className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all"
+                  className="flex flex-col items-center p-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all"
                 >
-                  <span className="text-2xl mb-1">💵</span>
-                  <span className="font-medium text-gray-900 dark:text-white text-sm">Payment</span>
+                  <DollarSign className="h-6 w-6" />
+                  <span className="font-medium text-slate-900 dark:text-white text-sm">Payment</span>
                 </button>
                 <button
                   onClick={() => { setShowQuickCreate(false); setShowChargeModal(true); }}
-                  className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all"
+                  className="flex flex-col items-center p-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all"
                 >
                   <span className="text-2xl mb-1">+$</span>
-                  <span className="font-medium text-gray-900 dark:text-white text-sm">Charge</span>
+                  <span className="font-medium text-slate-900 dark:text-white text-sm">Charge</span>
                 </button>
                 <button
                   onClick={() => setQuickCreateType('expense')}
-                  className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                  className="flex flex-col items-center p-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
                 >
-                  <span className="text-2xl mb-1">💸</span>
-                  <span className="font-medium text-gray-900 dark:text-white text-sm">Expense</span>
+                  <Receipt className="h-6 w-6" />
+                  <span className="font-medium text-slate-900 dark:text-white text-sm">Expense</span>
                 </button>
                 <button
                   onClick={() => { setShowQuickCreate(false); setShowWorkOrderModal(true); }}
-                  className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-orange-500 dark:hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all"
+                  className="flex flex-col items-center p-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-orange-500 dark:hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all"
                 >
-                  <span className="text-2xl mb-1">🔧</span>
-                  <span className="font-medium text-gray-900 dark:text-white text-sm">Work Order</span>
+                  <Wrench className="h-6 w-6" />
+                  <span className="font-medium text-slate-900 dark:text-white text-sm">Work Order</span>
                 </button>
                 <button
                   onClick={() => setQuickCreateType('vendor')}
-                  className="flex flex-col items-center p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-teal-500 dark:hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-all"
+                  className="flex flex-col items-center p-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-teal-500 dark:hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-all"
                 >
-                  <span className="text-2xl mb-1">👷</span>
-                  <span className="font-medium text-gray-900 dark:text-white text-sm">Vendor</span>
+                  <HardHat className="h-6 w-6" />
+                  <span className="font-medium text-slate-900 dark:text-white text-sm">Vendor</span>
                 </button>
               </div>
             )}
@@ -1600,30 +1601,30 @@ export default function Dashboard() {
                   <p className="text-sm text-blue-800 dark:text-blue-200">Start by creating a property. Then add units and tenants.</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Property Name *</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Property Name *</label>
                   <input
                     type="text"
                     value={propertyForm.name}
                     onChange={(e) => setPropertyForm({ ...propertyForm, name: e.target.value })}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     placeholder="e.g., Sunset Apartments"
                     autoFocus
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address (optional)</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Address (optional)</label>
                   <input
                     type="text"
                     value={propertyForm.address}
                     onChange={(e) => setPropertyForm({ ...propertyForm, address: e.target.value })}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     placeholder="123 Main St, City, State"
                   />
                 </div>
                 <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
                   <button
                     onClick={() => setQuickCreateType(null)}
-                    className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                    className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-medium"
                   >
                     Back
                   </button>
@@ -1645,11 +1646,11 @@ export default function Dashboard() {
                   <p className="text-sm text-blue-800 dark:text-blue-200">Add a unit to an existing property.</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Property *</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Property *</label>
                   <select
                     value={unitForm.propertyId}
                     onChange={(e) => setUnitForm({ ...unitForm, propertyId: e.target.value })}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     autoFocus
                   >
                     <option value="">Select property...</option>
@@ -1659,22 +1660,22 @@ export default function Dashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit Number *</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Unit Number *</label>
                   <input
                     type="text"
                     value={unitForm.unitNumber}
                     onChange={(e) => setUnitForm({ ...unitForm, unitNumber: e.target.value })}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     placeholder="e.g., 101, A, 2B"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bedrooms</label>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Bedrooms</label>
                     <select
                       value={unitForm.bedrooms}
                       onChange={(e) => setUnitForm({ ...unitForm, bedrooms: e.target.value })}
-                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     >
                       <option value="0">Studio</option>
                       <option value="1">1 BR</option>
@@ -1685,11 +1686,11 @@ export default function Dashboard() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bathrooms</label>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Bathrooms</label>
                     <select
                       value={unitForm.bathrooms}
                       onChange={(e) => setUnitForm({ ...unitForm, bathrooms: e.target.value })}
-                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     >
                       <option value="1">1 BA</option>
                       <option value="1.5">1.5 BA</option>
@@ -1700,19 +1701,19 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Market Rent (optional)</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Market Rent (optional)</label>
                   <input
                     type="number"
                     value={unitForm.rent}
                     onChange={(e) => setUnitForm({ ...unitForm, rent: e.target.value })}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     placeholder="1500"
                   />
                 </div>
                 <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
                   <button
                     onClick={() => setQuickCreateType(null)}
-                    className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                    className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-medium"
                   >
                     Back
                   </button>
@@ -1734,11 +1735,11 @@ export default function Dashboard() {
                   <p className="text-sm text-green-800 dark:text-green-200">Add a new tenant to a vacant unit.</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Property *</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Property *</label>
                   <select
                     value={leaseForm.propertyId}
                     onChange={(e) => setLeaseForm({ ...leaseForm, propertyId: e.target.value, unitId: '' })}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     autoFocus
                   >
                     <option value="">Select property...</option>
@@ -1749,11 +1750,11 @@ export default function Dashboard() {
                 </div>
                 {selectedLeaseProperty && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit *</label>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Unit *</label>
                     <select
                       value={leaseForm.unitId}
                       onChange={(e) => setLeaseForm({ ...leaseForm, unitId: e.target.value })}
-                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     >
                       <option value="">Select unit...</option>
                       {selectedLeaseProperty.units?.map(u => (
@@ -1763,71 +1764,71 @@ export default function Dashboard() {
                   </div>
                 )}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tenant Name *</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tenant Name *</label>
                   <input
                     type="text"
                     value={leaseForm.tenantName}
                     onChange={(e) => setLeaseForm({ ...leaseForm, tenantName: e.target.value })}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     placeholder="Full name"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
                     <input
                       type="email"
                       value={leaseForm.tenantEmail}
                       onChange={(e) => setLeaseForm({ ...leaseForm, tenantEmail: e.target.value })}
-                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                       placeholder="email@example.com"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Phone</label>
                     <input
                       type="tel"
                       value={leaseForm.tenantPhone}
                       onChange={(e) => setLeaseForm({ ...leaseForm, tenantPhone: e.target.value })}
-                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                       placeholder="(555) 123-4567"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monthly Rent *</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Monthly Rent *</label>
                   <input
                     type="number"
                     value={leaseForm.monthlyRent}
                     onChange={(e) => setLeaseForm({ ...leaseForm, monthlyRent: e.target.value })}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     placeholder="1500"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Start Date</label>
                     <input
                       type="date"
                       value={leaseForm.startDate}
                       onChange={(e) => setLeaseForm({ ...leaseForm, startDate: e.target.value })}
-                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">End Date</label>
                     <input
                       type="date"
                       value={leaseForm.endDate}
                       onChange={(e) => setLeaseForm({ ...leaseForm, endDate: e.target.value })}
-                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     />
                   </div>
                 </div>
                 <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
                   <button
                     onClick={() => setQuickCreateType(null)}
-                    className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                    className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-medium"
                   >
                     Back
                   </button>
@@ -1849,11 +1850,11 @@ export default function Dashboard() {
                   <p className="text-sm text-red-800 dark:text-red-200">Record an operating expense.</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Category</label>
                   <select
                     value={expenseForm.accountCode}
                     onChange={(e) => setExpenseForm({ ...expenseForm, accountCode: e.target.value })}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     autoFocus
                   >
                     <option value="5000">Repairs & Maintenance</option>
@@ -1866,38 +1867,38 @@ export default function Dashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount *</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Amount *</label>
                   <input
                     type="number"
                     value={expenseForm.amount}
                     onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     placeholder="0.00"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description *</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description *</label>
                   <input
                     type="text"
                     value={expenseForm.description}
                     onChange={(e) => setExpenseForm({ ...expenseForm, description: e.target.value })}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     placeholder="What was this expense for?"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date</label>
                   <input
                     type="date"
                     value={expenseForm.entryDate}
                     onChange={(e) => setExpenseForm({ ...expenseForm, entryDate: e.target.value })}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                   />
                 </div>
                 <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
                   <button
                     onClick={() => setQuickCreateType(null)}
-                    className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                    className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-medium"
                   >
                     Back
                   </button>
@@ -1919,54 +1920,54 @@ export default function Dashboard() {
                   <p className="text-sm text-teal-800 dark:text-teal-200">Add a contractor or service provider.</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contact Name *</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Contact Name *</label>
                   <input
                     type="text"
                     value={vendorForm.name}
                     onChange={(e) => setVendorForm({ ...vendorForm, name: e.target.value })}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     placeholder="John Smith"
                     autoFocus
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Company (optional)</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Company (optional)</label>
                   <input
                     type="text"
                     value={vendorForm.company}
                     onChange={(e) => setVendorForm({ ...vendorForm, company: e.target.value })}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     placeholder="ABC Plumbing Inc."
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
                     <input
                       type="email"
                       value={vendorForm.email}
                       onChange={(e) => setVendorForm({ ...vendorForm, email: e.target.value })}
-                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                       placeholder="email@example.com"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Phone</label>
                     <input
                       type="tel"
                       value={vendorForm.phone}
                       onChange={(e) => setVendorForm({ ...vendorForm, phone: e.target.value })}
-                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                       placeholder="(555) 123-4567"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Specialty</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Specialty</label>
                   <select
                     value={vendorForm.specialty}
                     onChange={(e) => setVendorForm({ ...vendorForm, specialty: e.target.value })}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 text-base bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                   >
                     <option value="">Select specialty...</option>
                     <option value="Plumbing">Plumbing</option>
@@ -1985,7 +1986,7 @@ export default function Dashboard() {
                 <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
                   <button
                     onClick={() => setQuickCreateType(null)}
-                    className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
+                    className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-medium"
                   >
                     Back
                   </button>

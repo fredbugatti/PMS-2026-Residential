@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, ReactNode } from 'react';
+import { Image, FileText, Edit3, BarChart3, Paperclip, FolderOpen, Star, FileIcon } from 'lucide-react';
 
 type TabType = 'library' | 'templates';
 
@@ -122,12 +123,12 @@ export default function DocumentsPage() {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
 
-  const getFileIcon = (mimeType: string): string => {
-    if (mimeType.startsWith('image/')) return '🖼️';
-    if (mimeType.includes('pdf')) return '📄';
-    if (mimeType.includes('word') || mimeType.includes('document')) return '📝';
-    if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📊';
-    return '📎';
+  const getFileIcon = (mimeType: string): ReactNode => {
+    if (mimeType.startsWith('image/')) return <Image className="h-6 w-6 text-purple-600" />;
+    if (mimeType.includes('pdf')) return <FileText className="h-6 w-6 text-red-600" />;
+    if (mimeType.includes('word') || mimeType.includes('document')) return <Edit3 className="h-6 w-6 text-blue-600" />;
+    if (mimeType.includes('sheet') || mimeType.includes('excel')) return <BarChart3 className="h-6 w-6 text-green-600" />;
+    return <Paperclip className="h-6 w-6 text-slate-500" />;
   };
 
   // File upload handlers
@@ -270,21 +271,21 @@ export default function DocumentsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-slate-600">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
-              <p className="text-sm text-gray-600 mt-1">Manage files and templates</p>
+              <h1 className="text-2xl font-bold text-slate-900">Documents</h1>
+              <p className="text-sm text-slate-600 mt-1">Manage files and templates</p>
             </div>
             <div className="flex gap-3">
               {activeTab === 'library' && (
@@ -314,14 +315,14 @@ export default function DocumentsPage() {
 
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
-          <div className="flex border-b border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 mb-6">
+          <div className="flex border-b border-slate-200">
             <button
               onClick={() => setActiveTab('library')}
               className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
                 activeTab === 'library'
                   ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  : 'text-slate-600 hover:bg-slate-50'
               }`}
             >
               My Documents ({documents.length})
@@ -331,7 +332,7 @@ export default function DocumentsPage() {
               className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
                 activeTab === 'templates'
                   ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  : 'text-slate-600 hover:bg-slate-50'
               }`}
             >
               Templates ({templates.length})
@@ -350,11 +351,11 @@ export default function DocumentsPage() {
               className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
                 isDragging
                   ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-300 hover:border-gray-400'
+                  : 'border-slate-300 hover:border-slate-400'
               }`}
             >
-              <div className="text-4xl mb-2">📁</div>
-              <p className="text-gray-600">Drag & drop files here, or click Upload</p>
+              <div className="mb-2"><FolderOpen className="h-10 w-10 text-slate-400" /></div>
+              <p className="text-slate-600">Drag & drop files here, or click Upload</p>
             </div>
 
             {/* Filters */}
@@ -362,40 +363,40 @@ export default function DocumentsPage() {
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
               >
                 <option value="">All Categories</option>
                 {Object.entries(categoryLabels).map(([key, label]) => (
                   <option key={key} value={key}>{label}</option>
                 ))}
               </select>
-              <span className="text-sm text-gray-500">{filteredDocuments.length} documents</span>
+              <span className="text-sm text-slate-500">{filteredDocuments.length} documents</span>
             </div>
 
             {/* Documents Grid */}
             {filteredDocuments.length === 0 ? (
               <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-                <div className="text-5xl mb-3">📁</div>
-                <h3 className="text-lg font-semibold text-gray-900">No documents yet</h3>
-                <p className="text-gray-600 mt-1">Upload your first document to get started</p>
+                <div className="mb-3"><FolderOpen className="h-12 w-12 text-slate-400" /></div>
+                <h3 className="text-lg font-semibold text-slate-900">No documents yet</h3>
+                <p className="text-slate-600 mt-1">Upload your first document to get started</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredDocuments.map(doc => (
-                  <div key={doc.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                  <div key={doc.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-start gap-3">
                         <span className="text-2xl">{getFileIcon(doc.mimeType)}</span>
                         <div className="min-w-0">
-                          <h4 className="font-medium text-gray-900 truncate">{doc.fileName}</h4>
-                          <p className="text-xs text-gray-500">{formatFileSize(doc.fileSize)}</p>
+                          <h4 className="font-medium text-slate-900 truncate">{doc.fileName}</h4>
+                          <p className="text-xs text-slate-500">{formatFileSize(doc.fileSize)}</p>
                         </div>
                       </div>
                       <button
                         onClick={() => toggleFavorite(doc)}
-                        className={`text-xl ${doc.isFavorite ? 'text-yellow-500' : 'text-gray-300 hover:text-yellow-500'}`}
+                        className={`text-xl ${doc.isFavorite ? 'text-yellow-500' : 'text-slate-300 hover:text-yellow-500'}`}
                       >
-                        {doc.isFavorite ? '⭐' : '☆'}
+                        <Star className={doc.isFavorite ? "h-5 w-5 fill-yellow-500 text-yellow-500" : "h-5 w-5"} />
                       </button>
                     </div>
 
@@ -406,7 +407,7 @@ export default function DocumentsPage() {
                     )}
 
                     {doc.description && (
-                      <p className="text-sm text-gray-600 mb-2 line-clamp-2">{doc.description}</p>
+                      <p className="text-sm text-slate-600 mb-2 line-clamp-2">{doc.description}</p>
                     )}
 
                     <div className="flex gap-2 mt-3">
@@ -442,7 +443,7 @@ export default function DocumentsPage() {
                 className={`px-4 py-2 rounded-lg text-sm font-medium ${
                   templateCategory === 'ALL'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
                 All ({templates.length})
@@ -454,7 +455,7 @@ export default function DocumentsPage() {
                   className={`px-4 py-2 rounded-lg text-sm font-medium ${
                     templateCategory === cat
                       ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                   }`}
                 >
                   {categoryLabels[cat] || cat}
@@ -465,18 +466,18 @@ export default function DocumentsPage() {
             {/* Templates Grid */}
             {filteredTemplates.length === 0 ? (
               <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-                <div className="text-5xl mb-3">📄</div>
-                <h3 className="text-lg font-semibold text-gray-900">No templates</h3>
-                <p className="text-gray-600 mt-1">Create your first template</p>
+                <div className="mb-3"><FileIcon className="h-12 w-12 text-slate-400" /></div>
+                <h3 className="text-lg font-semibold text-slate-900">No templates</h3>
+                <p className="text-slate-600 mt-1">Create your first template</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredTemplates.map(template => (
-                  <div key={template.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                  <div key={template.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <h4 className="font-medium text-gray-900">{template.name}</h4>
-                        <p className="text-xs text-gray-500">{categoryLabels[template.category] || template.category}</p>
+                        <h4 className="font-medium text-slate-900">{template.name}</h4>
+                        <p className="text-xs text-slate-500">{categoryLabels[template.category] || template.category}</p>
                       </div>
                       {template.isSystem && (
                         <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded">System</span>
@@ -484,16 +485,16 @@ export default function DocumentsPage() {
                     </div>
 
                     {template.description && (
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{template.description}</p>
+                      <p className="text-sm text-slate-600 mb-3 line-clamp-2">{template.description}</p>
                     )}
 
                     {template.mergeFields.length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-3">
                         {template.mergeFields.slice(0, 3).map(f => (
-                          <span key={f} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">{f}</span>
+                          <span key={f} className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded">{f}</span>
                         ))}
                         {template.mergeFields.length > 3 && (
-                          <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">+{template.mergeFields.length - 3}</span>
+                          <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded">+{template.mergeFields.length - 3}</span>
                         )}
                       </div>
                     )}
@@ -520,7 +521,7 @@ export default function DocumentsPage() {
                               });
                               setShowTemplateModal(true);
                             }}
-                            className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200"
+                            className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded text-sm hover:bg-slate-200"
                           >
                             Edit
                           </button>
@@ -545,27 +546,27 @@ export default function DocumentsPage() {
       {showUploadModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Upload Document</h2>
+            <div className="p-6 border-b border-slate-200">
+              <h2 className="text-xl font-bold text-slate-900">Upload Document</h2>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">File</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">File</label>
                 <input
                   type="file"
                   onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files?.[0] || null })}
-                  className="w-full border border-gray-300 rounded-lg p-2"
+                  className="w-full border border-slate-300 rounded-lg p-2"
                 />
                 {uploadForm.file && (
-                  <p className="text-sm text-gray-600 mt-1">{uploadForm.file.name}</p>
+                  <p className="text-sm text-slate-600 mt-1">{uploadForm.file.name}</p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
                 <select
                   value={uploadForm.category}
                   onChange={(e) => setUploadForm({ ...uploadForm, category: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2"
                 >
                   <option value="">Select category...</option>
                   {Object.entries(categoryLabels).map(([key, label]) => (
@@ -574,20 +575,20 @@ export default function DocumentsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
                 <textarea
                   value={uploadForm.description}
                   onChange={(e) => setUploadForm({ ...uploadForm, description: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2"
                   rows={2}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Property</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Property</label>
                 <select
                   value={uploadForm.propertyId}
                   onChange={(e) => setUploadForm({ ...uploadForm, propertyId: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2"
                 >
                   <option value="">None</option>
                   {properties.map(p => (
@@ -596,11 +597,11 @@ export default function DocumentsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Lease</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Lease</label>
                 <select
                   value={uploadForm.leaseId}
                   onChange={(e) => setUploadForm({ ...uploadForm, leaseId: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2"
                 >
                   <option value="">None</option>
                   {leases.map(l => (
@@ -609,10 +610,10 @@ export default function DocumentsPage() {
                 </select>
               </div>
             </div>
-            <div className="p-6 border-t border-gray-200 flex gap-3">
+            <div className="p-6 border-t border-slate-200 flex gap-3">
               <button
                 onClick={() => setShowUploadModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg"
                 disabled={uploading}
               >
                 Cancel
@@ -620,7 +621,7 @@ export default function DocumentsPage() {
               <button
                 onClick={handleUpload}
                 disabled={!uploadForm.file || uploading}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg disabled:bg-gray-300"
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg disabled:bg-slate-300"
               >
                 {uploading ? 'Uploading...' : 'Upload'}
               </button>
@@ -633,27 +634,27 @@ export default function DocumentsPage() {
       {showTemplateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">
+            <div className="p-6 border-b border-slate-200">
+              <h2 className="text-xl font-bold text-slate-900">
                 {selectedTemplate ? 'Edit Template' : 'Create Template'}
               </h2>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Name *</label>
                 <input
                   type="text"
                   value={templateForm.name}
                   onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
                 <select
                   value={templateForm.category}
                   onChange={(e) => setTemplateForm({ ...templateForm, category: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2"
                 >
                   {Object.entries(categoryLabels).map(([key, label]) => (
                     <option key={key} value={key}>{label}</option>
@@ -661,39 +662,39 @@ export default function DocumentsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
                 <textarea
                   value={templateForm.description}
                   onChange={(e) => setTemplateForm({ ...templateForm, description: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2"
                   rows={2}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Content (HTML) *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Content (HTML) *</label>
                 <textarea
                   value={templateForm.templateContent}
                   onChange={(e) => setTemplateForm({ ...templateForm, templateContent: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 font-mono text-sm"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 font-mono text-sm"
                   rows={10}
                   placeholder="<div>Use {{fieldName}} for merge fields</div>"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Merge Fields (comma-separated)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Merge Fields (comma-separated)</label>
                 <input
                   type="text"
                   value={templateForm.mergeFields}
                   onChange={(e) => setTemplateForm({ ...templateForm, mergeFields: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2"
                   placeholder="tenantName, propertyAddress, monthlyRent"
                 />
               </div>
             </div>
-            <div className="p-6 border-t border-gray-200 flex gap-3">
+            <div className="p-6 border-t border-slate-200 flex gap-3">
               <button
                 onClick={() => { setShowTemplateModal(false); setSelectedTemplate(null); }}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg"
                 disabled={uploading}
               >
                 Cancel
@@ -701,7 +702,7 @@ export default function DocumentsPage() {
               <button
                 onClick={handleSaveTemplate}
                 disabled={uploading}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg disabled:bg-gray-300"
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg disabled:bg-slate-300"
               >
                 {uploading ? 'Saving...' : selectedTemplate ? 'Update' : 'Create'}
               </button>

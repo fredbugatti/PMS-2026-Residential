@@ -75,8 +75,8 @@ export default function VendorDetail() {
       case 'ASSIGNED': return 'bg-blue-100 text-blue-800';
       case 'IN_PROGRESS': return 'bg-purple-100 text-purple-800';
       case 'COMPLETED': return 'bg-green-100 text-green-800';
-      case 'CANCELLED': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'CANCELLED': return 'bg-slate-100 text-slate-800';
+      default: return 'bg-slate-100 text-slate-800';
     }
   };
 
@@ -86,23 +86,23 @@ export default function VendorDetail() {
       case 'HIGH': return 'bg-orange-100 text-orange-800';
       case 'MEDIUM': return 'bg-yellow-100 text-yellow-800';
       case 'LOW': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-slate-100 text-slate-800';
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Loading vendor...</div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-slate-500">Loading vendor...</div>
       </div>
     );
   }
 
   if (!vendor) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-gray-900 font-medium mb-2">Vendor not found</div>
+          <div className="text-slate-900 font-medium mb-2">Vendor not found</div>
           <Link href="/vendors" className="text-blue-600 hover:text-blue-800">
             ← Back to Vendors
           </Link>
@@ -112,26 +112,26 @@ export default function VendorDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/vendors" className="text-gray-600 hover:text-gray-900">
+              <Link href="/vendors" className="text-slate-600 hover:text-slate-900">
                 ← Back
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">{vendor.name}</h1>
+                <h1 className="text-3xl font-bold text-slate-900">{vendor.name}</h1>
                 {vendor.company && (
-                  <p className="text-gray-600 mt-1">{vendor.company}</p>
+                  <p className="text-slate-600 mt-1">{vendor.company}</p>
                 )}
               </div>
             </div>
             <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
               vendor.active
                 ? 'bg-green-100 text-green-800'
-                : 'bg-gray-100 text-gray-800'
+                : 'bg-slate-100 text-slate-800'
             }`}>
               {vendor.active ? 'Active' : 'Inactive'}
             </span>
@@ -150,21 +150,21 @@ export default function VendorDetail() {
 
           return (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div className="text-sm text-gray-600 mb-1">Total Work Orders</div>
-                <div className="text-3xl font-bold text-gray-900">{vendor.workOrders.length}</div>
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <div className="text-sm text-slate-600 mb-1">Total Work Orders</div>
+                <div className="text-3xl font-bold text-slate-900">{vendor.workOrders.length}</div>
               </div>
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div className="text-sm text-gray-600 mb-1">Total Paid</div>
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <div className="text-sm text-slate-600 mb-1">Total Paid</div>
                 <div className="text-3xl font-bold text-green-600">${vendor.totalPaid.toFixed(2)}</div>
               </div>
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div className="text-sm text-gray-600 mb-1">Outstanding</div>
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <div className="text-sm text-slate-600 mb-1">Outstanding</div>
                 <div className="text-3xl font-bold text-orange-600">${vendor.totalUnpaid.toFixed(2)}</div>
-                {unpaidCount > 0 && <div className="text-xs text-gray-500 mt-1">{unpaidCount} invoices</div>}
+                {unpaidCount > 0 && <div className="text-xs text-slate-500 mt-1">{unpaidCount} invoices</div>}
               </div>
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div className="text-sm text-gray-600 mb-1">YTD Paid ({currentYear})</div>
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <div className="text-sm text-slate-600 mb-1">YTD Paid ({currentYear})</div>
                 <div className="text-3xl font-bold text-blue-600">${ytdPaid.toFixed(2)}</div>
               </div>
             </div>
@@ -175,9 +175,9 @@ export default function VendorDetail() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Work Orders */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200">
               {/* Tabs */}
-              <div className="border-b border-gray-200 px-4">
+              <div className="border-b border-slate-200 px-4">
                 <nav className="flex gap-4 -mb-px">
                   {[
                     { id: 'all', label: 'All Work Orders' },
@@ -192,7 +192,7 @@ export default function VendorDetail() {
                         className={`py-4 px-2 text-sm font-medium border-b-2 transition-colors ${
                           activeTab === tab.id
                             ? 'border-blue-600 text-blue-600'
-                            : 'border-transparent text-gray-600 hover:text-gray-900'
+                            : 'border-transparent text-slate-600 hover:text-slate-900'
                         }`}
                       >
                         {tab.label}
@@ -216,7 +216,7 @@ export default function VendorDetail() {
 
                   if (filteredWorkOrders.length === 0) {
                     return (
-                      <div className="p-12 text-center text-gray-500">
+                      <div className="p-12 text-center text-slate-500">
                         {activeTab === 'unpaid'
                           ? 'No unpaid invoices!'
                           : activeTab === 'paid'
@@ -228,38 +228,38 @@ export default function VendorDetail() {
 
                   return (
                     <table className="w-full">
-                      <thead className="bg-gray-50 border-b border-gray-200">
+                      <thead className="bg-slate-50 border-b border-slate-200">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                             Work Order
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                             Property/Unit
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                             Invoice #
                           </th>
-                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
                             Amount
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                             {activeTab === 'paid' ? 'Paid Date' : 'Due Date'}
                           </th>
                           {activeTab === 'paid' && (
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                               Method
                             </th>
                           )}
                           {activeTab !== 'paid' && (
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                               Status
                             </th>
                           )}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-slate-200">
                         {filteredWorkOrders.map((wo) => (
-                          <tr key={wo.id} className="hover:bg-gray-50 transition-colors">
+                          <tr key={wo.id} className="hover:bg-slate-50 transition-colors">
                             <td className="px-6 py-4">
                               <Link
                                 href={`/maintenance/${wo.id}`}
@@ -267,24 +267,24 @@ export default function VendorDetail() {
                               >
                                 {wo.title}
                               </Link>
-                              <div className="text-xs text-gray-500">
+                              <div className="text-xs text-slate-500">
                                 {new Date(wo.createdAt).toLocaleDateString()}
                               </div>
                             </td>
                             <td className="px-6 py-4 text-sm">
-                              <div className="text-gray-900">{wo.property.name}</div>
-                              <div className="text-xs text-gray-500">Unit {wo.unit.unitNumber}</div>
+                              <div className="text-slate-900">{wo.property.name}</div>
+                              <div className="text-xs text-slate-500">Unit {wo.unit.unitNumber}</div>
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-900">
+                            <td className="px-6 py-4 text-sm text-slate-900">
                               {wo.invoiceNumber || '-'}
                             </td>
                             <td className="px-6 py-4 text-right text-sm">
                               {wo.actualCost ? (
-                                <span className="font-medium text-gray-900">
+                                <span className="font-medium text-slate-900">
                                   ${Number(wo.actualCost).toFixed(2)}
                                 </span>
                               ) : (
-                                <span className="text-gray-400">-</span>
+                                <span className="text-slate-400">-</span>
                               )}
                             </td>
                             <td className="px-6 py-4 text-sm">
@@ -306,10 +306,10 @@ export default function VendorDetail() {
                               )}
                             </td>
                             {activeTab === 'paid' && (
-                              <td className="px-6 py-4 text-sm text-gray-900">
+                              <td className="px-6 py-4 text-sm text-slate-900">
                                 {wo.paymentMethod?.replace(/_/g, ' ') || '-'}
                                 {wo.checkNumber && (
-                                  <div className="text-xs text-gray-500">#{wo.checkNumber}</div>
+                                  <div className="text-xs text-slate-500">#{wo.checkNumber}</div>
                                 )}
                               </td>
                             )}
@@ -339,13 +339,13 @@ export default function VendorDetail() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Contact Information */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact</h2>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <h2 className="text-lg font-semibold text-slate-900 mb-4">Contact</h2>
               <dl className="space-y-3">
                 {vendor.email && (
                   <div>
-                    <dt className="text-xs text-gray-500">Email</dt>
-                    <dd className="text-sm text-gray-900">
+                    <dt className="text-xs text-slate-500">Email</dt>
+                    <dd className="text-sm text-slate-900">
                       <a href={`mailto:${vendor.email}`} className="text-blue-600 hover:text-blue-800">
                         {vendor.email}
                       </a>
@@ -354,8 +354,8 @@ export default function VendorDetail() {
                 )}
                 {vendor.phone && (
                   <div>
-                    <dt className="text-xs text-gray-500">Phone</dt>
-                    <dd className="text-sm text-gray-900">
+                    <dt className="text-xs text-slate-500">Phone</dt>
+                    <dd className="text-sm text-slate-900">
                       <a href={`tel:${vendor.phone}`} className="text-blue-600 hover:text-blue-800">
                         {vendor.phone}
                       </a>
@@ -364,8 +364,8 @@ export default function VendorDetail() {
                 )}
                 {(vendor.address || vendor.city || vendor.state) && (
                   <div>
-                    <dt className="text-xs text-gray-500">Address</dt>
-                    <dd className="text-sm text-gray-900">
+                    <dt className="text-xs text-slate-500">Address</dt>
+                    <dd className="text-sm text-slate-900">
                       {vendor.address && <div>{vendor.address}</div>}
                       {(vendor.city || vendor.state || vendor.zipCode) && (
                         <div>
@@ -380,8 +380,8 @@ export default function VendorDetail() {
 
             {/* Specialties */}
             {vendor.specialties.length > 0 && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Specialties</h2>
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h2 className="text-lg font-semibold text-slate-900 mb-4">Specialties</h2>
                 <div className="flex flex-wrap gap-2">
                   {vendor.specialties.map((spec) => (
                     <span
@@ -396,19 +396,19 @@ export default function VendorDetail() {
             )}
 
             {/* Payment Details */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Details</h2>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <h2 className="text-lg font-semibold text-slate-900 mb-4">Payment Details</h2>
               <dl className="space-y-3">
                 {vendor.paymentTerms && (
                   <div>
-                    <dt className="text-xs text-gray-500">Payment Terms</dt>
-                    <dd className="text-sm text-gray-900">{vendor.paymentTerms.replace('_', ' ')}</dd>
+                    <dt className="text-xs text-slate-500">Payment Terms</dt>
+                    <dd className="text-sm text-slate-900">{vendor.paymentTerms.replace('_', ' ')}</dd>
                   </div>
                 )}
                 {vendor.taxId && (
                   <div>
-                    <dt className="text-xs text-gray-500">Tax ID</dt>
-                    <dd className="text-sm text-gray-900">{vendor.taxId}</dd>
+                    <dt className="text-xs text-slate-500">Tax ID</dt>
+                    <dd className="text-sm text-slate-900">{vendor.taxId}</dd>
                   </div>
                 )}
               </dl>
@@ -417,8 +417,8 @@ export default function VendorDetail() {
             {/* Notes */}
             {vendor.notes && (
               <div className="bg-yellow-50 rounded-xl border border-yellow-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Notes</h2>
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">{vendor.notes}</p>
+                <h2 className="text-lg font-semibold text-slate-900 mb-4">Notes</h2>
+                <p className="text-sm text-slate-700 whitespace-pre-wrap">{vendor.notes}</p>
               </div>
             )}
           </div>

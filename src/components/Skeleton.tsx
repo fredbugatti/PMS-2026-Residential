@@ -6,7 +6,7 @@ import React from 'react';
 export function Skeleton({ className = '' }: { className?: string }) {
   return (
     <div
-      className={`animate-pulse bg-gray-200 dark:bg-gray-700 rounded ${className}`}
+      className={`animate-pulse bg-slate-200 dark:bg-slate-700 rounded ${className}`}
     />
   );
 }
@@ -14,7 +14,7 @@ export function Skeleton({ className = '' }: { className?: string }) {
 // Skeleton for stat cards on dashboard
 export function StatCardSkeleton() {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 dark:border-slate-700">
       <Skeleton className="h-3 sm:h-4 w-20 mb-2" />
       <Skeleton className="h-8 sm:h-10 w-16 mb-1" />
       <Skeleton className="h-3 w-24 mt-1" />
@@ -25,7 +25,7 @@ export function StatCardSkeleton() {
 // Skeleton for navigation cards
 export function NavCardSkeleton() {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 dark:border-slate-700">
       <Skeleton className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg mb-2 sm:mb-3" />
       <Skeleton className="h-4 w-20 mb-1" />
       <Skeleton className="h-3 w-16" />
@@ -52,7 +52,7 @@ export function ActivityItemSkeleton() {
 // Skeleton for property cards
 export function PropertyCardSkeleton() {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
       <div className="p-4 sm:p-6">
         <div className="flex items-start justify-between mb-3 sm:mb-4">
           <div className="flex-1">
@@ -69,13 +69,13 @@ export function PropertyCardSkeleton() {
             <Skeleton className="h-2 w-full rounded-full" />
             <Skeleton className="h-2 w-24 mt-1" />
           </div>
-          <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-700">
             <Skeleton className="h-3 w-24" />
             <Skeleton className="h-5 sm:h-6 w-20" />
           </div>
         </div>
       </div>
-      <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-3">
+      <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-4 sm:px-6 py-3">
         <Skeleton className="h-4 w-24" />
       </div>
     </div>
@@ -85,7 +85,7 @@ export function PropertyCardSkeleton() {
 // Skeleton for lease table rows
 export function LeaseRowSkeleton() {
   return (
-    <tr className="border-b border-gray-200 dark:border-gray-700">
+    <tr className="border-b border-slate-200 dark:border-slate-700">
       <td className="px-4 py-3">
         <Skeleton className="h-4 w-28" />
       </td>
@@ -139,7 +139,7 @@ export function LeaseCardSkeleton() {
 // Skeleton for work order kanban cards
 export function WorkOrderCardSkeleton() {
   return (
-    <div className="bg-white border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-sm">
+    <div className="bg-white border border-slate-200 dark:border-slate-700 rounded-lg p-3 shadow-sm">
       <div className="flex items-start justify-between mb-2">
         <Skeleton className="h-4 w-3/4" />
         <Skeleton className="h-5 w-16 rounded-full" />
@@ -157,7 +157,7 @@ export function WorkOrderCardSkeleton() {
 // Skeleton for alert/attention cards
 export function AlertSkeleton() {
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-3 sm:p-4">
+    <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-3 sm:p-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-3">
           <Skeleton className="w-10 h-10 rounded" />
@@ -193,7 +193,7 @@ export function ExpiringLeaseSkeleton() {
 // Skeleton for report table rows
 export function ReportRowSkeleton() {
   return (
-    <tr className="border-b border-gray-200 dark:border-gray-700">
+    <tr className="border-b border-slate-200 dark:border-slate-700">
       <td className="px-4 py-3"><Skeleton className="h-4 w-28" /></td>
       <td className="px-4 py-3"><Skeleton className="h-4 w-24" /></td>
       <td className="px-4 py-3"><Skeleton className="h-4 w-20" /></td>
@@ -206,9 +206,9 @@ export function ReportRowSkeleton() {
 // Dashboard skeleton - full page loading state
 export function DashboardSkeleton() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -247,11 +247,11 @@ export function DashboardSkeleton() {
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+              <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-slate-700">
                 <Skeleton className="h-5 w-32" />
               </div>
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-slate-100">
                 <ActivityItemSkeleton />
                 <ActivityItemSkeleton />
                 <ActivityItemSkeleton />
@@ -263,8 +263,8 @@ export function DashboardSkeleton() {
           {/* Right Column */}
           <div className="space-y-4 sm:space-y-6">
             {/* Needs Attention */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+              <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-slate-700">
                 <Skeleton className="h-5 w-32" />
               </div>
               <div className="p-3 sm:p-4 space-y-3">
@@ -274,12 +274,12 @@ export function DashboardSkeleton() {
             </div>
 
             {/* Expiring Leases */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+              <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-slate-700">
                 <Skeleton className="h-5 w-28 mb-1" />
                 <Skeleton className="h-3 w-20" />
               </div>
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-slate-100">
                 <ExpiringLeaseSkeleton />
                 <ExpiringLeaseSkeleton />
                 <ExpiringLeaseSkeleton />
@@ -295,8 +295,8 @@ export function DashboardSkeleton() {
 // Properties list skeleton
 export function PropertiesListSkeleton() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="bg-white border-b border-gray-200 dark:border-gray-700">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="bg-white border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -321,8 +321,8 @@ export function PropertiesListSkeleton() {
 // Leases page skeleton
 export function LeasesPageSkeleton() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="bg-white border-b border-gray-200 dark:border-gray-700">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+      <div className="bg-white border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -335,16 +335,16 @@ export function LeasesPageSkeleton() {
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         {/* Mobile cards */}
-        <div className="md:hidden bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 divide-y divide-gray-200">
+        <div className="md:hidden bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 divide-y divide-slate-200">
           <LeaseCardSkeleton />
           <LeaseCardSkeleton />
           <LeaseCardSkeleton />
           <LeaseCardSkeleton />
         </div>
         {/* Desktop table */}
-        <div className="hidden md:block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="hidden md:block bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+            <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
               <tr>
                 <th className="px-4 py-3 text-left"><Skeleton className="h-4 w-16" /></th>
                 <th className="px-4 py-3 text-left"><Skeleton className="h-4 w-20" /></th>
@@ -371,8 +371,8 @@ export function LeasesPageSkeleton() {
 // Maintenance page skeleton
 export function MaintenancePageSkeleton() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="bg-white border-b border-gray-200 dark:border-gray-700">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+      <div className="bg-white border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -387,7 +387,7 @@ export function MaintenancePageSkeleton() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
           {/* Kanban columns */}
           {['Open', 'In Progress', 'Completed'].map((col) => (
-            <div key={col} className="bg-gray-100 dark:bg-gray-800 rounded-xl p-3 sm:p-4">
+            <div key={col} className="bg-slate-100 dark:bg-slate-800 rounded-xl p-3 sm:p-4">
               <div className="flex items-center justify-between mb-3">
                 <Skeleton className="h-5 w-24" />
                 <Skeleton className="h-5 w-6 rounded-full" />
@@ -407,8 +407,8 @@ export function MaintenancePageSkeleton() {
 // Reports page skeleton
 export function ReportsPageSkeleton() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="bg-white border-b border-gray-200 dark:border-gray-700">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+      <div className="bg-white border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -431,9 +431,9 @@ export function ReportsPageSkeleton() {
           <StatCardSkeleton />
         </div>
         {/* Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+            <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
               <tr>
                 <th className="px-4 py-3 text-left"><Skeleton className="h-4 w-16" /></th>
                 <th className="px-4 py-3 text-left"><Skeleton className="h-4 w-20" /></th>

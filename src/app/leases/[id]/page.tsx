@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { ClipboardList, ExternalLink, Copy, Mail, Lock, Check } from 'lucide-react';
 
 interface LedgerEntry {
   id: string;
@@ -1225,9 +1226,9 @@ export default function LeaseDetailPage() {
     switch (status) {
       case 'ACTIVE': return 'bg-green-100 text-green-800';
       case 'DRAFT': return 'bg-yellow-100 text-yellow-800';
-      case 'ENDED': return 'bg-gray-100 text-gray-800';
+      case 'ENDED': return 'bg-slate-100 text-slate-800';
       case 'TERMINATED': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-slate-100 text-slate-800';
     }
   };
 
@@ -1333,29 +1334,29 @@ export default function LeaseDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
         <div className="max-w-6xl mx-auto">
           {/* Header skeleton */}
           <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gray-200 rounded-full animate-pulse"></div>
+              <div className="w-12 h-12 bg-slate-200 rounded-full animate-pulse"></div>
               <div className="flex-1">
-                <div className="h-6 bg-gray-200 rounded w-48 mb-2 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                <div className="h-6 bg-slate-200 rounded w-48 mb-2 animate-pulse"></div>
+                <div className="h-4 bg-slate-200 rounded w-32 animate-pulse"></div>
               </div>
               <div className="flex gap-2">
-                <div className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
-                <div className="h-8 w-24 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div className="h-8 w-20 bg-slate-200 rounded-lg animate-pulse"></div>
+                <div className="h-8 w-24 bg-slate-200 rounded-lg animate-pulse"></div>
               </div>
             </div>
           </div>
           {/* Content skeleton */}
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="h-6 bg-gray-200 rounded w-32 mb-4 animate-pulse"></div>
+            <div className="h-6 bg-slate-200 rounded w-32 mb-4 animate-pulse"></div>
             <div className="space-y-3">
-              <div className="h-10 bg-gray-100 rounded animate-pulse"></div>
-              <div className="h-10 bg-gray-100 rounded animate-pulse"></div>
-              <div className="h-10 bg-gray-100 rounded animate-pulse"></div>
+              <div className="h-10 bg-slate-100 rounded animate-pulse"></div>
+              <div className="h-10 bg-slate-100 rounded animate-pulse"></div>
+              <div className="h-10 bg-slate-100 rounded animate-pulse"></div>
             </div>
           </div>
         </div>
@@ -1365,9 +1366,9 @@ export default function LeaseDetailPage() {
 
   if (!lease) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600 mb-4">Lease not found</p>
+          <p className="text-slate-600 mb-4">Lease not found</p>
           <button
             onClick={() => window.location.href = '/leases'}
             className="text-blue-600 hover:text-blue-700 font-medium"
@@ -1380,20 +1381,20 @@ export default function LeaseDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
               <button
                 onClick={() => window.location.href = '/leases'}
-                className="text-sm text-gray-600 hover:text-gray-900 mb-2 flex items-center gap-1"
+                className="text-sm text-slate-600 hover:text-slate-900 mb-2 flex items-center gap-1"
               >
                 ← Back to Leases
               </button>
-              <h1 className="text-2xl font-bold text-gray-900">{lease.tenantName}</h1>
-              <p className="text-sm text-gray-600 mt-1">{lease.unitName}</p>
+              <h1 className="text-2xl font-bold text-slate-900">{lease.tenantName}</h1>
+              <p className="text-sm text-slate-600 mt-1">{lease.unitName}</p>
             </div>
             <div className="flex items-center gap-3">
               <div className="relative">
@@ -1414,13 +1415,13 @@ export default function LeaseDetailPage() {
                       className="fixed inset-0 z-10"
                       onClick={() => setShowStatusDropdown(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-20">
                       {['ACTIVE', 'DRAFT', 'ENDED', 'TERMINATED'].map((status) => (
                         <button
                           key={status}
                           onClick={() => handleStatusChange(status)}
                           disabled={lease.status === status}
-                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                             lease.status === status ? 'font-semibold' : ''
                           }`}
                         >
@@ -1487,33 +1488,33 @@ export default function LeaseDetailPage() {
         })()}
 
         {/* Combined Balance & Ledger Section - Primary Focus */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           {/* Balance Header */}
-          <div className="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+          <div className="px-6 py-5 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
             <div className="flex items-center justify-between flex-wrap gap-4">
               {/* Balance */}
               <div className="flex items-center gap-8">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Current Balance</p>
-                  <p className={`text-3xl font-bold ${lease.balance > 0 ? 'text-red-600' : lease.balance < 0 ? 'text-green-600' : 'text-gray-900'}`}>
+                  <p className="text-sm text-slate-600 mb-1">Current Balance</p>
+                  <p className={`text-3xl font-bold ${lease.balance > 0 ? 'text-red-600' : lease.balance < 0 ? 'text-green-600' : 'text-slate-900'}`}>
                     {formatCurrency(Math.abs(lease.balance))}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-slate-500 mt-1">
                     {lease.balance > 0 ? 'Amount owed' : lease.balance < 0 ? 'Credit on account' : 'Paid in full'}
                   </p>
                 </div>
-                <div className="h-12 w-px bg-gray-200"></div>
+                <div className="h-12 w-px bg-slate-200"></div>
                 <div className="flex gap-6 text-sm">
                   <div>
-                    <span className="text-gray-500">Charged:</span>
-                    <span className="ml-2 font-semibold text-gray-900">{formatCurrency(getPaymentSummary().totalCharged)}</span>
+                    <span className="text-slate-500">Charged:</span>
+                    <span className="ml-2 font-semibold text-slate-900">{formatCurrency(getPaymentSummary().totalCharged)}</span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Paid:</span>
+                    <span className="text-slate-500">Paid:</span>
                     <span className="ml-2 font-semibold text-green-600">{formatCurrency(getPaymentSummary().totalPaid)}</span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Rent:</span>
+                    <span className="text-slate-500">Rent:</span>
                     {editingRent ? (
                       <span className="ml-2 inline-flex items-center gap-1">
                         <span>$</span>
@@ -1521,15 +1522,15 @@ export default function LeaseDetailPage() {
                           type="number"
                           value={rentAmount}
                           onChange={(e) => setRentAmount(e.target.value)}
-                          className="w-20 px-1 py-0.5 border border-gray-300 rounded text-sm font-semibold"
+                          className="w-20 px-1 py-0.5 border border-slate-300 rounded text-sm font-semibold"
                           step="0.01"
                           autoFocus
                         />
                         <button onClick={handleSaveRent} className="px-1.5 py-0.5 bg-blue-600 text-white text-xs rounded">Save</button>
-                        <button onClick={() => { setEditingRent(false); setRentAmount(lease.monthlyRentAmount?.toString() || ''); }} className="px-1.5 py-0.5 bg-gray-200 text-xs rounded">Cancel</button>
+                        <button onClick={() => { setEditingRent(false); setRentAmount(lease.monthlyRentAmount?.toString() || ''); }} className="px-1.5 py-0.5 bg-slate-200 text-xs rounded">Cancel</button>
                       </span>
                     ) : (
-                      <span className="ml-2 font-semibold text-gray-900">
+                      <span className="ml-2 font-semibold text-slate-900">
                         {lease.monthlyRentAmount ? formatCurrency(parseFloat(lease.monthlyRentAmount.toString())) : 'Not set'}
                         <button onClick={() => setEditingRent(true)} className="ml-1 text-blue-600 hover:text-blue-800 text-xs">(edit)</button>
                       </span>
@@ -1558,7 +1559,7 @@ export default function LeaseDetailPage() {
                 )}
                 <button
                   onClick={() => window.open(`/leases/${lease.id}/statement`, '_blank')}
-                  className="px-3 sm:px-3 py-2.5 sm:py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                  className="px-3 sm:px-3 py-2.5 sm:py-1.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors text-sm font-medium"
                 >
                   Statement
                 </button>
@@ -1591,8 +1592,8 @@ export default function LeaseDetailPage() {
             </div>
           </div>
           {/* Ledger View Toggle */}
-          <div className="px-6 py-3 border-b border-gray-200 flex items-center justify-between bg-gray-50">
-            <span className="text-sm text-gray-600">
+          <div className="px-6 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+            <span className="text-sm text-slate-600">
               {ledgerViewMode === 'simplified' ? 'Showing charges & payments only' : 'Showing full accounting ledger'}
             </span>
             <div className="flex items-center gap-2">
@@ -1601,7 +1602,7 @@ export default function LeaseDetailPage() {
                 className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
                   ledgerViewMode === 'simplified'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                    : 'bg-white text-slate-600 border border-slate-300 hover:bg-slate-50'
                 }`}
               >
                 Simplified
@@ -1611,7 +1612,7 @@ export default function LeaseDetailPage() {
                 className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
                   ledgerViewMode === 'full'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                    : 'bg-white text-slate-600 border border-slate-300 hover:bg-slate-50'
                 }`}
               >
                 Full Ledger
@@ -1620,11 +1621,11 @@ export default function LeaseDetailPage() {
           </div>
           {lease.ledgerEntries.length === 0 ? (
             <div className="text-center py-12 px-4">
-              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-xl">📋</span>
+              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <ClipboardList className="h-5 w-5 text-slate-400" />
               </div>
-              <p className="text-gray-900 font-medium mb-1">No transactions yet</p>
-              <p className="text-sm text-gray-500 mb-4">Charges and payments will appear here.</p>
+              <p className="text-slate-900 font-medium mb-1">No transactions yet</p>
+              <p className="text-sm text-slate-500 mb-4">Charges and payments will appear here.</p>
               <div className="flex gap-2 justify-center">
                 <button
                   onClick={() => {
@@ -1652,34 +1653,34 @@ export default function LeaseDetailPage() {
             /* Simplified View - AR entries only */
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
                       Date
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
                       Description
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
+                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
                       Charge
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
+                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
                       Payment
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
+                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
 
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-slate-200">
                   {lease.ledgerEntries
                     .filter(entry => entry.accountCode === '1200')
                     .map((entry) => (
-                    <tr key={entry.id} className="hover:bg-gray-50 group">
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                    <tr key={entry.id} className="hover:bg-slate-50 group">
+                      <td className="px-6 py-4 text-sm text-slate-900">
                         {formatDate(entry.entryDate)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-6 py-4 text-sm text-slate-900">
                         {entry.description}
                       </td>
                       <td className="px-6 py-4 text-sm text-right">
@@ -1688,7 +1689,7 @@ export default function LeaseDetailPage() {
                             +{formatCurrency(parseFloat(entry.amount.toString()))}
                           </span>
                         ) : (
-                          <span className="text-gray-400">-</span>
+                          <span className="text-slate-400">-</span>
                         )}
                       </td>
                       <td className="px-6 py-4 text-sm text-right">
@@ -1697,13 +1698,13 @@ export default function LeaseDetailPage() {
                             -{formatCurrency(parseFloat(entry.amount.toString()))}
                           </span>
                         ) : (
-                          <span className="text-gray-400">-</span>
+                          <span className="text-slate-400">-</span>
                         )}
                       </td>
                       <td className="px-6 py-4 text-sm text-right">
                         <button
                           onClick={() => handleDeleteLedgerEntry(entry.id, entry.description)}
-                          className="p-1 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all"
+                          className="p-1 text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all"
                           title="Delete entry"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1720,63 +1721,63 @@ export default function LeaseDetailPage() {
             /* Full Ledger View - All entries with accounting details */
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
                       Date
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
                       Account
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
                       Description
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
+                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
                       Debit
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
+                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
                       Credit
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
+                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
 
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-slate-200">
                   {lease.ledgerEntries.map((entry) => (
-                    <tr key={entry.id} className="hover:bg-gray-50 group">
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                    <tr key={entry.id} className="hover:bg-slate-50 group">
+                      <td className="px-6 py-4 text-sm text-slate-900">
                         {formatDate(entry.entryDate)}
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        <div className="text-gray-900 font-medium">{entry.account.code}</div>
-                        <div className="text-gray-500 text-xs">{entry.account.name}</div>
+                        <div className="text-slate-900 font-medium">{entry.account.code}</div>
+                        <div className="text-slate-500 text-xs">{entry.account.name}</div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-6 py-4 text-sm text-slate-900">
                         {entry.description}
                       </td>
                       <td className="px-6 py-4 text-sm text-right">
                         {entry.debitCredit === 'DR' ? (
-                          <span className="text-gray-900 font-medium">
+                          <span className="text-slate-900 font-medium">
                             {formatCurrency(parseFloat(entry.amount.toString()))}
                           </span>
                         ) : (
-                          <span className="text-gray-400">-</span>
+                          <span className="text-slate-400">-</span>
                         )}
                       </td>
                       <td className="px-6 py-4 text-sm text-right">
                         {entry.debitCredit === 'CR' ? (
-                          <span className="text-gray-900 font-medium">
+                          <span className="text-slate-900 font-medium">
                             {formatCurrency(parseFloat(entry.amount.toString()))}
                           </span>
                         ) : (
-                          <span className="text-gray-400">-</span>
+                          <span className="text-slate-400">-</span>
                         )}
                       </td>
                       <td className="px-6 py-4 text-sm text-right">
                         <button
                           onClick={() => handleDeleteLedgerEntry(entry.id, entry.description)}
-                          className="p-1 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all"
+                          className="p-1 text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all"
                           title="Delete entry"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1794,27 +1795,27 @@ export default function LeaseDetailPage() {
 
         {/* Security Deposit - Collapsible */}
         {lease.securityDepositAmount && depositStatus && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200">
             <button
               onClick={() => setDepositExpanded(!depositExpanded)}
-              className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+              className="w-full p-4 flex items-center justify-between hover:bg-slate-50 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <svg
-                  className={`w-5 h-5 text-gray-500 transition-transform ${depositExpanded ? 'rotate-90' : ''}`}
+                  className={`w-5 h-5 text-slate-500 transition-transform ${depositExpanded ? 'rotate-90' : ''}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-                <h2 className="text-lg font-semibold text-gray-900">Security Deposit</h2>
+                <h2 className="text-lg font-semibold text-slate-900">Security Deposit</h2>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600">Held: {formatCurrency(depositStatus.currentBalance)}</span>
+                <span className="text-sm text-slate-600">Held: {formatCurrency(depositStatus.currentBalance)}</span>
                 <span className={`px-3 py-1 text-sm font-medium rounded-full ${
                   depositStatus.status === 'HELD' ? 'bg-blue-100 text-blue-800' :
-                  depositStatus.status === 'RETURNED' ? 'bg-gray-100 text-gray-800' :
+                  depositStatus.status === 'RETURNED' ? 'bg-slate-100 text-slate-800' :
                   'bg-yellow-100 text-yellow-800'
                 }`}>
                   {depositStatus.status.replace('_', ' ')}
@@ -1823,28 +1824,28 @@ export default function LeaseDetailPage() {
             </button>
 
             {depositExpanded && (
-              <div className="px-6 pb-6 border-t border-gray-200 pt-4">
+              <div className="px-6 pb-6 border-t border-slate-200 pt-4">
                 <div className="grid grid-cols-4 gap-4 mb-6">
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Expected Amount</p>
-                    <p className="text-lg font-semibold text-gray-900">
+                    <p className="text-xs text-slate-500 mb-1">Expected Amount</p>
+                    <p className="text-lg font-semibold text-slate-900">
                       {formatCurrency(depositStatus.expectedAmount || 0)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Currently Held</p>
+                    <p className="text-xs text-slate-500 mb-1">Currently Held</p>
                     <p className="text-lg font-semibold text-blue-600">
                       {formatCurrency(depositStatus.currentBalance)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Total Returned</p>
-                    <p className="text-lg font-semibold text-gray-600">
+                    <p className="text-xs text-slate-500 mb-1">Total Returned</p>
+                    <p className="text-lg font-semibold text-slate-600">
                       {formatCurrency(depositStatus.totalReturned)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Total Deducted</p>
+                    <p className="text-xs text-slate-500 mb-1">Total Deducted</p>
                     <p className="text-lg font-semibold text-red-600">
                       {formatCurrency(depositStatus.totalDeducted)}
                     </p>
@@ -1888,11 +1889,11 @@ export default function LeaseDetailPage() {
 
         {/* Rent Roll - Complete Rent History */}
         {lease.monthlyRentAmount && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Rent Roll</h2>
-                <p className="text-sm text-gray-500">Complete rent history from lease start to present</p>
+                <h2 className="text-lg font-semibold text-slate-900">Rent Roll</h2>
+                <p className="text-sm text-slate-500">Complete rent history from lease start to present</p>
               </div>
               <button
                 onClick={() => setShowRentIncreaseModal(true)}
@@ -1903,15 +1904,15 @@ export default function LeaseDetailPage() {
             </div>
 
             {/* Current Rent Summary */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-4">
+            <div className="bg-slate-50 rounded-lg p-4 mb-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Current Monthly Rent</p>
-                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(lease.monthlyRentAmount)}</p>
+                  <p className="text-sm text-slate-600">Current Monthly Rent</p>
+                  <p className="text-2xl font-bold text-slate-900">{formatCurrency(lease.monthlyRentAmount)}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-600">Lease Period</p>
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm text-slate-600">Lease Period</p>
+                  <p className="text-sm font-medium text-slate-900">
                     {new Date(lease.startDate).toLocaleDateString()} - {new Date(lease.endDate).toLocaleDateString()}
                   </p>
                 </div>
@@ -1921,7 +1922,7 @@ export default function LeaseDetailPage() {
             {/* Rent Timeline */}
             <div className="relative">
               {/* Timeline line */}
-              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-200"></div>
 
               {/* Lease Start Entry */}
               <div className="relative flex items-start gap-4 pb-4">
@@ -1934,10 +1935,10 @@ export default function LeaseDetailPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-blue-600 font-medium">LEASE START</p>
-                      <p className="text-sm font-medium text-gray-900">{new Date(lease.startDate).toLocaleDateString()}</p>
+                      <p className="text-sm font-medium text-slate-900">{new Date(lease.startDate).toLocaleDateString()}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-gray-900">
+                      <p className="text-lg font-bold text-slate-900">
                         {formatCurrency(rentIncreases.filter(r => r.status === 'APPLIED').length > 0
                           ? rentIncreases.filter(r => r.status === 'APPLIED').sort((a, b) =>
                               new Date(a.effectiveDate).getTime() - new Date(b.effectiveDate).getTime()
@@ -1945,7 +1946,7 @@ export default function LeaseDetailPage() {
                           : lease.monthlyRentAmount
                         )}
                       </p>
-                      <p className="text-xs text-gray-500">/month</p>
+                      <p className="text-xs text-slate-500">/month</p>
                     </div>
                   </div>
                 </div>
@@ -1966,8 +1967,8 @@ export default function LeaseDetailPage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-xs text-green-600 font-medium">RENT INCREASE APPLIED</p>
-                          <p className="text-sm font-medium text-gray-900">{new Date(increase.effectiveDate).toLocaleDateString()}</p>
-                          {increase.notes && <p className="text-xs text-gray-500 mt-1">{increase.notes}</p>}
+                          <p className="text-sm font-medium text-slate-900">{new Date(increase.effectiveDate).toLocaleDateString()}</p>
+                          {increase.notes && <p className="text-xs text-slate-500 mt-1">{increase.notes}</p>}
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-bold text-green-600">{formatCurrency(increase.newAmount)}</p>
@@ -1983,20 +1984,20 @@ export default function LeaseDetailPage() {
               {/* Current/Today marker if different from last increase */}
               {rentIncreases.filter(r => r.status === 'APPLIED').length > 0 && (
                 <div className="relative flex items-start gap-4 pb-4">
-                  <div className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center z-10 flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center z-10 flex-shrink-0">
                     <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <circle cx="12" cy="12" r="4" />
                     </svg>
                   </div>
-                  <div className="flex-1 bg-gray-100 rounded-lg p-3 border border-gray-300">
+                  <div className="flex-1 bg-slate-100 rounded-lg p-3 border border-slate-300">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-gray-600 font-medium">CURRENT RENT</p>
-                        <p className="text-sm font-medium text-gray-900">Today</p>
+                        <p className="text-xs text-slate-600 font-medium">CURRENT RENT</p>
+                        <p className="text-sm font-medium text-slate-900">Today</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-gray-900">{formatCurrency(lease.monthlyRentAmount)}</p>
-                        <p className="text-xs text-gray-500">/month</p>
+                        <p className="text-lg font-bold text-slate-900">{formatCurrency(lease.monthlyRentAmount)}</p>
+                        <p className="text-xs text-slate-500">/month</p>
                       </div>
                     </div>
                   </div>
@@ -2018,8 +2019,8 @@ export default function LeaseDetailPage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-xs text-purple-600 font-medium">SCHEDULED INCREASE</p>
-                          <p className="text-sm font-medium text-gray-900">{new Date(increase.effectiveDate).toLocaleDateString()}</p>
-                          {increase.notes && <p className="text-xs text-gray-500 mt-1">{increase.notes}</p>}
+                          <p className="text-sm font-medium text-slate-900">{new Date(increase.effectiveDate).toLocaleDateString()}</p>
+                          {increase.notes && <p className="text-xs text-slate-500 mt-1">{increase.notes}</p>}
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-bold text-purple-600">{formatCurrency(increase.newAmount)}</p>
@@ -2048,16 +2049,16 @@ export default function LeaseDetailPage() {
 
               {/* Lease End */}
               <div className="relative flex items-start gap-4">
-                <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center z-10 flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-slate-400 flex items-center justify-center z-10 flex-shrink-0">
                   <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </div>
-                <div className="flex-1 bg-gray-50 rounded-lg p-3 border border-gray-200">
+                <div className="flex-1 bg-slate-50 rounded-lg p-3 border border-slate-200">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-gray-500 font-medium">LEASE END</p>
-                      <p className="text-sm font-medium text-gray-900">{new Date(lease.endDate).toLocaleDateString()}</p>
+                      <p className="text-xs text-slate-500 font-medium">LEASE END</p>
+                      <p className="text-sm font-medium text-slate-900">{new Date(lease.endDate).toLocaleDateString()}</p>
                     </div>
                   </div>
                 </div>
@@ -2066,13 +2067,13 @@ export default function LeaseDetailPage() {
 
             {/* Cancelled Increases (collapsed) */}
             {rentIncreases.filter(inc => inc.status === 'CANCELLED').length > 0 && (
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <p className="text-xs text-gray-500 mb-2">Cancelled Increases ({rentIncreases.filter(inc => inc.status === 'CANCELLED').length})</p>
+              <div className="mt-4 pt-4 border-t border-slate-200">
+                <p className="text-xs text-slate-500 mb-2">Cancelled Increases ({rentIncreases.filter(inc => inc.status === 'CANCELLED').length})</p>
                 <div className="space-y-2">
                   {rentIncreases
                     .filter(inc => inc.status === 'CANCELLED')
                     .map((increase) => (
-                      <div key={increase.id} className="text-xs text-gray-400 line-through">
+                      <div key={increase.id} className="text-xs text-slate-400 line-through">
                         {new Date(increase.effectiveDate).toLocaleDateString()} - {formatCurrency(increase.previousAmount)} to {formatCurrency(increase.newAmount)}
                       </div>
                     ))}
@@ -2083,14 +2084,14 @@ export default function LeaseDetailPage() {
         )}
 
         {/* Scheduled Charges */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200">
           <button
             onClick={() => setScheduledChargesExpanded(!scheduledChargesExpanded)}
-            className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+            className="w-full p-6 flex items-center justify-between hover:bg-slate-50 transition-colors"
           >
             <div className="flex items-center gap-3">
               <svg
-                className={`w-5 h-5 text-gray-500 transition-transform ${scheduledChargesExpanded ? 'rotate-90' : ''}`}
+                className={`w-5 h-5 text-slate-500 transition-transform ${scheduledChargesExpanded ? 'rotate-90' : ''}`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -2098,8 +2099,8 @@ export default function LeaseDetailPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
               <div className="text-left">
-                <h2 className="text-lg font-semibold text-gray-900">Scheduled Charges</h2>
-                <p className="text-sm text-gray-600 mt-1">Recurring monthly charges (rent, utilities, parking, etc.)</p>
+                <h2 className="text-lg font-semibold text-slate-900">Scheduled Charges</h2>
+                <p className="text-sm text-slate-600 mt-1">Recurring monthly charges (rent, utilities, parking, etc.)</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -2109,7 +2110,7 @@ export default function LeaseDetailPage() {
                 </span>
               )}
               {lease.scheduledCharges && (
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-slate-500">
                   {formatCurrency(lease.scheduledCharges.filter(c => c.active).reduce((sum, c) => sum + Number(c.amount), 0))}/mo
                 </span>
               )}
@@ -2117,7 +2118,7 @@ export default function LeaseDetailPage() {
           </button>
 
           {scheduledChargesExpanded && (
-            <div className="px-6 pb-6 border-t border-gray-200">
+            <div className="px-6 pb-6 border-t border-slate-200">
               <div className="flex justify-between items-center pt-4 mb-4">
                 <button
                   onClick={handlePostScheduledCharges}
@@ -2140,8 +2141,8 @@ export default function LeaseDetailPage() {
 
               {!lease.scheduledCharges || lease.scheduledCharges.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-sm text-gray-500">No scheduled charges configured.</p>
-                  <p className="text-xs text-gray-400 mt-1">Add recurring charges like rent, utilities, parking fees, etc.</p>
+                  <p className="text-sm text-slate-500">No scheduled charges configured.</p>
+                  <p className="text-xs text-slate-400 mt-1">Add recurring charges like rent, utilities, parking fees, etc.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -2149,14 +2150,14 @@ export default function LeaseDetailPage() {
                     <div
                       key={charge.id}
                       className={`flex items-center justify-between p-4 rounded-lg border ${
-                        charge.active ? 'bg-white border-gray-200' : 'bg-gray-50 border-gray-100 opacity-60'
+                        charge.active ? 'bg-white border-slate-200' : 'bg-slate-50 border-slate-100 opacity-60'
                       }`}
                     >
                       <div className="flex items-center gap-4">
                         <button
                           onClick={() => handleToggleScheduledCharge(charge)}
                           className={`w-10 h-6 rounded-full transition-colors relative ${
-                            charge.active ? 'bg-green-500' : 'bg-gray-300'
+                            charge.active ? 'bg-green-500' : 'bg-slate-300'
                           }`}
                         >
                           <span
@@ -2166,9 +2167,9 @@ export default function LeaseDetailPage() {
                           />
                         </button>
                         <div>
-                          <p className="font-medium text-gray-900">{charge.description}</p>
+                          <p className="font-medium text-slate-900">{charge.description}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-sm text-gray-500">Day {charge.chargeDay} of each month</span>
+                            <span className="text-sm text-slate-500">Day {charge.chargeDay} of each month</span>
                             {charge.active && (() => {
                               const postInfo = getNextPostInfo(charge.chargeDay, charge.lastChargedDate);
                               return (
@@ -2202,7 +2203,7 @@ export default function LeaseDetailPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="text-lg font-semibold text-gray-900">
+                        <span className="text-lg font-semibold text-slate-900">
                           {formatCurrency(Number(charge.amount))}
                         </span>
                         <div className="flex items-center gap-2">
@@ -2220,7 +2221,7 @@ export default function LeaseDetailPage() {
                           )}
                           <button
                             onClick={() => handleEditScheduledCharge(charge)}
-                            className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                            className="p-2 text-slate-400 hover:text-blue-600 transition-colors"
                             title="Edit"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2229,7 +2230,7 @@ export default function LeaseDetailPage() {
                           </button>
                           <button
                             onClick={() => handleDeleteScheduledCharge(charge.id)}
-                            className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                            className="p-2 text-slate-400 hover:text-red-600 transition-colors"
                             title="Delete"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2241,10 +2242,10 @@ export default function LeaseDetailPage() {
                     </div>
                   ))}
 
-                  <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="mt-4 pt-4 border-t border-slate-200">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Total Monthly</span>
-                      <span className="font-semibold text-gray-900">
+                      <span className="text-slate-600">Total Monthly</span>
+                      <span className="font-semibold text-slate-900">
                         {formatCurrency(lease.scheduledCharges.filter(c => c.active).reduce((sum, c) => sum + Number(c.amount), 0))}
                       </span>
                     </div>
@@ -2256,23 +2257,23 @@ export default function LeaseDetailPage() {
         </div>
 
         {/* Lease Information */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200">
           <button
             onClick={() => setLeaseInfoExpanded(!leaseInfoExpanded)}
-            className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+            className="w-full p-6 flex items-center justify-between hover:bg-slate-50 transition-colors"
           >
             <div className="flex items-center gap-3">
               <svg
-                className={`w-5 h-5 text-gray-500 transition-transform ${leaseInfoExpanded ? 'rotate-90' : ''}`}
+                className={`w-5 h-5 text-slate-500 transition-transform ${leaseInfoExpanded ? 'rotate-90' : ''}`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <h2 className="text-lg font-semibold text-gray-900">Lease Information</h2>
+              <h2 className="text-lg font-semibold text-slate-900">Lease Information</h2>
             </div>
-            <div className="flex items-center gap-4 text-sm text-gray-600">
+            <div className="flex items-center gap-4 text-sm text-slate-600">
               <span>{lease.tenantName}</span>
               <span>•</span>
               <span>{lease.unitName}</span>
@@ -2280,7 +2281,7 @@ export default function LeaseDetailPage() {
           </button>
 
           {leaseInfoExpanded && (
-            <div className="px-6 pb-6 border-t border-gray-200 pt-4">
+            <div className="px-6 pb-6 border-t border-slate-200 pt-4">
               {/* Property & Unit */}
               <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <h3 className="text-sm font-medium text-blue-900 mb-2">Property & Unit</h3>
@@ -2301,7 +2302,7 @@ export default function LeaseDetailPage() {
           <div className="grid grid-cols-2 gap-6">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-medium text-gray-600">Tenant Details</h3>
+                <h3 className="text-sm font-medium text-slate-600">Tenant Details</h3>
                 {!editingTenantInfo && (
                   <button
                     onClick={() => setEditingTenantInfo(true)}
@@ -2315,32 +2316,32 @@ export default function LeaseDetailPage() {
               {editingTenantInfo ? (
                 <div className="space-y-3">
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Name *</label>
+                    <label className="text-xs text-slate-500 mb-1 block">Name *</label>
                     <input
                       type="text"
                       value={tenantInfoForm.tenantName}
                       onChange={(e) => setTenantInfoForm({ ...tenantInfoForm, tenantName: e.target.value })}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Tenant name"
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Email</label>
+                    <label className="text-xs text-slate-500 mb-1 block">Email</label>
                     <input
                       type="email"
                       value={tenantInfoForm.tenantEmail}
                       onChange={(e) => setTenantInfoForm({ ...tenantInfoForm, tenantEmail: e.target.value })}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="tenant@email.com"
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Phone</label>
+                    <label className="text-xs text-slate-500 mb-1 block">Phone</label>
                     <input
                       type="tel"
                       value={tenantInfoForm.tenantPhone}
                       onChange={(e) => setTenantInfoForm({ ...tenantInfoForm, tenantPhone: e.target.value })}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="(555) 123-4567"
                     />
                   </div>
@@ -2361,7 +2362,7 @@ export default function LeaseDetailPage() {
                           tenantPhone: lease.tenantPhone || ''
                         });
                       }}
-                      className="px-3 py-1.5 bg-gray-200 text-gray-700 text-xs rounded-lg hover:bg-gray-300"
+                      className="px-3 py-1.5 bg-slate-200 text-slate-700 text-xs rounded-lg hover:bg-slate-300"
                     >
                       Cancel
                     </button>
@@ -2370,38 +2371,38 @@ export default function LeaseDetailPage() {
               ) : (
                 <div className="space-y-2">
                   <div>
-                    <p className="text-xs text-gray-500">Name</p>
-                    <p className="text-sm text-gray-900">{lease.tenantName}</p>
+                    <p className="text-xs text-slate-500">Name</p>
+                    <p className="text-sm text-slate-900">{lease.tenantName}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Email</p>
-                    <p className="text-sm text-gray-900">{lease.tenantEmail || <span className="text-gray-400 italic">Not set</span>}</p>
+                    <p className="text-xs text-slate-500">Email</p>
+                    <p className="text-sm text-slate-900">{lease.tenantEmail || <span className="text-slate-400 italic">Not set</span>}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Phone</p>
-                    <p className="text-sm text-gray-900">{lease.tenantPhone || <span className="text-gray-400 italic">Not set</span>}</p>
+                    <p className="text-xs text-slate-500">Phone</p>
+                    <p className="text-sm text-slate-900">{lease.tenantPhone || <span className="text-slate-400 italic">Not set</span>}</p>
                   </div>
                 </div>
               )}
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-600 mb-3">Lease Period</h3>
+              <h3 className="text-sm font-medium text-slate-600 mb-3">Lease Period</h3>
               <div className="space-y-2">
                 <div>
-                  <p className="text-xs text-gray-500">Start Date</p>
-                  <p className="text-sm text-gray-900">{formatDate(lease.startDate)}</p>
+                  <p className="text-xs text-slate-500">Start Date</p>
+                  <p className="text-sm text-slate-900">{formatDate(lease.startDate)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">End Date</p>
-                  <p className="text-sm text-gray-900">{formatDate(lease.endDate)}</p>
+                  <p className="text-xs text-slate-500">End Date</p>
+                  <p className="text-sm text-slate-900">{formatDate(lease.endDate)}</p>
                 </div>
               </div>
             </div>
           </div>
           {lease.notes && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-xs text-gray-500 mb-1">Notes</p>
-              <p className="text-sm text-gray-700">{lease.notes}</p>
+            <div className="mt-4 pt-4 border-t border-slate-200">
+              <p className="text-xs text-slate-500 mb-1">Notes</p>
+              <p className="text-sm text-slate-700">{lease.notes}</p>
             </div>
           )}
             </div>
@@ -2409,21 +2410,21 @@ export default function LeaseDetailPage() {
         </div>
 
         {/* Tenant Portal Access */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200">
           <button
             onClick={() => setPortalExpanded(!portalExpanded)}
-            className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+            className="w-full p-6 flex items-center justify-between hover:bg-slate-50 transition-colors"
           >
             <div className="flex items-center gap-3">
               <svg
-                className={`w-5 h-5 text-gray-500 transition-transform ${portalExpanded ? 'rotate-90' : ''}`}
+                className={`w-5 h-5 text-slate-500 transition-transform ${portalExpanded ? 'rotate-90' : ''}`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <h2 className="text-lg font-semibold text-gray-900">Tenant Payment Link</h2>
+              <h2 className="text-lg font-semibold text-slate-900">Tenant Payment Link</h2>
             </div>
             <div className="flex items-center gap-2">
               {lease.portalToken ? (
@@ -2431,7 +2432,7 @@ export default function LeaseDetailPage() {
                   Active
                 </span>
               ) : (
-                <span className="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full font-medium">
+                <span className="text-xs px-2 py-1 bg-slate-100 text-slate-800 rounded-full font-medium">
                   Inactive
                 </span>
               )}
@@ -2439,7 +2440,7 @@ export default function LeaseDetailPage() {
           </button>
 
           {portalExpanded && (
-            <div className="px-6 pb-6 border-t border-gray-200 pt-4">
+            <div className="px-6 pb-6 border-t border-slate-200 pt-4">
               {lease.portalToken ? (
                 <div className="space-y-4">
                   <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -2454,8 +2455,8 @@ export default function LeaseDetailPage() {
                         </p>
 
                         <div className="bg-white p-3 rounded border border-green-300 mb-3">
-                          <p className="text-xs text-gray-500 mb-1">Payment Link</p>
-                          <p className="text-sm font-mono text-gray-900 break-all">
+                          <p className="text-xs text-slate-500 mb-1">Payment Link</p>
+                          <p className="text-sm font-mono text-slate-900 break-all">
                             {`${typeof window !== 'undefined' ? window.location.origin : ''}/tenant/${lease.portalToken}`}
                           </p>
                         </div>
@@ -2471,7 +2472,7 @@ export default function LeaseDetailPage() {
                             onClick={() => window.open(`/tenant/${lease.portalToken}`, '_blank')}
                             className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
                           >
-                            <span>🚀</span>
+                            <ExternalLink className="h-4 w-4" />
                             <span>Open Portal</span>
                           </button>
 
@@ -2486,7 +2487,7 @@ export default function LeaseDetailPage() {
                               </>
                             ) : (
                               <>
-                                <span>📋</span>
+                                <Copy className="h-4 w-4" />
                                 <span>Copy Link</span>
                               </>
                             )}
@@ -2495,9 +2496,9 @@ export default function LeaseDetailPage() {
                           {lease.tenantEmail && (
                             <button
                               onClick={handleEmailPortalLink}
-                              className="px-4 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
+                              className="px-4 py-2 bg-slate-600 text-white text-sm rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-2"
                             >
-                              <span>✉️</span>
+                              <Mail className="h-4 w-4" />
                               <span>Email to Tenant</span>
                             </button>
                           )}
@@ -2505,7 +2506,7 @@ export default function LeaseDetailPage() {
                           <button
                             onClick={handleGeneratePortalLink}
                             disabled={generatingPortal}
-                            className="px-4 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
+                            className="px-4 py-2 bg-slate-600 text-white text-sm rounded-lg hover:bg-slate-700 transition-colors disabled:opacity-50"
                           >
                             {generatingPortal ? 'Regenerating...' : 'Regenerate Link'}
                           </button>
@@ -2534,14 +2535,14 @@ export default function LeaseDetailPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg">
                     <div className="flex items-start gap-3">
-                      <div className="text-2xl">🔒</div>
+                      <Lock className="h-6 w-6 text-slate-400" />
                       <div className="flex-1">
-                        <h3 className="text-sm font-medium text-gray-900 mb-1">
+                        <h3 className="text-sm font-medium text-slate-900 mb-1">
                           Payment Link Not Created
                         </h3>
-                        <p className="text-sm text-gray-600 mb-3">
+                        <p className="text-sm text-slate-600 mb-3">
                           Create a payment link so {lease.tenantName} can view their balance and pay online.
                         </p>
 
@@ -2577,28 +2578,28 @@ export default function LeaseDetailPage() {
 
       {/* Documents Section - Collapsible */}
       <div className="max-w-7xl mx-auto px-6 pb-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200">
           <button
             onClick={() => setDocumentsExpanded(!documentsExpanded)}
-            className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+            className="w-full p-4 flex items-center justify-between hover:bg-slate-50 transition-colors"
           >
             <div className="flex items-center gap-3">
               <svg
-                className={`w-5 h-5 text-gray-500 transition-transform ${documentsExpanded ? 'rotate-90' : ''}`}
+                className={`w-5 h-5 text-slate-500 transition-transform ${documentsExpanded ? 'rotate-90' : ''}`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <h2 className="text-lg font-semibold text-gray-900">Documents</h2>
+              <h2 className="text-lg font-semibold text-slate-900">Documents</h2>
             </div>
-            <span className="text-sm text-gray-600">{documents.length} document{documents.length !== 1 ? 's' : ''}</span>
+            <span className="text-sm text-slate-600">{documents.length} document{documents.length !== 1 ? 's' : ''}</span>
           </button>
 
           {documentsExpanded && (
-            <div className="border-t border-gray-200">
-              <div className="p-4 flex justify-end border-b border-gray-100">
+            <div className="border-t border-slate-200">
+              <div className="p-4 flex justify-end border-b border-slate-100">
                 <button
                   onClick={() => setShowDocumentModal(true)}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
@@ -2609,10 +2610,10 @@ export default function LeaseDetailPage() {
 
               {documents.length === 0 ? (
                 <div className="text-center py-12">
-                  <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-16 h-16 text-slate-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  <p className="text-gray-500 mb-4">No documents uploaded yet</p>
+                  <p className="text-slate-500 mb-4">No documents uploaded yet</p>
                   <button
                     onClick={() => setShowDocumentModal(true)}
                     className="text-blue-600 hover:text-blue-700 font-medium"
@@ -2621,9 +2622,9 @@ export default function LeaseDetailPage() {
                   </button>
                 </div>
               ) : (
-                <div className="divide-y divide-gray-200">
+                <div className="divide-y divide-slate-200">
                   {documents.map((doc) => (
-                    <div key={doc.id} className="p-4 hover:bg-gray-50 transition-colors">
+                    <div key={doc.id} className="p-4 hover:bg-slate-50 transition-colors">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4 flex-1">
                           <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -2632,16 +2633,16 @@ export default function LeaseDetailPage() {
                             </svg>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">{doc.fileName}</p>
+                            <p className="text-sm font-medium text-slate-900 truncate">{doc.fileName}</p>
                             <div className="flex items-center gap-3 mt-1">
-                              <span className="inline-flex px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">
+                              <span className="inline-flex px-2 py-1 text-xs font-medium bg-slate-100 text-slate-700 rounded">
                                 {getCategoryLabel(doc.category)}
                               </span>
-                              <span className="text-xs text-gray-500">{formatFileSize(doc.fileSize)}</span>
-                              <span className="text-xs text-gray-500">{new Date(doc.createdAt).toLocaleDateString()}</span>
+                              <span className="text-xs text-slate-500">{formatFileSize(doc.fileSize)}</span>
+                              <span className="text-xs text-slate-500">{new Date(doc.createdAt).toLocaleDateString()}</span>
                             </div>
                             {doc.description && (
-                              <p className="text-xs text-gray-600 mt-1">{doc.description}</p>
+                              <p className="text-xs text-slate-600 mt-1">{doc.description}</p>
                             )}
                           </div>
                         </div>
@@ -2674,28 +2675,28 @@ export default function LeaseDetailPage() {
       {/* Maintenance Requests Section - Collapsible */}
       {lease.unitId && (
         <div className="max-w-7xl mx-auto px-6 pb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200">
             <button
               onClick={() => setMaintenanceExpanded(!maintenanceExpanded)}
-              className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+              className="w-full p-4 flex items-center justify-between hover:bg-slate-50 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <svg
-                  className={`w-5 h-5 text-gray-500 transition-transform ${maintenanceExpanded ? 'rotate-90' : ''}`}
+                  className={`w-5 h-5 text-slate-500 transition-transform ${maintenanceExpanded ? 'rotate-90' : ''}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-                <h2 className="text-lg font-semibold text-gray-900">Maintenance Requests</h2>
+                <h2 className="text-lg font-semibold text-slate-900">Maintenance Requests</h2>
               </div>
-              <span className="text-sm text-gray-600">{workOrders.length} request{workOrders.length !== 1 ? 's' : ''}</span>
+              <span className="text-sm text-slate-600">{workOrders.length} request{workOrders.length !== 1 ? 's' : ''}</span>
             </button>
 
             {maintenanceExpanded && (
-              <div className="border-t border-gray-200">
-                <div className="p-4 flex justify-end border-b border-gray-100">
+              <div className="border-t border-slate-200">
+                <div className="p-4 flex justify-end border-b border-slate-100">
                   <Link
                     href={`/maintenance/new?unitId=${lease.unitId}&propertyId=${lease.propertyId}&leaseId=${lease.id}`}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
@@ -2706,10 +2707,10 @@ export default function LeaseDetailPage() {
 
                 {workOrders.length === 0 ? (
                   <div className="text-center py-12">
-                    <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-16 h-16 text-slate-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
                     </svg>
-                    <p className="text-gray-500 mb-4">No maintenance requests yet</p>
+                    <p className="text-slate-500 mb-4">No maintenance requests yet</p>
                     <Link
                       href={`/maintenance/new?unitId=${lease.unitId}&propertyId=${lease.propertyId}&leaseId=${lease.id}`}
                       className="text-blue-600 hover:text-blue-700 font-medium"
@@ -2718,9 +2719,9 @@ export default function LeaseDetailPage() {
                     </Link>
                   </div>
                 ) : (
-                  <div className="divide-y divide-gray-200">
+                  <div className="divide-y divide-slate-200">
                     {workOrders.map((wo: any) => (
-                      <div key={wo.id} className="p-4 hover:bg-gray-50 transition-colors">
+                      <div key={wo.id} className="p-4 hover:bg-slate-50 transition-colors">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
@@ -2735,7 +2736,7 @@ export default function LeaseDetailPage() {
                                 wo.status === 'ASSIGNED' ? 'bg-blue-100 text-blue-800' :
                                 wo.status === 'IN_PROGRESS' ? 'bg-purple-100 text-purple-800' :
                                 wo.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                                'bg-gray-100 text-gray-800'
+                                'bg-slate-100 text-slate-800'
                               }`}>
                                 {wo.status.replace('_', ' ')}
                               </span>
@@ -2748,13 +2749,13 @@ export default function LeaseDetailPage() {
                                 {wo.priority}
                               </span>
                             </div>
-                            <p className="text-sm text-gray-700 mb-2">{wo.description}</p>
-                            <div className="flex items-center gap-4 text-xs text-gray-500">
+                            <p className="text-sm text-slate-700 mb-2">{wo.description}</p>
+                            <div className="flex items-center gap-4 text-xs text-slate-500">
                               <span>Category: {wo.category}</span>
                               {wo.assignedTo && <span>Assigned to: {wo.assignedTo}</span>}
                               <span>Created: {new Date(wo.createdAt).toLocaleDateString()}</span>
                               {wo.actualCost && (
-                                <span className="font-medium text-gray-700">
+                                <span className="font-medium text-slate-700">
                                   Cost: ${Number(wo.actualCost).toFixed(2)} ({wo.paidBy})
                                 </span>
                               )}
@@ -2775,9 +2776,9 @@ export default function LeaseDetailPage() {
       {showDocumentModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-6 border-b border-slate-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Upload Document</h2>
+                <h2 className="text-xl font-bold text-slate-900">Upload Document</h2>
                 <button
                   onClick={() => {
                     setShowDocumentModal(false);
@@ -2785,7 +2786,7 @@ export default function LeaseDetailPage() {
                     setDocumentForm({ category: 'other', description: '' });
                     setError('');
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-slate-400 hover:text-slate-600"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -2802,28 +2803,28 @@ export default function LeaseDetailPage() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   File *
                 </label>
                 <input
                   type="file"
                   required
                   onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif"
                 />
-                <p className="text-xs text-gray-500 mt-1">Max 10MB. Supported: PDF, DOC, DOCX, JPG, PNG, GIF</p>
+                <p className="text-xs text-slate-500 mt-1">Max 10MB. Supported: PDF, DOC, DOCX, JPG, PNG, GIF</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Category *
                 </label>
                 <select
                   required
                   value={documentForm.category}
                   onChange={(e) => setDocumentForm({ ...documentForm, category: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="lease_agreement">Lease Agreement</option>
                   <option value="inspection">Inspection Report</option>
@@ -2836,13 +2837,13 @@ export default function LeaseDetailPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Description (optional)
                 </label>
                 <textarea
                   value={documentForm.description}
                   onChange={(e) => setDocumentForm({ ...documentForm, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows={3}
                   placeholder="Additional notes about this document..."
                 />
@@ -2857,7 +2858,7 @@ export default function LeaseDetailPage() {
                     setDocumentForm({ category: 'other', description: '' });
                     setError('');
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
                 >
                   Cancel
                 </button>
@@ -2878,15 +2879,15 @@ export default function LeaseDetailPage() {
       {showPaymentModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
           <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-xl">
+            <div className="p-4 sm:p-6 border-b border-slate-200 sticky top-0 bg-white rounded-t-xl">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Record Payment</h2>
+                <h2 className="text-xl font-bold text-slate-900">Record Payment</h2>
                 <button
                   onClick={() => {
                     setShowPaymentModal(false);
                     setError('');
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-slate-400 hover:text-slate-600"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -2915,7 +2916,7 @@ export default function LeaseDetailPage() {
 
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-slate-700">
                     Payment Amount *
                   </label>
                   {lease.balance > 0 && (
@@ -2929,7 +2930,7 @@ export default function LeaseDetailPage() {
                   )}
                 </div>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
                   <input
                     type="number"
                     step="0.01"
@@ -2937,7 +2938,7 @@ export default function LeaseDetailPage() {
                     required
                     value={paymentForm.amount}
                     onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
-                    className="w-full pl-8 pr-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base sm:text-sm"
+                    className="w-full pl-8 pr-3 py-2.5 sm:py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base sm:text-sm"
                     placeholder="0.00"
                     autoFocus
                   />
@@ -2950,7 +2951,7 @@ export default function LeaseDetailPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Payment Date *
                 </label>
                 <input
@@ -2958,19 +2959,19 @@ export default function LeaseDetailPage() {
                   required
                   value={paymentForm.paymentDate}
                   onChange={(e) => setPaymentForm({ ...paymentForm, paymentDate: e.target.value })}
-                  className="w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base sm:text-sm"
+                  className="w-full px-3 py-2.5 sm:py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base sm:text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Description (optional)
                 </label>
                 <input
                   type="text"
                   value={paymentForm.description}
                   onChange={(e) => setPaymentForm({ ...paymentForm, description: e.target.value })}
-                  className="w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base sm:text-sm"
+                  className="w-full px-3 py-2.5 sm:py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-base sm:text-sm"
                   placeholder={`Payment from ${lease.tenantName}`}
                 />
               </div>
@@ -2982,7 +2983,7 @@ export default function LeaseDetailPage() {
                     setShowPaymentModal(false);
                     setError('');
                   }}
-                  className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
                 >
                   Cancel
                 </button>
@@ -3003,18 +3004,18 @@ export default function LeaseDetailPage() {
       {showChargeModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
           <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-xl">
+            <div className="p-4 sm:p-6 border-b border-slate-200 sticky top-0 bg-white rounded-t-xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Post Charges</h2>
-                  <p className="text-sm text-gray-600 mt-1">Add multiple charges at once</p>
+                  <h2 className="text-xl font-bold text-slate-900">Post Charges</h2>
+                  <p className="text-sm text-slate-600 mt-1">Add multiple charges at once</p>
                 </div>
                 <button
                   onClick={() => {
                     setShowChargeModal(false);
                     setError('');
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-slate-400 hover:text-slate-600"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -3040,7 +3041,7 @@ export default function LeaseDetailPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Charge Date (applies to all) *
                 </label>
                 <input
@@ -3048,13 +3049,13 @@ export default function LeaseDetailPage() {
                   required
                   value={chargeDate}
                   onChange={(e) => setChargeDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
 
               <div className="border-t pt-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-gray-900">Charges</h3>
+                  <h3 className="text-sm font-semibold text-slate-900">Charges</h3>
                   <button
                     type="button"
                     onClick={addCharge}
@@ -3069,19 +3070,19 @@ export default function LeaseDetailPage() {
 
                 <div className="space-y-3">
                   {charges.map((charge, index) => (
-                    <div key={index} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div key={index} className="p-4 bg-slate-50 rounded-lg border border-slate-200">
                       <div className="flex items-start gap-3">
                         <div className="flex-1 space-y-3">
                           <div className="grid grid-cols-2 gap-3">
                             <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">
+                              <label className="block text-xs font-medium text-slate-700 mb-1">
                                 Type *
                               </label>
                               <select
                                 required
                                 value={charge.chargeType}
                                 onChange={(e) => updateCharge(index, 'chargeType', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                               >
                                 <option value="rent">Monthly Rent</option>
                                 <option value="late_fee">Late Fee</option>
@@ -3090,11 +3091,11 @@ export default function LeaseDetailPage() {
                               </select>
                             </div>
                             <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">
+                              <label className="block text-xs font-medium text-slate-700 mb-1">
                                 Amount *
                               </label>
                               <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
                                 <input
                                   type="number"
                                   step="0.01"
@@ -3102,21 +3103,21 @@ export default function LeaseDetailPage() {
                                   required
                                   value={charge.amount}
                                   onChange={(e) => updateCharge(index, 'amount', e.target.value)}
-                                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                  className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                                   placeholder="0.00"
                                 />
                               </div>
                             </div>
                           </div>
                           <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-medium text-slate-700 mb-1">
                               Description (optional)
                             </label>
                             <input
                               type="text"
                               value={charge.description}
                               onChange={(e) => updateCharge(index, 'description', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                               placeholder="Auto-filled based on charge type"
                             />
                           </div>
@@ -3138,10 +3139,10 @@ export default function LeaseDetailPage() {
                   ))}
                 </div>
 
-                <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                <div className="mt-3 p-3 bg-slate-50 rounded-lg">
                   <div className="flex justify-between items-center text-sm">
-                    <span className="font-semibold text-gray-700">Total Amount:</span>
-                    <span className="text-lg font-bold text-gray-900">
+                    <span className="font-semibold text-slate-700">Total Amount:</span>
+                    <span className="text-lg font-bold text-slate-900">
                       ${charges.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0).toFixed(2)}
                     </span>
                   </div>
@@ -3155,7 +3156,7 @@ export default function LeaseDetailPage() {
                     setShowChargeModal(false);
                     setError('');
                   }}
-                  className="flex-1 px-4 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
                 >
                   Cancel
                 </button>
@@ -3176,15 +3177,15 @@ export default function LeaseDetailPage() {
       {showDepositReceiveModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-6 border-b border-slate-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Record Deposit Received</h2>
+                <h2 className="text-xl font-bold text-slate-900">Record Deposit Received</h2>
                 <button
                   onClick={() => {
                     setShowDepositReceiveModal(false);
                     setError('');
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-slate-400 hover:text-slate-600"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -3210,11 +3211,11 @@ export default function LeaseDetailPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Deposit Amount *
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
                   <input
                     type="number"
                     step="0.01"
@@ -3222,7 +3223,7 @@ export default function LeaseDetailPage() {
                     required
                     value={depositReceiveForm.amount}
                     onChange={(e) => setDepositReceiveForm({ ...depositReceiveForm, amount: e.target.value })}
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="0.00"
                     autoFocus
                   />
@@ -3230,7 +3231,7 @@ export default function LeaseDetailPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Receipt Date *
                 </label>
                 <input
@@ -3238,19 +3239,19 @@ export default function LeaseDetailPage() {
                   required
                   value={depositReceiveForm.receiptDate}
                   onChange={(e) => setDepositReceiveForm({ ...depositReceiveForm, receiptDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Description (optional)
                 </label>
                 <input
                   type="text"
                   value={depositReceiveForm.description}
                   onChange={(e) => setDepositReceiveForm({ ...depositReceiveForm, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder={`Security deposit from ${lease.tenantName}`}
                 />
               </div>
@@ -3262,7 +3263,7 @@ export default function LeaseDetailPage() {
                     setShowDepositReceiveModal(false);
                     setError('');
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
                 >
                   Cancel
                 </button>
@@ -3283,15 +3284,15 @@ export default function LeaseDetailPage() {
       {showDepositReturnModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-6 border-b border-slate-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Return Security Deposit</h2>
+                <h2 className="text-xl font-bold text-slate-900">Return Security Deposit</h2>
                 <button
                   onClick={() => {
                     setShowDepositReturnModal(false);
                     setError('');
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-slate-400 hover:text-slate-600"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -3317,11 +3318,11 @@ export default function LeaseDetailPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Amount to Return *
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
                   <input
                     type="number"
                     step="0.01"
@@ -3329,7 +3330,7 @@ export default function LeaseDetailPage() {
                     required
                     value={depositReturnForm.amount}
                     onChange={(e) => setDepositReturnForm({ ...depositReturnForm, amount: e.target.value })}
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="0.00"
                     autoFocus
                   />
@@ -3337,7 +3338,7 @@ export default function LeaseDetailPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Return Date *
                 </label>
                 <input
@@ -3345,19 +3346,19 @@ export default function LeaseDetailPage() {
                   required
                   value={depositReturnForm.returnDate}
                   onChange={(e) => setDepositReturnForm({ ...depositReturnForm, returnDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Description (optional)
                 </label>
                 <input
                   type="text"
                   value={depositReturnForm.description}
                   onChange={(e) => setDepositReturnForm({ ...depositReturnForm, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder={`Deposit return to ${lease.tenantName}`}
                 />
               </div>
@@ -3365,7 +3366,7 @@ export default function LeaseDetailPage() {
               {/* Deductions Section */}
               <div className="border-t pt-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-gray-900">Deductions (optional)</h3>
+                  <h3 className="text-sm font-semibold text-slate-900">Deductions (optional)</h3>
                   <button
                     type="button"
                     onClick={addDeduction}
@@ -3383,18 +3384,18 @@ export default function LeaseDetailPage() {
                           type="text"
                           value={deduction.description}
                           onChange={(e) => updateDeduction(index, 'description', e.target.value)}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                          className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
                           placeholder="Cleaning, repairs, etc."
                         />
                         <div className="relative w-32">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
                           <input
                             type="number"
                             step="0.01"
                             min="0"
                             value={deduction.amount}
                             onChange={(e) => updateDeduction(index, 'amount', e.target.value)}
-                            className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                            className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
                             placeholder="0.00"
                           />
                         </div>
@@ -3425,7 +3426,7 @@ export default function LeaseDetailPage() {
                     setShowDepositReturnModal(false);
                     setError('');
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
                 >
                   Cancel
                 </button>
@@ -3446,15 +3447,15 @@ export default function LeaseDetailPage() {
       {showAutomationModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-6 border-b border-slate-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Automation Settings</h2>
+                <h2 className="text-xl font-bold text-slate-900">Automation Settings</h2>
                 <button
                   onClick={() => {
                     setShowAutomationModal(false);
                     setError('');
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-slate-400 hover:text-slate-600"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -3470,10 +3471,10 @@ export default function LeaseDetailPage() {
                 </div>
               )}
 
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                 <div>
-                  <p className="text-sm font-medium text-gray-900">Enable Auto-Charge</p>
-                  <p className="text-xs text-gray-600 mt-0.5">Automatically charge rent each month</p>
+                  <p className="text-sm font-medium text-slate-900">Enable Auto-Charge</p>
+                  <p className="text-xs text-slate-600 mt-0.5">Automatically charge rent each month</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
@@ -3482,12 +3483,12 @@ export default function LeaseDetailPage() {
                     onChange={(e) => setAutomationForm({ ...automationForm, autoChargeEnabled: e.target.checked })}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
                 </label>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Charge Day (1-31)
                 </label>
                 <input
@@ -3496,14 +3497,14 @@ export default function LeaseDetailPage() {
                   max="31"
                   value={automationForm.chargeDay}
                   onChange={(e) => setAutomationForm({ ...automationForm, chargeDay: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   placeholder="e.g., 1 for first day of month"
                 />
-                <p className="text-xs text-gray-500 mt-1">Day of the month to charge rent (1 = 1st, 15 = 15th, etc.)</p>
+                <p className="text-xs text-slate-500 mt-1">Day of the month to charge rent (1 = 1st, 15 = 15th, etc.)</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Grace Period (days)
                 </label>
                 <input
@@ -3511,23 +3512,23 @@ export default function LeaseDetailPage() {
                   min="0"
                   value={automationForm.gracePeriodDays}
                   onChange={(e) => setAutomationForm({ ...automationForm, gracePeriodDays: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   placeholder="5"
                 />
-                <p className="text-xs text-gray-500 mt-1">Days before late fee is charged</p>
+                <p className="text-xs text-slate-500 mt-1">Days before late fee is charged</p>
               </div>
 
               <div className="border-t pt-4">
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">Late Fee Configuration</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-3">Late Fee Configuration</h3>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     Late Fee Type
                   </label>
                   <select
                     value={automationForm.lateFeeType}
                     onChange={(e) => setAutomationForm({ ...automationForm, lateFeeType: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   >
                     <option value="FLAT">Flat Fee</option>
                     <option value="PERCENTAGE">Percentage of Rent</option>
@@ -3535,11 +3536,11 @@ export default function LeaseDetailPage() {
                 </div>
 
                 <div className="mt-3">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     {automationForm.lateFeeType === 'FLAT' ? 'Late Fee Amount' : 'Late Fee Percentage'}
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
                       {automationForm.lateFeeType === 'FLAT' ? '$' : '%'}
                     </span>
                     <input
@@ -3548,20 +3549,20 @@ export default function LeaseDetailPage() {
                       min="0"
                       value={automationForm.lateFeeAmount}
                       onChange={(e) => setAutomationForm({ ...automationForm, lateFeeAmount: e.target.value })}
-                      className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                       placeholder={automationForm.lateFeeType === 'FLAT' ? '50.00' : '5.00'}
                     />
                   </div>
                   {automationForm.lateFeeType === 'PERCENTAGE' && (
-                    <p className="text-xs text-gray-500 mt-1">Percentage of monthly rent (e.g., 5 for 5%)</p>
+                    <p className="text-xs text-slate-500 mt-1">Percentage of monthly rent (e.g., 5 for 5%)</p>
                   )}
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                 <div>
-                  <p className="text-sm font-medium text-gray-900">Reminder Emails</p>
-                  <p className="text-xs text-gray-600 mt-0.5">Send payment reminders (coming soon)</p>
+                  <p className="text-sm font-medium text-slate-900">Reminder Emails</p>
+                  <p className="text-xs text-slate-600 mt-0.5">Send payment reminders (coming soon)</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
@@ -3570,7 +3571,7 @@ export default function LeaseDetailPage() {
                     onChange={(e) => setAutomationForm({ ...automationForm, reminderEmails: e.target.checked })}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
                 </label>
               </div>
 
@@ -3581,7 +3582,7 @@ export default function LeaseDetailPage() {
                     setShowAutomationModal(false);
                     setError('');
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
                 >
                   Cancel
                 </button>
@@ -3602,9 +3603,9 @@ export default function LeaseDetailPage() {
       {showScheduledChargeModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-6 border-b border-slate-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-slate-900">
                   {editingScheduledChargeId ? 'Edit Scheduled Charge' : 'Add Scheduled Charges'}
                 </h2>
                 <button
@@ -3614,7 +3615,7 @@ export default function LeaseDetailPage() {
                     setScheduledChargeRows([{ description: '', amount: '', chargeDay: '1', accountCode: '4000' }]);
                     setError('');
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-slate-400 hover:text-slate-600"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -3622,7 +3623,7 @@ export default function LeaseDetailPage() {
                 </button>
               </div>
               {!editingScheduledChargeId && (
-                <p className="text-sm text-gray-500 mt-1">Add one or more recurring charges for this lease</p>
+                <p className="text-sm text-slate-500 mt-1">Add one or more recurring charges for this lease</p>
               )}
             </div>
 
@@ -3637,50 +3638,50 @@ export default function LeaseDetailPage() {
                 // Single charge edit form
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Description *</label>
                     <input
                       type="text"
                       value={editingScheduledChargeForm.description}
                       onChange={(e) => setEditingScheduledChargeForm({ ...editingScheduledChargeForm, description: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                       placeholder="e.g., Monthly Rent, Water, Parking"
                       required
                     />
                   </div>
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Amount *</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Amount *</label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
                         <input
                           type="number"
                           step="0.01"
                           min="0.01"
                           value={editingScheduledChargeForm.amount}
                           onChange={(e) => setEditingScheduledChargeForm({ ...editingScheduledChargeForm, amount: e.target.value })}
-                          className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                           required
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Day (1-28) *</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Day (1-28) *</label>
                       <input
                         type="number"
                         min="1"
                         max="28"
                         value={editingScheduledChargeForm.chargeDay}
                         onChange={(e) => setEditingScheduledChargeForm({ ...editingScheduledChargeForm, chargeDay: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Account</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Account</label>
                       <select
                         value={editingScheduledChargeForm.accountCode}
                         onChange={(e) => setEditingScheduledChargeForm({ ...editingScheduledChargeForm, accountCode: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                       >
                         <option value="4000">Rental Income</option>
                         <option value="4010">Late Fees</option>
@@ -3697,9 +3698,9 @@ export default function LeaseDetailPage() {
                 // Multiple charge rows
                 <div className="space-y-3">
                   {scheduledChargeRows.map((row, index) => (
-                    <div key={index} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div key={index} className="p-4 bg-slate-50 rounded-lg border border-slate-200">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm font-medium text-gray-700">Charge {index + 1}</span>
+                        <span className="text-sm font-medium text-slate-700">Charge {index + 1}</span>
                         {scheduledChargeRows.length > 1 && (
                           <button
                             type="button"
@@ -3716,20 +3717,20 @@ export default function LeaseDetailPage() {
                             type="text"
                             value={row.description}
                             onChange={(e) => handleChargeRowChange(index, 'description', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
                             placeholder="Description"
                           />
                         </div>
                         <div className="col-span-2">
                           <div className="relative">
-                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
                             <input
                               type="number"
                               step="0.01"
                               min="0.01"
                               value={row.amount}
                               onChange={(e) => handleChargeRowChange(index, 'amount', e.target.value)}
-                              className="w-full pl-6 pr-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                              className="w-full pl-6 pr-2 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
                               placeholder="0.00"
                             />
                           </div>
@@ -3741,7 +3742,7 @@ export default function LeaseDetailPage() {
                             max="28"
                             value={row.chargeDay}
                             onChange={(e) => handleChargeRowChange(index, 'chargeDay', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
                             placeholder="Day"
                           />
                         </div>
@@ -3749,7 +3750,7 @@ export default function LeaseDetailPage() {
                           <select
                             value={row.accountCode}
                             onChange={(e) => handleChargeRowChange(index, 'accountCode', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
                           >
                             <option value="4000">Rental Income</option>
                             <option value="4010">Late Fees</option>
@@ -3767,18 +3768,18 @@ export default function LeaseDetailPage() {
                   <button
                     type="button"
                     onClick={handleAddChargeRow}
-                    className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-indigo-500 hover:text-indigo-500 transition-colors text-sm font-medium"
+                    className="w-full py-2 border-2 border-dashed border-slate-300 rounded-lg text-slate-500 hover:border-indigo-500 hover:text-indigo-500 transition-colors text-sm font-medium"
                   >
                     + Add Another Charge
                   </button>
 
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-slate-500">
                     Charges will be posted automatically on the specified day each month (max day 28 for all months)
                   </p>
                 </div>
               )}
 
-              <div className="flex gap-3 pt-6 mt-4 border-t border-gray-200">
+              <div className="flex gap-3 pt-6 mt-4 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => {
@@ -3787,7 +3788,7 @@ export default function LeaseDetailPage() {
                     setScheduledChargeRows([{ description: '', amount: '', chargeDay: '1', accountCode: '4000' }]);
                     setError('');
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
                 >
                   Cancel
                 </button>
@@ -3808,15 +3809,15 @@ export default function LeaseDetailPage() {
       {showRentIncreaseModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-6 border-b border-slate-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Schedule Rent Increase</h2>
+                <h2 className="text-xl font-bold text-slate-900">Schedule Rent Increase</h2>
                 <button
                   onClick={() => {
                     setShowRentIncreaseModal(false);
                     setError('');
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-slate-400 hover:text-slate-600"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -3842,11 +3843,11 @@ export default function LeaseDetailPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   New Monthly Rent *
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
                   <input
                     type="number"
                     step="0.01"
@@ -3854,20 +3855,20 @@ export default function LeaseDetailPage() {
                     required
                     value={rentIncreaseForm.newAmount}
                     onChange={(e) => setRentIncreaseForm({ ...rentIncreaseForm, newAmount: e.target.value })}
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     placeholder="0.00"
                     autoFocus
                   />
                 </div>
                 {rentIncreaseForm.newAmount && lease.monthlyRentAmount && (
-                  <p className="text-xs text-gray-600 mt-1">
+                  <p className="text-xs text-slate-600 mt-1">
                     Increase: +{formatCurrency(parseFloat(rentIncreaseForm.newAmount) - Number(lease.monthlyRentAmount))} ({(((parseFloat(rentIncreaseForm.newAmount) - Number(lease.monthlyRentAmount)) / Number(lease.monthlyRentAmount)) * 100).toFixed(1)}%)
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Effective Date *
                 </label>
                 <input
@@ -3875,32 +3876,32 @@ export default function LeaseDetailPage() {
                   required
                   value={rentIncreaseForm.effectiveDate}
                   onChange={(e) => setRentIncreaseForm({ ...rentIncreaseForm, effectiveDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
-                <p className="text-xs text-gray-500 mt-1">When the new rent amount takes effect</p>
+                <p className="text-xs text-slate-500 mt-1">When the new rent amount takes effect</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Notice Date
                 </label>
                 <input
                   type="date"
                   value={rentIncreaseForm.noticeDate}
                   onChange={(e) => setRentIncreaseForm({ ...rentIncreaseForm, noticeDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
-                <p className="text-xs text-gray-500 mt-1">When notice was provided to tenant</p>
+                <p className="text-xs text-slate-500 mt-1">When notice was provided to tenant</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Notes (optional)
                 </label>
                 <textarea
                   value={rentIncreaseForm.notes}
                   onChange={(e) => setRentIncreaseForm({ ...rentIncreaseForm, notes: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   rows={2}
                   placeholder="Reason for increase, market conditions, etc."
                 />
@@ -3913,7 +3914,7 @@ export default function LeaseDetailPage() {
                     setShowRentIncreaseModal(false);
                     setError('');
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
                 >
                   Cancel
                 </button>

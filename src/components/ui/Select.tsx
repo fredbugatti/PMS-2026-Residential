@@ -17,8 +17,8 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     const baseSelectStyles = 'w-full rounded-lg px-3 py-2.5 text-base transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 disabled:opacity-50 disabled:cursor-not-allowed appearance-none bg-no-repeat bg-right pr-10';
 
     const selectStateStyles = error
-      ? 'border-2 border-red-600 dark:border-red-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
-      : 'border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:border-gray-400 dark:hover:border-gray-500';
+      ? 'border-2 border-red-600 dark:border-red-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white'
+      : 'border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white hover:border-slate-400 dark:hover:border-slate-500';
 
     const combinedSelectClassName = `${baseSelectStyles} ${selectStateStyles} ${className}`.trim();
 
@@ -29,7 +29,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         {label && (
           <label
             htmlFor={selectId}
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
           >
             {label}
           </label>
@@ -68,7 +68,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         )}
 
         {!error && helperText && (
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             {helperText}
           </p>
         )}

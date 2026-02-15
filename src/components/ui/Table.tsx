@@ -31,7 +31,7 @@ export const TableHeader = React.forwardRef<HTMLTableSectionElement, TableHeader
     return (
       <thead
         ref={ref}
-        className={`bg-gray-50 dark:bg-gray-800 ${className}`.trim()}
+        className={`bg-slate-50 dark:bg-slate-800 ${className}`.trim()}
         {...props}
       >
         {children}
@@ -67,7 +67,7 @@ export const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(
     return (
       <tr
         ref={ref}
-        className={`border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${className}`.trim()}
+        className={`border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${className}`.trim()}
         {...props}
       >
         {children}
@@ -87,7 +87,7 @@ export const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
     return (
       <th
         ref={ref}
-        className={`px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider ${className}`.trim()}
+        className={`px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider ${className}`.trim()}
         {...props}
       >
         {children}
@@ -107,7 +107,7 @@ export const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
     return (
       <td
         ref={ref}
-        className={`px-4 py-3 text-sm text-gray-900 dark:text-gray-100 ${className}`.trim()}
+        className={`px-4 py-3 text-sm text-slate-900 dark:text-slate-100 ${className}`.trim()}
         {...props}
       >
         {children}

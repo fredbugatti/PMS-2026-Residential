@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Lock, Droplets, Lightbulb, Snowflake, Plug, Wrench, ClipboardList, Camera } from 'lucide-react';
 
 interface TenantPortalData {
   lease: {
@@ -143,7 +144,7 @@ export default function TenantMaintenanceRequest() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="text-gray-600 font-medium">Loading...</div>
+          <div className="text-slate-600 font-medium">Loading...</div>
         </div>
       </div>
     );
@@ -153,10 +154,10 @@ export default function TenantMaintenanceRequest() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100 flex items-center justify-center p-4">
         <div className="text-center bg-white rounded-2xl shadow-xl p-12 max-w-md">
-          <div className="text-6xl mb-4">🔒</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-gray-600 mb-4">{error || 'Invalid portal link'}</p>
-          <p className="text-sm text-gray-500">Please contact your property manager for assistance.</p>
+          <div className="mb-4"><Lock className="h-14 w-14 text-red-400" /></div>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h1>
+          <p className="text-slate-600 mb-4">{error || 'Invalid portal link'}</p>
+          <p className="text-sm text-slate-500">Please contact your property manager for assistance.</p>
         </div>
       </div>
     );
@@ -171,8 +172,8 @@ export default function TenantMaintenanceRequest() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Request Submitted!</h1>
-          <p className="text-gray-600 mb-6">
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Request Submitted!</h1>
+          <p className="text-slate-600 mb-6">
             Your maintenance request has been received. Our team will review it and get back to you soon.
           </p>
           <Link
@@ -207,11 +208,11 @@ export default function TenantMaintenanceRequest() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
           <div className="space-y-6">
             {/* Issue Title */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 What's the issue? <span className="text-red-500">*</span>
               </label>
               <input
@@ -220,23 +221,23 @@ export default function TenantMaintenanceRequest() {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="e.g., Leaky faucet in bathroom, AC not cooling"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
+                className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
               />
             </div>
 
             {/* Category */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Category <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {[
-                  { value: 'PLUMBING', label: 'Plumbing', icon: '🚿' },
-                  { value: 'ELECTRICAL', label: 'Electrical', icon: '💡' },
-                  { value: 'HVAC', label: 'HVAC', icon: '❄️' },
-                  { value: 'APPLIANCE', label: 'Appliance', icon: '🔌' },
-                  { value: 'GENERAL', label: 'General', icon: '🔧' },
-                  { value: 'OTHER', label: 'Other', icon: '📋' }
+                  { value: 'PLUMBING', label: 'Plumbing', icon: <Droplets className="h-6 w-6" /> },
+                  { value: 'ELECTRICAL', label: 'Electrical', icon: <Lightbulb className="h-6 w-6" /> },
+                  { value: 'HVAC', label: 'HVAC', icon: <Snowflake className="h-6 w-6" /> },
+                  { value: 'APPLIANCE', label: 'Appliance', icon: <Plug className="h-6 w-6" /> },
+                  { value: 'GENERAL', label: 'General', icon: <Wrench className="h-6 w-6" /> },
+                  { value: 'OTHER', label: 'Other', icon: <ClipboardList className="h-6 w-6" /> }
                 ].map((cat) => (
                   <button
                     key={cat.value}
@@ -245,10 +246,10 @@ export default function TenantMaintenanceRequest() {
                     className={`p-4 rounded-xl border-2 transition-all text-center ${
                       formData.category === cat.value
                         ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                        : 'border-slate-200 hover:border-slate-300 text-slate-700'
                     }`}
                   >
-                    <div className="text-2xl mb-1">{cat.icon}</div>
+                    <div className="mb-1">{cat.icon}</div>
                     <div className="text-sm font-medium">{cat.label}</div>
                   </button>
                 ))}
@@ -257,7 +258,7 @@ export default function TenantMaintenanceRequest() {
 
             {/* Priority */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 How urgent is this? <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -277,7 +278,7 @@ export default function TenantMaintenanceRequest() {
                         : pri.color === 'yellow' ? 'border-yellow-500 bg-yellow-50 text-yellow-700'
                         : pri.color === 'orange' ? 'border-orange-500 bg-orange-50 text-orange-700'
                         : 'border-red-500 bg-red-50 text-red-700'
-                        : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                        : 'border-slate-200 hover:border-slate-300 text-slate-700'
                     }`}
                   >
                     <div className="font-medium">{pri.label}</div>
@@ -294,7 +295,7 @@ export default function TenantMaintenanceRequest() {
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Describe the issue <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -303,25 +304,25 @@ export default function TenantMaintenanceRequest() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Please provide as much detail as possible. When did it start? Where exactly is the problem? Have you tried anything to fix it?"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
             {/* Photo Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Add Photos (optional)
               </label>
-              <p className="text-sm text-gray-500 mb-3">
+              <p className="text-sm text-slate-500 mb-3">
                 Photos help us understand the issue better. Maximum 5 photos, 5MB each.
               </p>
 
               <div className="space-y-4">
                 {uploadedPhotos.length < 5 && (
-                  <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
+                  <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
                     <div className="text-center">
-                      <div className="text-3xl mb-2">📷</div>
-                      <div className="text-sm text-gray-600">Click to add photos</div>
+                      <div className="mb-2"><Camera className="h-8 w-8 text-slate-400" /></div>
+                      <div className="text-sm text-slate-600">Click to add photos</div>
                     </div>
                     <input
                       type="file"
@@ -340,7 +341,7 @@ export default function TenantMaintenanceRequest() {
                         <img
                           src={photo}
                           alt={`Upload ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                          className="w-full h-24 object-cover rounded-lg border border-slate-200"
                         />
                         <button
                           type="button"
@@ -357,17 +358,17 @@ export default function TenantMaintenanceRequest() {
             </div>
 
             {/* Permission to Enter */}
-            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.permissionToEnter}
                   onChange={(e) => setFormData({ ...formData, permissionToEnter: e.target.checked })}
-                  className="mt-1 w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="mt-1 w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
                 <div>
-                  <div className="font-medium text-gray-900">Permission to enter</div>
-                  <div className="text-sm text-gray-600">
+                  <div className="font-medium text-slate-900">Permission to enter</div>
+                  <div className="text-sm text-slate-600">
                     I grant permission for maintenance staff to enter my unit if I'm not home.
                   </div>
                 </div>
@@ -376,7 +377,7 @@ export default function TenantMaintenanceRequest() {
 
             {/* Preferred Contact Method */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 How should we contact you?
               </label>
               <div className="flex gap-4">
@@ -389,7 +390,7 @@ export default function TenantMaintenanceRequest() {
                     onChange={(e) => setFormData({ ...formData, preferredContactMethod: e.target.value })}
                     className="w-4 h-4 text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="text-gray-700">Email</span>
+                  <span className="text-slate-700">Email</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -400,7 +401,7 @@ export default function TenantMaintenanceRequest() {
                     onChange={(e) => setFormData({ ...formData, preferredContactMethod: e.target.value })}
                     className="w-4 h-4 text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="text-gray-700">Phone</span>
+                  <span className="text-slate-700">Phone</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -411,13 +412,13 @@ export default function TenantMaintenanceRequest() {
                     onChange={(e) => setFormData({ ...formData, preferredContactMethod: e.target.value })}
                     className="w-4 h-4 text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="text-gray-700">Text</span>
+                  <span className="text-slate-700">Text</span>
                 </label>
               </div>
             </div>
 
             {/* Submit Button */}
-            <div className="pt-6 border-t border-gray-200">
+            <div className="pt-6 border-t border-slate-200">
               <button
                 type="submit"
                 disabled={submitting}
@@ -440,7 +441,7 @@ export default function TenantMaintenanceRequest() {
         </form>
 
         {/* Help Text */}
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div className="mt-6 text-center text-sm text-slate-500">
           <p>Need immediate assistance? Contact your property manager directly.</p>
         </div>
       </div>

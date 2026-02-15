@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { Building2, DollarSign, FileText, User, Wrench, TrendingUp } from 'lucide-react';
 
 interface SearchResult {
   type: 'tenant' | 'property' | 'transaction' | 'workorder';
@@ -16,6 +17,14 @@ interface GlobalSearchProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+const iconMap: Record<string, typeof User> = {
+  user: User,
+  building: Building2,
+  dollar: DollarSign,
+  document: FileText,
+  wrench: Wrench,
+};
 
 export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
   const [query, setQuery] = useState('');
@@ -112,10 +121,10 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
 
       {/* Modal */}
       <div className="relative min-h-screen flex items-start justify-center pt-[15vh] px-4">
-        <div className="relative w-full max-w-xl bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden">
+        <div className="relative w-full max-w-xl bg-white dark:bg-slate-800 rounded-xl shadow-2xl overflow-hidden">
           {/* Search Input */}
-          <div className="flex items-center border-b border-gray-200 dark:border-gray-700">
-            <div className="pl-4 text-gray-400 dark:text-gray-500">
+          <div className="flex items-center border-b border-slate-200 dark:border-slate-700">
+            <div className="pl-4 text-slate-400 dark:text-slate-500">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
@@ -127,7 +136,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Search tenants, properties, transactions..."
-              className="flex-1 px-4 py-4 text-base bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none"
+              className="flex-1 px-4 py-4 text-base bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
             />
             {loading && (
               <div className="pr-4">
@@ -136,7 +145,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
             )}
             <button
               onClick={onClose}
-              className="px-3 py-1 mr-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded"
+              className="px-3 py-1 mr-2 text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 rounded"
             >
               ESC
             </button>
@@ -145,7 +154,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
           {/* Results */}
           <div className="max-h-[60vh] overflow-y-auto">
             {query && !loading && results.length === 0 && (
-              <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+              <div className="px-4 py-8 text-center text-slate-500 dark:text-slate-400">
                 <p className="text-sm">No results found for &quot;{query}&quot;</p>
                 <p className="text-xs mt-1">Try searching for a tenant name, property, or transaction</p>
               </div>
@@ -160,15 +169,20 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                     className={`w-full px-4 py-3 flex items-center gap-3 text-left transition-colors ${
                       index === selectedIndex
                         ? 'bg-blue-50 dark:bg-blue-900/30'
-                        : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                        : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'
                     }`}
                   >
-                    <span className="text-xl flex-shrink-0">{result.icon}</span>
+                    <span className="flex-shrink-0 text-slate-500 dark:text-slate-400">
+                      {(() => {
+                        const IconComponent = iconMap[result.icon];
+                        return IconComponent ? <IconComponent className="h-5 w-5" /> : null;
+                      })()}
+                    </span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
                         {result.title}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                         {result.subtitle}
                       </p>
                     </div>
@@ -188,35 +202,35 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
             {/* Quick Actions when no query */}
             {!query && (
               <div className="p-4">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">Quick Actions</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wider">Quick Actions</p>
                 <div className="space-y-1">
                   <button
                     onClick={() => { router.push('/properties'); onClose(); }}
-                    className="w-full px-3 py-2 flex items-center gap-3 text-left rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    className="w-full px-3 py-2 flex items-center gap-3 text-left rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50"
                   >
-                    <span className="text-lg">🏢</span>
-                    <span className="text-sm text-gray-700 dark:text-gray-300">View Properties</span>
+                    <Building2 className="h-5 w-5 text-slate-500" />
+                    <span className="text-sm text-slate-700 dark:text-slate-300">View Properties</span>
                   </button>
                   <button
                     onClick={() => { router.push('/leases'); onClose(); }}
-                    className="w-full px-3 py-2 flex items-center gap-3 text-left rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    className="w-full px-3 py-2 flex items-center gap-3 text-left rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50"
                   >
-                    <span className="text-lg">📄</span>
-                    <span className="text-sm text-gray-700 dark:text-gray-300">View Leases</span>
+                    <FileText className="h-5 w-5 text-slate-500" />
+                    <span className="text-sm text-slate-700 dark:text-slate-300">View Leases</span>
                   </button>
                   <button
                     onClick={() => { router.push('/maintenance'); onClose(); }}
-                    className="w-full px-3 py-2 flex items-center gap-3 text-left rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    className="w-full px-3 py-2 flex items-center gap-3 text-left rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50"
                   >
-                    <span className="text-lg">🔧</span>
-                    <span className="text-sm text-gray-700 dark:text-gray-300">View Maintenance</span>
+                    <Wrench className="h-5 w-5 text-slate-500" />
+                    <span className="text-sm text-slate-700 dark:text-slate-300">View Maintenance</span>
                   </button>
                   <button
                     onClick={() => { router.push('/reports'); onClose(); }}
-                    className="w-full px-3 py-2 flex items-center gap-3 text-left rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    className="w-full px-3 py-2 flex items-center gap-3 text-left rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50"
                   >
-                    <span className="text-lg">📈</span>
-                    <span className="text-sm text-gray-700 dark:text-gray-300">View Reports</span>
+                    <TrendingUp className="h-5 w-5 text-slate-500" />
+                    <span className="text-sm text-slate-700 dark:text-slate-300">View Reports</span>
                   </button>
                 </div>
               </div>
@@ -224,17 +238,17 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
           </div>
 
           {/* Footer */}
-          <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-2 flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+          <div className="border-t border-slate-200 dark:border-slate-700 px-4 py-2 flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[10px]">↑↓</kbd>
+              <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-[10px]">↑↓</kbd>
               navigate
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[10px]">↵</kbd>
+              <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-[10px]">↵</kbd>
               select
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[10px]">esc</kbd>
+              <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-[10px]">esc</kbd>
               close
             </span>
           </div>

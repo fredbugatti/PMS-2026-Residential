@@ -16,86 +16,65 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const search = useGlobalSearch();
 
-  // Tenant portal pages should NOT show sidebar/breadcrumbs
   const isTenantPortal = pathname.startsWith('/tenant/');
-
-  // For tenant portal, render children without admin layout
   if (isTenantPortal) {
     return <>{children}</>;
   }
 
-  // Generate breadcrumbs from pathname
   const getBreadcrumbs = () => {
     const paths = pathname.split('/').filter(Boolean);
-
     const breadcrumbs = [{ name: 'Dashboard', path: '/' }];
-
     let currentPath = '';
     paths.forEach((segment) => {
       currentPath += `/${segment}`;
-
-      // Skip IDs in breadcrumbs
       if (segment.match(/^[a-f0-9-]{36}$/i)) return;
-
-      // Format segment name
       let name = segment
         .split('-')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
-
-      // Special cases
       if (segment === 'workflow') name = 'Workflow';
-
       breadcrumbs.push({ name, path: currentPath });
     });
-
     return breadcrumbs;
   };
 
   const breadcrumbs = getBreadcrumbs();
 
   return (
-    <div className="h-screen w-full flex overflow-hidden bg-slate-50 dark:bg-gray-900">
-      {/* Desktop Sidebar */}
+    <div className="h-screen w-full flex overflow-hidden bg-slate-50 dark:bg-slate-900">
       <aside className="hidden lg:flex w-64 shrink-0 border-r bg-slate-900 border-slate-800">
         <Sidebar isOpen={true} />
       </aside>
 
-      {/* Mobile Sidebar */}
       <div className="lg:hidden">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       </div>
 
-      {/* Main Wrapper */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Header - Sticky & On Top */}
-        <header className="sticky top-0 z-30 border-b border-slate-200 dark:border-gray-700 bg-white/95 dark:bg-gray-800/95 backdrop-blur px-4 h-16 flex items-center gap-4 shrink-0">
-          {/* Mobile hamburger */}
+        <header className="sticky top-0 z-30 border-b border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur px-4 h-16 flex items-center gap-4 shrink-0">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 -ml-2 text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-gray-700 rounded-lg"
+            className="lg:hidden p-2 -ml-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"
           >
             <Menu className="h-5 w-5" />
             <span className="sr-only">Open menu</span>
           </button>
 
-          {/* Search Bar */}
           <div className="flex-1 max-w-md">
             <button
               onClick={search.open}
-              className="w-full flex items-center gap-2 px-3 h-9 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg text-sm text-slate-400 dark:text-gray-400 hover:border-slate-300 dark:hover:border-gray-500 transition-colors"
+              className="w-full flex items-center gap-2 px-3 h-9 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm text-slate-400 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-500 transition-colors"
             >
               <Search className="h-4 w-4" />
               <span>Search tenants, properties...</span>
-              <kbd className="hidden sm:inline-flex ml-auto text-xs bg-slate-100 dark:bg-gray-600 px-1.5 py-0.5 rounded text-slate-400 dark:text-gray-400">⌘K</kbd>
+              <kbd className="hidden sm:inline-flex ml-auto text-xs bg-slate-100 dark:bg-slate-600 px-1.5 py-0.5 rounded text-slate-400 dark:text-slate-400">⌘K</kbd>
             </button>
           </div>
 
-          {/* User Profile */}
           <div className="flex items-center gap-3">
             <div className="hidden sm:block text-right">
               <p className="text-sm font-medium text-slate-900 dark:text-white">Property Manager</p>
-              <p className="text-xs text-slate-500 dark:text-gray-400">Admin</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Admin</p>
             </div>
             <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-sm">
               <User className="h-5 w-5 text-white" />
@@ -103,21 +82,20 @@ export default function AppLayout({ children }: AppLayoutProps) {
           </div>
         </header>
 
-        {/* Breadcrumb Header */}
         {pathname !== '/' && (
-          <div className="bg-white dark:bg-gray-800 border-b border-slate-200 dark:border-gray-700 px-4 sm:px-6 py-2.5">
+          <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-2.5">
             <nav className="flex items-center space-x-1 text-sm overflow-x-auto">
               {breadcrumbs.map((crumb, index) => (
                 <div key={crumb.path} className="flex items-center flex-shrink-0">
                   {index > 0 && (
-                    <ChevronRight className="w-4 h-4 mx-1 text-slate-400 dark:text-gray-500" />
+                    <ChevronRight className="w-4 h-4 mx-1 text-slate-400 dark:text-slate-500" />
                   )}
                   {index === breadcrumbs.length - 1 ? (
                     <span className="text-slate-900 dark:text-white font-medium">{crumb.name}</span>
                   ) : (
                     <Link
                       href={crumb.path}
-                      className="text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                      className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                     >
                       {crumb.name}
                     </Link>
@@ -128,15 +106,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
           </div>
         )}
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto min-h-0 bg-slate-50 dark:bg-gray-900">
+        <main className="flex-1 overflow-y-auto min-h-0 bg-slate-50 dark:bg-slate-900">
           <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full">
             {children}
           </div>
         </main>
       </div>
 
-      {/* Global Search Modal */}
       <GlobalSearch isOpen={search.isOpen} onClose={search.close} />
     </div>
   );
