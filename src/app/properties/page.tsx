@@ -78,7 +78,8 @@ export default function PropertiesPage() {
       city: '',
       state: '',
       zipCode: '',
-      propertyType: 'WAREHOUSE'
+      propertyType: 'WAREHOUSE',
+      totalSquareFeet: ''
     });
     setUnits([{ unitNumber: 'Bay 1', bedrooms: '0', bathrooms: '0', squareFeet: '', rent: '' }]);
     setCreatedPropertyId(null);
