@@ -55,6 +55,7 @@ export default function LeasesPage() {
     propertyName: '',
     startDate: '',
     endDate: '',
+    monthlyRentAmount: '',
     securityDepositAmount: '',
     status: 'ACTIVE' as const,
     notes: ''
@@ -163,6 +164,9 @@ export default function LeasesPage() {
         propertyId: formData.propertyId || null,
         unitId: formData.unitId || null,
         propertyName: formData.propertyName || null,
+        monthlyRentAmount: formData.monthlyRentAmount
+          ? parseFloat(formData.monthlyRentAmount)
+          : null,
         securityDepositAmount: formData.securityDepositAmount
           ? parseFloat(formData.securityDepositAmount)
           : null,
@@ -192,6 +196,7 @@ export default function LeasesPage() {
         propertyName: '',
         startDate: '',
         endDate: '',
+        monthlyRentAmount: '',
         securityDepositAmount: '',
         status: 'ACTIVE',
         notes: ''
@@ -523,81 +528,48 @@ export default function LeasesPage() {
 
       {/* Create Lease Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
-          <div className="bg-white rounded-t-xl sm:rounded-xl shadow-xl w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-4 sm:p-6 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white z-10">
-              <h2 className="text-lg sm:text-xl font-bold text-slate-900">Create New Lease</h2>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="px-5 pt-5 pb-3 flex items-center justify-between sticky top-0 bg-white z-10">
+              <h2 className="text-lg font-semibold text-slate-900">New Lease</h2>
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="sm:hidden p-2 text-slate-500 hover:text-slate-700"
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5">
-              {/* Tenant */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="px-5 pb-5 space-y-4">
+              {/* Property & Unit — pick where first */}
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Tenant Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.tenantName}
-                    onChange={(e) => setFormData({ ...formData, tenantName: e.target.value })}
-                    className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                    placeholder="Contact name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Company Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.companyName}
-                    onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                    className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                    placeholder="Acme Logistics"
-                  />
-                </div>
-              </div>
-
-              {/* Property & Unit */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Property *
-                  </label>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Property</label>
                   <select
                     required
                     value={formData.propertyId}
                     onChange={(e) => handlePropertyChange(e.target.value)}
-                    className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
                   >
-                    <option value="">Select property</option>
+                    <option value="">Select...</option>
                     {properties.map(property => (
                       <option key={property.id} value={property.id}>{property.name}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Unit *
-                  </label>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Unit</label>
                   {formData.propertyId && availableUnits.length > 0 ? (
                     <select
                       required
                       value={formData.unitId}
                       onChange={(e) => handleUnitChange(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
                     >
-                      <option value="">Select unit</option>
+                      <option value="">Select...</option>
                       {availableUnits.map(unit => (
                         <option key={unit.id} value={unit.id}>
                           {unit.unitNumber} {unit.status !== 'VACANT' ? `(${unit.status})` : ''}
@@ -610,58 +582,109 @@ export default function LeasesPage() {
                       required
                       value={formData.unitName}
                       onChange={(e) => setFormData({ ...formData, unitName: e.target.value })}
-                      className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                      placeholder={formData.propertyId ? 'No units available' : 'Select property first'}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      placeholder={formData.propertyId ? 'No units' : 'Select property first'}
                       disabled={formData.propertyId !== '' && availableUnits.length === 0}
                     />
                   )}
                 </div>
               </div>
 
-              {/* Dates */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <hr className="border-slate-100" />
+
+              {/* Tenant — who */}
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Company</label>
+                <input
+                  type="text"
+                  value={formData.companyName}
+                  onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  placeholder="Company name (optional)"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Contact Name</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.tenantName}
+                  onChange={(e) => setFormData({ ...formData, tenantName: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  placeholder="Primary contact"
+                />
+              </div>
+
+              <hr className="border-slate-100" />
+
+              {/* Dates — when */}
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Start Date *
-                  </label>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Start</label>
                   <input
                     type="date"
                     required
                     value={formData.startDate}
                     onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                    className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    End Date *
-                  </label>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">End</label>
                   <input
                     type="date"
                     required
                     value={formData.endDate}
                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                    className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   />
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4 pb-2">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-3 sm:py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                >
-                  Create Lease
-                </button>
+              <hr className="border-slate-100" />
+
+              {/* Money — how much */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Monthly Payment</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      step="0.01"
+                      value={formData.monthlyRentAmount}
+                      onChange={(e) => setFormData({ ...formData, monthlyRentAmount: e.target.value })}
+                      className="w-full pl-7 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Security Deposit</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.securityDepositAmount}
+                      onChange={(e) => setFormData({ ...formData, securityDepositAmount: e.target.value })}
+                      className="w-full pl-7 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
               </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                className="w-full mt-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+              >
+                Create Lease
+              </button>
             </form>
           </div>
         </div>
