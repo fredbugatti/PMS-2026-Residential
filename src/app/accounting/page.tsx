@@ -240,6 +240,12 @@ export default function AccountingPage() {
               <p className="text-sm text-slate-600 mt-1">Manage finances and view reports</p>
             </div>
             <div className="flex gap-3">
+              <Link
+                href="/accounting/reconciliation"
+                className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 text-sm font-medium"
+              >
+                Bank Reconciliation
+              </Link>
               {activeTab === 'balances' && (
                 <button
                   onClick={handleGenerateRent}
