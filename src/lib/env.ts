@@ -48,8 +48,9 @@ function validateEnv(): Env {
     console.error(errors);
     console.error('========================================\n');
 
-    // In production, FAIL HARD
-    if (process.env.NODE_ENV === 'production') {
+    // In production, FAIL HARD - but NOT during build phase
+    const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+    if (process.env.NODE_ENV === 'production' && !isBuildPhase) {
       throw new Error(`Environment validation failed:\n${errors}`);
     }
 
