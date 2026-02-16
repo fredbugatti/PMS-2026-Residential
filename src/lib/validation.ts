@@ -163,6 +163,26 @@ export const ledgerEntrySchema = z.object({
   leaseId: idSchema.optional()
 });
 
+// Record entry from reconciliation (payment or expense)
+export const recordReconciliationEntrySchema = z.object({
+  type: z.enum(['payment', 'expense']),
+  lineId: z.string().min(1, 'Line ID is required'),
+  amount: positiveAmountSchema,
+  description: z.string().min(1, 'Description is required').max(500),
+  entryDate: z.string().min(1, 'Date is required'),
+  leaseId: z.string().optional(),
+  accountCode: z.string().regex(/^\d{4}$/, 'Account code must be 4 digits').optional(),
+  vendorId: z.string().optional(),
+  newVendor: z.object({
+    name: z.string().min(1).max(200),
+    company: z.string().max(200).optional(),
+    email: z.string().email().optional().or(z.literal('')),
+    phone: z.string().max(50).optional(),
+    specialties: z.array(z.string()).optional(),
+    paymentTerms: z.enum(['DUE_ON_RECEIPT', 'NET_15', 'NET_30', 'NET_60']).optional(),
+  }).optional(),
+});
+
 // Validate and return parsed data or throw formatted error
 export function validate<T>(schema: z.ZodType<T>, data: unknown): T {
   const result = schema.safeParse(data);

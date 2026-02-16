@@ -110,6 +110,31 @@ export default function ReconciliationPage() {
   // Finalize state
   const [finalizeLoading, setFinalizeLoading] = useState(false);
 
+  // Record entry modal state
+  const [showRecordModal, setShowRecordModal] = useState<'payment' | 'expense' | null>(null);
+  const [recordLineId, setRecordLineId] = useState<string | null>(null);
+  const [recordAmount, setRecordAmount] = useState('');
+  const [recordDescription, setRecordDescription] = useState('');
+  const [recordDate, setRecordDate] = useState('');
+  const [recordLeaseId, setRecordLeaseId] = useState('');
+  const [recordAccountCode, setRecordAccountCode] = useState('');
+  const [recordVendorId, setRecordVendorId] = useState('');
+  const [recordLoading, setRecordLoading] = useState(false);
+
+  // Inline vendor creation
+  const [showNewVendorForm, setShowNewVendorForm] = useState(false);
+  const [newVendorName, setNewVendorName] = useState('');
+  const [newVendorCompany, setNewVendorCompany] = useState('');
+  const [newVendorEmail, setNewVendorEmail] = useState('');
+  const [newVendorPhone, setNewVendorPhone] = useState('');
+  const [newVendorSpecialties, setNewVendorSpecialties] = useState<string[]>([]);
+  const [newVendorPaymentTerms, setNewVendorPaymentTerms] = useState('');
+
+  // Dropdown data (fetched lazily)
+  const [leases, setLeases] = useState<{ id: string; tenantName: string; unitName: string; propertyName: string | null }[]>([]);
+  const [expenseAccounts, setExpenseAccounts] = useState<{ code: string; name: string }[]>([]);
+  const [vendors, setVendors] = useState<{ id: string; name: string; company: string | null }[]>([]);
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -361,6 +386,144 @@ export default function ReconciliationPage() {
       setFinalizeLoading(false);
     }
   };
+
+  // --- Record Entry functions ---
+
+  const fetchLeases = async () => {
+    try {
+      const res = await fetch('/api/leases');
+      if (res.ok) {
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : data.data || [];
+        setLeases(list);
+      }
+    } catch (error) {
+      console.error('Failed to fetch leases:', error);
+    }
+  };
+
+  const fetchExpenseAccounts = async () => {
+    try {
+      const res = await fetch('/api/chart-of-accounts');
+      if (res.ok) {
+        const data = await res.json();
+        const accounts = Array.isArray(data) ? data : data.accounts || [];
+        setExpenseAccounts(accounts.filter((a: any) => a.type === 'EXPENSE'));
+      }
+    } catch (error) {
+      console.error('Failed to fetch expense accounts:', error);
+    }
+  };
+
+  const fetchVendors = async () => {
+    try {
+      const res = await fetch('/api/vendors?active=true');
+      if (res.ok) {
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : data.data || [];
+        setVendors(list);
+      }
+    } catch (error) {
+      console.error('Failed to fetch vendors:', error);
+    }
+  };
+
+  const openRecordModal = (line: ReconciliationLine, type: 'payment' | 'expense') => {
+    setShowRecordModal(type);
+    setRecordLineId(line.id);
+    setRecordAmount(Math.abs(parseFloat(line.amount)).toFixed(2));
+    setRecordDescription(line.description);
+    setRecordDate(new Date(line.date).toISOString().split('T')[0]);
+    setRecordLeaseId('');
+    setRecordAccountCode('');
+    setRecordVendorId('');
+    setRecordLoading(false);
+    setShowNewVendorForm(false);
+    setNewVendorName('');
+    setNewVendorCompany('');
+    setNewVendorEmail('');
+    setNewVendorPhone('');
+    setNewVendorSpecialties([]);
+    setNewVendorPaymentTerms('');
+
+    if (type === 'payment' && leases.length === 0) fetchLeases();
+    if (type === 'expense') {
+      if (expenseAccounts.length === 0) fetchExpenseAccounts();
+      if (vendors.length === 0) fetchVendors();
+    }
+  };
+
+  const handleRecordEntry = async () => {
+    if (!activeRecon || !recordLineId || !showRecordModal) return;
+
+    if (showRecordModal === 'payment' && !recordLeaseId) {
+      showError('Please select a lease');
+      return;
+    }
+    if (showRecordModal === 'expense' && !recordAccountCode) {
+      showError('Please select an expense account');
+      return;
+    }
+    if (showNewVendorForm && !newVendorName.trim()) {
+      showError('Vendor name is required');
+      return;
+    }
+
+    setRecordLoading(true);
+    try {
+      const payload: any = {
+        type: showRecordModal,
+        lineId: recordLineId,
+        amount: parseFloat(recordAmount),
+        description: recordDescription,
+        entryDate: recordDate,
+      };
+
+      if (showRecordModal === 'payment') {
+        payload.leaseId = recordLeaseId;
+      } else {
+        payload.accountCode = recordAccountCode;
+        if (showNewVendorForm) {
+          payload.newVendor = {
+            name: newVendorName.trim(),
+            company: newVendorCompany.trim() || undefined,
+            email: newVendorEmail.trim() || undefined,
+            phone: newVendorPhone.trim() || undefined,
+            specialties: newVendorSpecialties.length > 0 ? newVendorSpecialties : undefined,
+            paymentTerms: newVendorPaymentTerms || undefined,
+          };
+        } else if (recordVendorId) {
+          payload.vendorId = recordVendorId;
+        }
+      }
+
+      const res = await fetch(`/api/reconciliation/${activeRecon.id}/record-entry`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const msg = showRecordModal === 'payment' ? 'Payment recorded and matched' : 'Expense recorded and matched';
+        showSuccess(data.vendor ? `${msg} (vendor "${data.vendor.name}" created)` : msg);
+        setShowRecordModal(null);
+        setRefreshKey(k => k + 1);
+        await fetchReconciliationDetail(activeRecon.id);
+        if (data.vendor) fetchVendors(); // refresh vendor list
+      } else {
+        const err = await res.json();
+        showError(err.error || 'Failed to record entry');
+      }
+    } catch (error) {
+      console.error('Failed to record entry:', error);
+      showError('Failed to record entry');
+    } finally {
+      setRecordLoading(false);
+    }
+  };
+
+  const SPECIALTY_OPTIONS = ['PLUMBING', 'ELECTRICAL', 'HVAC', 'APPLIANCE', 'GENERAL', 'OTHER'];
 
   // Computed values for workspace
   const matchedLines = activeRecon?.lines.filter(l => l.status === 'MATCHED') || [];
@@ -666,6 +829,20 @@ export default function ReconciliationPage() {
                                       {isActive ? 'Cancel' : 'Match'}
                                     </button>
                                     <button
+                                      onClick={() => openRecordModal(line, 'payment')}
+                                      disabled={actionLoading}
+                                      className="px-3 py-1 text-xs font-medium rounded-md bg-green-50 text-green-700 hover:bg-green-100 disabled:opacity-50"
+                                    >
+                                      Record Payment
+                                    </button>
+                                    <button
+                                      onClick={() => openRecordModal(line, 'expense')}
+                                      disabled={actionLoading}
+                                      className="px-3 py-1 text-xs font-medium rounded-md bg-orange-50 text-orange-700 hover:bg-orange-100 disabled:opacity-50"
+                                    >
+                                      Record Expense
+                                    </button>
+                                    <button
                                       onClick={() => handleExclude(line.id, 'exclude')}
                                       disabled={actionLoading}
                                       className="px-3 py-1 text-xs font-medium rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-50"
@@ -959,6 +1136,245 @@ export default function ReconciliationPage() {
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium disabled:opacity-50"
                 >
                   {uploadLoading ? 'Uploading...' : 'Upload & Match'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Record Entry Modal (Payment or Expense) */}
+      {showRecordModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
+          <div className="bg-white rounded-t-2xl sm:rounded-xl shadow-xl w-full sm:max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-slate-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-slate-900">
+                  {showRecordModal === 'payment' ? 'Record Payment' : 'Record Expense'}
+                </h2>
+                <button
+                  onClick={() => setShowRecordModal(null)}
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <p className="text-sm text-slate-500 mt-1">
+                {showRecordModal === 'payment'
+                  ? 'Create a payment entry and match to this bank statement line'
+                  : 'Create an expense entry and match to this bank statement line'}
+              </p>
+            </div>
+            <div className="p-6 space-y-4">
+              {/* Lease selector (payments only) */}
+              {showRecordModal === 'payment' && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Lease / Tenant *</label>
+                  <select
+                    value={recordLeaseId}
+                    onChange={(e) => setRecordLeaseId(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">Select a lease...</option>
+                    {leases.map((lease) => (
+                      <option key={lease.id} value={lease.id}>
+                        {lease.tenantName} - {lease.unitName}{lease.propertyName ? ` (${lease.propertyName})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Expense account selector (expenses only) */}
+              {showRecordModal === 'expense' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Expense Account *</label>
+                    <select
+                      value={recordAccountCode}
+                      onChange={(e) => setRecordAccountCode(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">Select an account...</option>
+                      {expenseAccounts.map((account) => (
+                        <option key={account.code} value={account.code}>
+                          {account.code} - {account.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Vendor selector */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Vendor (optional)</label>
+                    <select
+                      value={showNewVendorForm ? '__new__' : recordVendorId}
+                      onChange={(e) => {
+                        if (e.target.value === '__new__') {
+                          setShowNewVendorForm(true);
+                          setRecordVendorId('');
+                        } else {
+                          setShowNewVendorForm(false);
+                          setRecordVendorId(e.target.value);
+                        }
+                      }}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">No vendor</option>
+                      <option value="__new__">+ Add New Vendor...</option>
+                      {vendors.map((vendor) => (
+                        <option key={vendor.id} value={vendor.id}>
+                          {vendor.name}{vendor.company ? ` (${vendor.company})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Inline vendor creation form */}
+                  {showNewVendorForm && (
+                    <div className="bg-slate-50 rounded-lg border border-slate-200 p-4 space-y-3">
+                      <p className="text-sm font-medium text-slate-700">New Vendor Details</p>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-600 mb-1">Name *</label>
+                        <input
+                          type="text"
+                          value={newVendorName}
+                          onChange={(e) => setNewVendorName(e.target.value)}
+                          placeholder="Vendor name"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-slate-600 mb-1">Company</label>
+                          <input
+                            type="text"
+                            value={newVendorCompany}
+                            onChange={(e) => setNewVendorCompany(e.target.value)}
+                            placeholder="Company name"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-slate-600 mb-1">Phone</label>
+                          <input
+                            type="tel"
+                            value={newVendorPhone}
+                            onChange={(e) => setNewVendorPhone(e.target.value)}
+                            placeholder="Phone number"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-600 mb-1">Email</label>
+                        <input
+                          type="email"
+                          value={newVendorEmail}
+                          onChange={(e) => setNewVendorEmail(e.target.value)}
+                          placeholder="vendor@email.com"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-600 mb-1">Specialties</label>
+                        <div className="flex flex-wrap gap-2">
+                          {SPECIALTY_OPTIONS.map((spec) => (
+                            <label key={spec} className="inline-flex items-center gap-1.5 text-xs">
+                              <input
+                                type="checkbox"
+                                checked={newVendorSpecialties.includes(spec)}
+                                onChange={(e) => {
+                                  setNewVendorSpecialties(prev =>
+                                    e.target.checked ? [...prev, spec] : prev.filter(s => s !== spec)
+                                  );
+                                }}
+                                className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                              />
+                              {spec}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-600 mb-1">Payment Terms</label>
+                        <select
+                          value={newVendorPaymentTerms}
+                          onChange={(e) => setNewVendorPaymentTerms(e.target.value)}
+                          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">Select terms...</option>
+                          <option value="DUE_ON_RECEIPT">Due on Receipt</option>
+                          <option value="NET_15">Net 15</option>
+                          <option value="NET_30">Net 30</option>
+                          <option value="NET_60">Net 60</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Amount */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Amount</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  value={recordAmount}
+                  onChange={(e) => setRecordAmount(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              {/* Date */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
+                <input
+                  type="date"
+                  value={recordDate}
+                  onChange={(e) => setRecordDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                <input
+                  type="text"
+                  value={recordDescription}
+                  onChange={(e) => setRecordDescription(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              {/* Action buttons */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setShowRecordModal(null)}
+                  className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleRecordEntry}
+                  disabled={recordLoading}
+                  className={`flex-1 px-4 py-2 text-white rounded-lg text-sm font-medium disabled:opacity-50 ${
+                    showRecordModal === 'payment'
+                      ? 'bg-green-600 hover:bg-green-700'
+                      : 'bg-orange-600 hover:bg-orange-700'
+                  }`}
+                >
+                  {recordLoading
+                    ? 'Recording...'
+                    : showRecordModal === 'payment'
+                      ? 'Record Payment'
+                      : 'Record Expense'
+                  }
                 </button>
               </div>
             </div>
