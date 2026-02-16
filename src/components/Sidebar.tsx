@@ -12,6 +12,7 @@ import {
   HardHat,
   Settings,
   X,
+  ArrowLeftRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -29,6 +30,7 @@ const navigation: NavItem[] = [
   'divider',
   { name: 'Expenses', path: '/expenses', icon: Receipt },
   { name: 'Reports', path: '/reports', icon: BarChart3 },
+  { name: 'Reconciliation', path: '/accounting/reconciliation', icon: ArrowLeftRight },
   'divider',
   { name: 'Maintenance', path: '/maintenance', icon: Wrench },
   { name: 'Vendors', path: '/vendors', icon: HardHat },
